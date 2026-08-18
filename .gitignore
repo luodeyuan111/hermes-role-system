@@ -1,0 +1,6 @@
+node_modules/
+__pycache__/
+*.pyc
+hermes_cli/web_dist/
+plugins/*/dashboard/dist/
+.DS_Store
