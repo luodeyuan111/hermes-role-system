@@ -1,16 +1,15 @@
 /**
- * 资料馆（/api/library/*）前端契约。
+ * 资料馆前端契约（插件版，/api/plugins/library/*）。
  *
  * 认证：
- *  - JSON 请求走 fetchJSON（自动带 token header / cookie）。
- *  - <img>/<iframe>/<video> 标签无法带 header，preview/thumb 端点已加入
- *    后端的 ?token= 白名单（web_server.py ``_QUERY_TOKEN_API_PATHS``），
- *    loopback 模式下直接拼 ``window.__HERMES_SESSION_TOKEN__`` 即可；
- *    gated 模式（无 token）退化到 authedFetch 拉 blob 换 object URL，
- *    与 chat/fileAccess.ts 同一套思路。
+ *  - JSON 请求走 SDK 的 fetchJSON（自动带 token header / cookie）。
+ *  - 插件无法登记后端的 ?token= 白名单（_QUERY_TOKEN_API_PATHS 是
+ *    web_server 的私有常量），所以 preview/thumb 一律 authedFetch 拉
+ *    blob 换 object URL（调用方负责 revoke），与 gated 模式的旧兜底
+ *    路径一致。
  */
 
-import { authedFetch, fetchJSON, HERMES_BASE_PATH } from "@/lib/api";
+import { authedFetch, fetchJSON } from "../sdk";
 
 export type PreviewKind =
   | "image"
@@ -210,72 +209,72 @@ export interface LibraryForwardRequest {
 }
 
 export const libraryApi = {
-  getConfig: () => fetchJSON<{ roots: LibraryRoot[] }>("/api/library/config"),
+  getConfig: () => fetchJSON<{ roots: LibraryRoot[] }>("/api/plugins/library/config"),
   getTree: (path: string) =>
     fetchJSON<LibraryTreeResponse>(
-      `/api/library/tree?path=${encodeURIComponent(path)}`,
+      `/api/plugins/library/tree?path=${encodeURIComponent(path)}`,
     ),
   getFileInfo: (path: string) =>
     fetchJSON<LibraryFileInfo>(
-      `/api/library/file?path=${encodeURIComponent(path)}`,
+      `/api/plugins/library/file?path=${encodeURIComponent(path)}`,
     ),
-  getOverview: () => fetchJSON<LibraryOverviewResponse>("/api/library/overview"),
+  getOverview: () => fetchJSON<LibraryOverviewResponse>("/api/plugins/library/overview"),
   search: (q: string, limit = 50) =>
     fetchJSON<LibrarySearchResponse>(
-      `/api/library/search?q=${encodeURIComponent(q)}&limit=${limit}`,
+      `/api/plugins/library/search?q=${encodeURIComponent(q)}&limit=${limit}`,
     ),
-  sync: () => fetchJSON<LibrarySyncResponse>("/api/library/sync", { method: "POST" }),
+  sync: () => fetchJSON<LibrarySyncResponse>("/api/plugins/library/sync", { method: "POST" }),
   getFeed: (path: string) =>
     fetchJSON<LibraryFeedResponse>(
-      `/api/library/feed?path=${encodeURIComponent(path)}`,
+      `/api/plugins/library/feed?path=${encodeURIComponent(path)}`,
     ),
   setFeedStatus: (path: string, status: string) =>
-    fetchJSON<{ path: string; status: string }>("/api/library/feed/status", {
+    fetchJSON<{ path: string; status: string }>("/api/plugins/library/feed/status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path, status }),
     }),
   createFeedNote: (path: string) =>
-    fetchJSON<FeedNoteResponse>("/api/library/feed/note", {
+    fetchJSON<FeedNoteResponse>("/api/plugins/library/feed/note", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path }),
     }),
   getNote: (path: string) =>
     fetchJSON<NoteReadResponse>(
-      `/api/library/note?path=${encodeURIComponent(path)}`,
+      `/api/plugins/library/note?path=${encodeURIComponent(path)}`,
     ),
   saveNote: (path: string, content: string) =>
-    fetchJSON<NoteSaveResponse>("/api/library/note/save", {
+    fetchJSON<NoteSaveResponse>("/api/plugins/library/note/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path, content }),
     }),
   getNoteLinks: (path: string) =>
     fetchJSON<NoteLinksResponse>(
-      `/api/library/note/links?path=${encodeURIComponent(path)}`,
+      `/api/plugins/library/note/links?path=${encodeURIComponent(path)}`,
     ),
   // ── 文件管理（删除/重命名/粘贴/转发到对话） ──
   deleteEntries: (paths: string[]) =>
-    fetchJSON<{ deleted: number }>("/api/library/file/delete", {
+    fetchJSON<{ deleted: number }>("/api/plugins/library/file/delete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ paths }),
     }),
   renameEntry: (path: string, newName: string) =>
-    fetchJSON<{ renamed: string }>("/api/library/file/rename", {
+    fetchJSON<{ renamed: string }>("/api/plugins/library/file/rename", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path, new_name: newName }),
     }),
   pasteEntries: (paths: string[], destDir: string, mode: "copy" | "cut") =>
-    fetchJSON<{ pasted: number }>("/api/library/file/paste", {
+    fetchJSON<{ pasted: number }>("/api/plugins/library/file/paste", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ paths, dest_dir: destDir, mode }),
     }),
   forwardToChat: (req: LibraryForwardRequest) =>
-    fetchJSON<{ status: string; session_id: string }>("/api/library/file/forward", {
+    fetchJSON<{ status: string; session_id: string }>("/api/plugins/library/file/forward", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -286,45 +285,31 @@ export const libraryApi = {
     }),
 };
 
-/** Loopback 模式下可直接用作 <img>/<iframe> src 的带 token URL；gated 模式返回 null。 */
-export function directLibraryUrl(
-  endpoint: "preview" | "thumb",
-  path: string,
-  extra?: Record<string, string>,
-): string | null {
-  const token = window.__HERMES_SESSION_TOKEN__;
-  if (!token) return null;
-  const qs = new URLSearchParams({ path, token, ...extra });
-  return `${HERMES_BASE_PATH}/api/library/${endpoint}?${qs.toString()}`;
-}
-
-/** gated 模式兜底：authedFetch 拉字节换 blob object URL（调用方负责 revoke）。 */
+/** authedFetch 拉字节换 blob object URL（调用方负责 revoke）。 */
 export async function fetchLibraryBlobUrl(
   endpoint: "preview" | "thumb",
   path: string,
   extra?: Record<string, string>,
 ): Promise<string> {
   const qs = new URLSearchParams({ path, ...extra });
-  const res = await authedFetch(`/api/library/${endpoint}?${qs.toString()}`);
+  const res = await authedFetch(`/api/plugins/library/${endpoint}?${qs.toString()}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return URL.createObjectURL(await res.blob());
 }
 
-/** 任意模式下可用的 preview/thumb URL（优先直连，否则 blob）。 */
+/** preview/thumb URL：一律 blob object URL（revoke: true，调用方负责释放）。 */
 export async function resolveLibraryUrl(
   endpoint: "preview" | "thumb",
   path: string,
   extra?: Record<string, string>,
 ): Promise<{ url: string; revoke: boolean }> {
-  const direct = directLibraryUrl(endpoint, path, extra);
-  if (direct) return { url: direct, revoke: false };
   return { url: await fetchLibraryBlobUrl(endpoint, path, extra), revoke: true };
 }
 
 /** 经 authedFetch 读取 preview 文本（md/text 渲染用）。 */
 export async function fetchLibraryText(path: string): Promise<string> {
   const res = await authedFetch(
-    `/api/library/preview?path=${encodeURIComponent(path)}`,
+    `/api/plugins/library/preview?path=${encodeURIComponent(path)}`,
   );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();

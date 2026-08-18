@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronRight, Folder, FolderOpen, HardDrive } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../sdk";
 import { libraryApi, type LibraryDirEntry, type LibraryRoot } from "./api";
 
 interface LibraryTreeProps {
@@ -13,7 +13,7 @@ interface LibraryTreeProps {
 
 /**
  * 左侧目录树：从 config roots 开始逐级懒加载。
- * children 缓存以目录绝对路径为键；展开时若无缓存则请求 /api/library/tree。
+ * children 缓存以目录绝对路径为键；展开时若无缓存则请求 /api/plugins/library/tree。
  */
 export function LibraryTree({ roots, currentPath, refreshKey, onNavigate }: LibraryTreeProps) {
   const [children, setChildren] = useState<Record<string, LibraryDirEntry[]>>({});

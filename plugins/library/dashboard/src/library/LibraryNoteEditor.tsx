@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Eye, PenLine, Save, X } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { cn } from "@/lib/utils";
-import { Markdown } from "@/components/Markdown";
+import { Spinner } from "../shared/Spinner";
+import { cn } from "../sdk";
+import { Markdown } from "../shared/Markdown";
 import { libraryApi, type NoteLinksResponse } from "./api";
 
 interface LibraryNoteEditorProps {

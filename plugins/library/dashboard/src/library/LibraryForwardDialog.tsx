@@ -5,9 +5,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, Send, X } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { cn } from "@/lib/utils";
-import { api, type SessionInfo } from "@/lib/api";
+import { Spinner } from "../shared/Spinner";
+import { cn, api, type SessionInfo } from "../sdk";
 import { libraryApi, type LibraryFileEntry } from "./api";
 import { formatTimeAgo } from "./format";
 

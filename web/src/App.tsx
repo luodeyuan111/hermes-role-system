@@ -92,7 +92,6 @@ import WebhooksPage from "@/pages/WebhooksPage";
 import SystemPage from "@/pages/SystemPage";
 import ChatPage from "@/pages/ChatPage";
 import BubbleChatPage from "@/pages/BubbleChatPage";
-import LibraryPage from "@/pages/LibraryPage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -145,7 +144,6 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/sessions": SessionsPage,
   "/chat-legacy": ChatPage,
   "/files": FilesPage,
-  "/library": LibraryPage,
   "/analytics": AnalyticsPage,
   "/models": ModelsPage,
   "/logs": LogsPage,
@@ -180,7 +178,6 @@ const BUILTIN_NAV_REST: NavItem[] = [
     icon: MessageSquare,
   },
   { path: "/files", label: "Files", icon: FolderOpen },
-  { path: "/library", label: "资料馆", icon: BookOpen },
   {
     path: "/analytics",
     labelKey: "analytics",
@@ -217,6 +214,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   Activity,
   BarChart3,
+  BookOpen,
   Clock,
   Cpu,
   FileText,
@@ -391,7 +389,6 @@ export default function App() {
   const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
   const normalizedPath = pathname.replace(/\/$/, "") || "/";
   const isChatRoute = normalizedPath === "/chat";
-  const isLibraryRoute = normalizedPath === "/library";
   const embeddedChat = isDashboardEmbeddedChatEnabled();
 
   // `dashboard.show_token_analytics` gates the Analytics nav item.  The
@@ -741,7 +738,6 @@ export default function App() {
                   ? "pb-0 pt-1 sm:pt-2 lg:pt-4"
                   : "pt-2 sm:pt-4 lg:pt-6",
                 isDocsRoute && "min-h-0 flex-1",
-                isLibraryRoute && "min-h-0 flex-1",
               )}
             >
               <PluginSlot name="pre-main" />
@@ -749,9 +745,8 @@ export default function App() {
                 className={cn(
                   "w-full min-w-0",
                   !isChatRoute &&
-                    !isLibraryRoute &&
                     "pb-[calc(2rem+env(safe-area-inset-bottom,0px))] lg:pb-8",
-                  (isDocsRoute || isChatRoute || isLibraryRoute) &&
+                  (isDocsRoute || isChatRoute) &&
                     "min-h-0 flex flex-1 flex-col",
                 )}
               >

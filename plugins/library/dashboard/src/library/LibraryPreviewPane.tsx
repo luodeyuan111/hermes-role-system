@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, Copy, ExternalLink, FolderOpen, Pencil, Scissors, Send, Trash2, X } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { cn } from "@/lib/utils";
-import { Markdown } from "@/components/Markdown";
-import { downloadFile, openInSystemApp } from "@/components/chat/fileAccess";
+import { Spinner } from "../shared/Spinner";
+import { cn } from "../sdk";
+import { Markdown } from "../shared/Markdown";
+import { downloadFile, openInSystemApp } from "../shared/fileAccess";
 import {
   fetchLibraryText,
   libraryApi,

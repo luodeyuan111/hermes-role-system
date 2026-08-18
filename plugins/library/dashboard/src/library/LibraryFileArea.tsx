@@ -11,10 +11,9 @@ import {
   LayoutGrid,
   List,
 } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { cn } from "@/lib/utils";
+import { Spinner } from "../shared/Spinner";
+import { cn } from "../sdk";
 import {
-  directLibraryUrl,
   fetchLibraryBlobUrl,
   type LibraryDirEntry,
   type LibraryFileEntry,
@@ -39,11 +38,9 @@ const KIND_ICON: Record<PreviewKind, typeof File> = {
   none: File,
 };
 
-/** 网格缩略图：loopback 直连带 token URL；gated 模式 authedFetch 换 blob。 */
+/** 网格缩略图：authedFetch 换 blob（插件无 ?token= 白名单，见 api.ts）。 */
 function LibraryThumb({ path, name }: { path: string; name: string }) {
-  const [src, setSrc] = useState<string | null>(() =>
-    directLibraryUrl("thumb", path, { size: "320" }),
-  );
+  const [src, setSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {

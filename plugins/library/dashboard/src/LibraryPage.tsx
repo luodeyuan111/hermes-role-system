@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FolderTree,
   LayoutDashboard,
@@ -11,27 +10,30 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { createPortal } from "react-dom";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { Toast } from "@nous-research/ui/ui/components/toast";
-import { useToast } from "@nous-research/ui/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { usePageHeader } from "@/contexts/usePageHeader";
+import { Spinner } from "./shared/Spinner";
+import { Toast, useToast } from "./shared/Toast";
+import { cn } from "./sdk";
+import { usePageHeader } from "./shared/usePageHeader";
+import {
+  getLibraryPathParam,
+  navigateToChat,
+  replaceLibraryPathParam,
+} from "./router";
 import {
   feedBranchOf,
   libraryApi,
   type LibraryFileEntry,
   type LibraryRoot,
   type LibraryTreeResponse,
-} from "@/components/library/api";
-import { formatBytes, parentDir } from "@/components/library/format";
-import { LibraryTree } from "@/components/library/LibraryTree";
-import { LibraryFileArea } from "@/components/library/LibraryFileArea";
-import { LibraryFeedView } from "@/components/library/LibraryFeedView";
-import { LibraryPreviewPane } from "@/components/library/LibraryPreviewPane";
-import { LibraryForwardDialog } from "@/components/library/LibraryForwardDialog";
-import { LibraryOverview } from "@/components/library/LibraryOverview";
-import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+} from "./library/api";
+import { formatBytes, parentDir } from "./library/format";
+import { LibraryTree } from "./library/LibraryTree";
+import { LibraryFileArea } from "./library/LibraryFileArea";
+import { LibraryFeedView } from "./library/LibraryFeedView";
+import { LibraryPreviewPane } from "./library/LibraryPreviewPane";
+import { LibraryForwardDialog } from "./library/LibraryForwardDialog";
+import { LibraryOverview } from "./library/LibraryOverview";
+import { DeleteConfirmDialog } from "./shared/DeleteConfirmDialog";
 
 type ViewMode = "browse" | "overview";
 
@@ -72,7 +74,7 @@ function LibraryRenameDialog({
     onSubmit(name);
   };
 
-  return createPortal(
+  return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       role="dialog"
@@ -120,21 +122,18 @@ function LibraryRenameDialog({
           </button>
         </div>
       </div>
-    </div>,
-    document.body,
+    </div>
   );
 }
 
 export default function LibraryPage() {
   const { toast, showToast } = useToast();
   const { setTitle } = usePageHeader();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const routerNavigate = useNavigate();
 
   const [roots, setRoots] = useState<LibraryRoot[]>([]);
   const [rootsLoaded, setRootsLoaded] = useState(false);
   const [currentPath, setCurrentPath] = useState<string | null>(
-    () => searchParams.get("path"),
+    () => getLibraryPathParam(),
   );
   const [listing, setListing] = useState<LibraryTreeResponse | null>(null);
   const [listingLoading, setListingLoading] = useState(false);
@@ -279,9 +278,9 @@ export default function LibraryPage() {
       setSearchInput("");
       setSearchQuery("");
       setSearchResults(null);
-      setSearchParams({ path });
+      replaceLibraryPathParam(path);
     },
-    [setSearchParams],
+    [],
   );
 
   const handleRefresh = useCallback(() => {
@@ -424,10 +423,10 @@ export default function LibraryPage() {
       setForwardOpen(false);
       showToast(`已转发到 ${sessionTitle}`, "success");
       if (openChat) {
-        routerNavigate(`/chat?resume=${encodeURIComponent(sessionId)}`);
+        navigateToChat(sessionId);
       }
     },
-    [routerNavigate, showToast],
+    [showToast],
   );
 
   const searching = searchQuery.length > 0;
@@ -435,7 +434,7 @@ export default function LibraryPage() {
   const feedBranch = feedBranchOf(roots, currentPath);
 
   return (
-    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col pt-1 sm:pt-2">
+    <div className="hermes-library flex min-h-0 w-full min-w-0 flex-1 flex-col pt-1 sm:pt-2">
       <Toast toast={toast} />
 
       {/* 顶部工具栏 */}

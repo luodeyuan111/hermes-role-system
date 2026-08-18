@@ -1,0 +1,75 @@
+/*
+ * Hermes Library (资料馆) — plugin styles.
+ *
+ * Utilities only: the theme tokens below are declared `@theme inline` so the
+ * generated CSS references the host page's custom properties (its globals.css
+ * / index.css) instead of redefining them — the plugin must never emit its
+ * own `:root` block or it would recolor the whole dashboard (plugin <link>
+ * is injected after the host stylesheet and would win the cascade).
+ * `theme(reference)` gives utility resolution the default Tailwind palette
+ * (text-emerald-400 & co) without emitting those variables either.
+ */
+@import 'tailwindcss/theme.css' theme(reference);
+@import 'tailwindcss/utilities';
+
+/* Same token values the host resolves against (DS globals.css @theme +
+   hermes index.css @theme blocks), inline so they never leak as CSS vars. */
+@theme inline {
+  --spacing: calc(0.25rem * var(--theme-spacing-mul, 1));
+  --font-sans: var(--theme-font-sans);
+  --font-mono: var(--theme-font-mono);
+
+  --color-background: var(--background);
+  --color-background-base: var(--background-base);
+  --color-midground: var(--midground);
+  --color-midground-base: var(--midground-base);
+  /* The host remaps foreground → midground (shadcn-compat block in index.css). */
+  --color-foreground: var(--midground);
+  --color-foreground-base: var(--foreground-base);
+  --color-text-primary: var(--text-primary, var(--midground));
+  --color-text-secondary: var(
+    --text-secondary,
+    color-mix(in srgb, var(--midground-base) 80%, transparent)
+  );
+  --color-text-tertiary: var(
+    --text-tertiary,
+    color-mix(in srgb, var(--midground-base) 65%, transparent)
+  );
+  --color-current: currentColor;
+  --color-success: var(--success, #4ade80);
+  --color-destructive: var(--destructive, #fb2c36);
+  --color-warning: var(--warning, #ffbd38);
+
+  --radius-sm: calc(var(--theme-radius) - 4px);
+  --radius-md: calc(var(--theme-radius) - 2px);
+  --radius-lg: var(--theme-radius);
+  --radius-xl: calc(var(--theme-radius) + 4px);
+}
+
+/* DS display/typography utilities used by the copied DS-style components. */
+@utility font-courier {
+  font-family: 'Courier New', var(--font-mono), monospace;
+}
+@utility font-expanded {
+  font-family: var(--font-rules-expanded);
+}
+@utility font-mondwest {
+  font-family: var(--font-mondwest);
+}
+
+/*
+ * Bounded-height flex chain for the three-pane layout.
+ *
+ * The inline page used to get this from an `isLibraryRoute` special case in
+ * App.tsx; as a plugin the library owns it. The route-outlet wrapper div in
+ * App.tsx is a plain block by default — promote it to a flex column that
+ * fills <main> (itself `flex flex-col` with `min-h-0 flex-1`) so the page
+ * root's `flex-1 min-h-0` resolves and the panes scroll internally.
+ */
+main:has(.hermes-library) > div > div:has(.hermes-library) {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileClock } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Spinner } from "../shared/Spinner";
 import {
   libraryApi,
   type LibraryOverviewResponse,

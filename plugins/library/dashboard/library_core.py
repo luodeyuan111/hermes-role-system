@@ -1,5 +1,10 @@
 """资料馆 (Library) backend — read-only file indexing over enrolled source trees.
 
+Plugin edition (plugins/library/dashboard/library_core.py): extracted from the
+former ``hermes_cli/library.py`` so the dashboard plugin owns its backend.
+Deliberately free of any ``hermes_cli`` imports (stdlib + yaml + lazy PIL
+only); the FastAPI surface lives in ``plugin_api.py`` next to this file.
+
 Source files are never written to. Conversion products (preview PDFs, image
 thumbnails) live under the library home directory and are bound to their
 source file through a SQLite table keyed by path + source mtime/size, so a
@@ -50,7 +55,7 @@ import yaml
 # Locations
 # ---------------------------------------------------------------------------
 
-_DEFAULT_LIBRARY_HOME = "/home/velya/Share/velya/hermes-workspace/library"
+_DEFAULT_LIBRARY_HOME = str(Path.home() / ".hermes" / "library")
 
 
 def library_home() -> Path:
@@ -70,31 +75,10 @@ def _cache_root() -> Path:
     return library_home() / "cache"
 
 
-_DEFAULT_CONFIG = {
-    "roots": [
-        {
-            "path": "/home/velya/Share/information",
-            "branches": {
-                "学业": {"preview": True, "convert": True},
-                "活动": {"preview": True, "convert": True},
-                "社团": {"preview": True, "convert": True},
-                "竞赛 专利 论文": {"preview": True, "convert": True},
-                "简历": {"preview": True, "convert": True},
-                "次要": {"preview": True, "convert": False},
-            },
-        },
-        {
-            "path": "/home/velya/Share/velya",
-            "branches": {
-                "memory": {"preview": True, "convert": False},
-                "output": {"preview": True, "convert": True},
-                "hermes-workspace": {"preview": True, "convert": False},
-                "vault": {"preview": True, "convert": False},
-                "openclaw-workspace": {"enabled": False},
-            },
-        },
-    ]
-}
+# Default enrolment for a brand-new install: no roots. Existing deployments
+# keep their own library.yaml under the library home; this only seeds the
+# first-run config file.
+_DEFAULT_CONFIG = {"roots": []}
 
 # Policy defaults for branches not listed under an enrolled root.
 _DEFAULT_BRANCH_POLICY = {

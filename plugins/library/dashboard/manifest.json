@@ -1,0 +1,14 @@
+{
+  "name": "library",
+  "label": "资料馆",
+  "description": "资料馆 — 登记目录树的只读文件索引：浏览/预览/搜索、feed 信息源聚合、条目笔记、文件管理与转发到对话",
+  "icon": "BookOpen",
+  "version": "1.0.0",
+  "tab": {
+    "path": "/library",
+    "position": "after:files"
+  },
+  "entry": "dist/index.js",
+  "css": "dist/style.css",
+  "api": "plugin_api.py"
+}

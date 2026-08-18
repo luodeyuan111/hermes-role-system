@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ExternalLink, NotebookPen, Search, X } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { cn } from "@/lib/utils";
+import { Spinner } from "../shared/Spinner";
+import { cn } from "../sdk";
 import { LibraryNoteEditor } from "./LibraryNoteEditor";
 import {
   feedItemToFileEntry,
