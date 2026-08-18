@@ -1,0 +1,13 @@
+{
+  "name": "bubble-chat",
+  "label": "赫墨斯聊天",
+  "description": "气泡聊天 — QQ/微信风格的原生聊天界面，通过 JSON-RPC WebSocket (/api/ws) 直连 tui_gateway，经 tab.override 接管内置 /chat 路由",
+  "icon": "MessagesSquare",
+  "version": "1.0.0",
+  "tab": {
+    "path": "/chat",
+    "override": "/chat"
+  },
+  "entry": "dist/index.js",
+  "css": "dist/style.css"
+}

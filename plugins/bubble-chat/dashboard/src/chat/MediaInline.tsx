@@ -7,14 +7,14 @@
 
 import { useEffect, useState } from "react";
 import { ImageOff } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Spinner } from "../shared/Spinner";
 
 import {
   resolveFileUrl,
   resolveImageUrl,
-} from "@/components/chat/fileAccess";
-import type { MediaRef } from "@/components/chat/content";
-import { cn } from "@/lib/utils";
+} from "./fileAccess";
+import type { MediaRef } from "./content";
+import { cn } from "../sdk";
 
 function fileName(path: string): string {
   return path.split("/").filter(Boolean).pop() ?? path;

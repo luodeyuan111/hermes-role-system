@@ -7,10 +7,10 @@
 
 import { useEffect, useState } from "react";
 import { File as FileIcon, ImageOff, X } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Spinner } from "../shared/Spinner";
 
-import { resolveImageUrl } from "@/components/chat/fileAccess";
-import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "./fileAccess";
+import { cn } from "../sdk";
 
 export interface PendingImage {
   id: string;

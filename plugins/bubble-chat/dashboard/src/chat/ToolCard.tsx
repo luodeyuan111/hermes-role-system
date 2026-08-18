@@ -12,16 +12,16 @@
 
 import { useMemo, useState } from "react";
 import { AlertCircle, Check, ChevronDown, ChevronRight, Wrench } from "lucide-react";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Spinner } from "../shared/Spinner";
 
 import {
   extractFilePaths,
   extractMediaFromText,
-} from "@/components/chat/content";
-import { FileChip } from "@/components/chat/FileChip";
-import { MediaInline } from "@/components/chat/MediaInline";
-import type { ChatMessage } from "@/components/chat/types";
-import { cn } from "@/lib/utils";
+} from "./content";
+import { FileChip } from "./FileChip";
+import { MediaInline } from "./MediaInline";
+import type { ChatMessage } from "./types";
+import { cn } from "../sdk";
 
 const TRUNCATE_AT = 2000;
 

@@ -14,16 +14,16 @@
 import { useCallback, useState } from "react";
 import { File, FileText, Image as ImageIcon, Loader2, X } from "lucide-react";
 
-import { mediaKindForPath } from "@/components/chat/content";
+import { mediaKindForPath } from "./content";
 import {
   downloadFile,
   fetchFileBlobUrl,
   openInSystemApp,
   resolveImageUrl,
-} from "@/components/chat/fileAccess";
-import { ZoomOverlay } from "@/components/chat/MediaInline";
-import { api } from "@/lib/api";
-import { cn } from "@/lib/utils";
+} from "./fileAccess";
+import { ZoomOverlay } from "./MediaInline";
+import { api } from "../sdk";
+import { cn } from "../sdk";
 
 /** Extensions that open as text in the preview modal. */
 const TEXT_EXTS = new Set([

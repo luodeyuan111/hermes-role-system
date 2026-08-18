@@ -9,19 +9,19 @@
 import { useMemo, useState, type MouseEvent } from "react";
 import { Check, Copy, Pencil, RotateCcw, Sparkles } from "lucide-react";
 
-import { Markdown } from "@/components/Markdown";
+import { Markdown } from "../Markdown";
 import {
   extractFilePaths,
   extractMediaFromText,
   normalizeLocalPath,
   type MediaRef,
-} from "@/components/chat/content";
-import { FileChip, useFileOpener } from "@/components/chat/FileChip";
-import { MediaInline } from "@/components/chat/MediaInline";
-import { ReasoningBlock } from "@/components/chat/ReasoningBlock";
-import { ToolCard } from "@/components/chat/ToolCard";
-import { formatBubbleTime, type ChatMessage } from "@/components/chat/types";
-import { cn } from "@/lib/utils";
+} from "./content";
+import { FileChip, useFileOpener } from "./FileChip";
+import { MediaInline } from "./MediaInline";
+import { ReasoningBlock } from "./ReasoningBlock";
+import { ToolCard } from "./ToolCard";
+import { formatBubbleTime, type ChatMessage } from "./types";
+import { cn } from "../sdk";
 
 const actionButtonClass = cn(
   "shrink-0 cursor-pointer self-end rounded p-1",

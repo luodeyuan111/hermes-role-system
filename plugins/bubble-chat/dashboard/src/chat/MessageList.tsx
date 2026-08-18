@@ -9,9 +9,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 
-import { MessageBubble } from "@/components/chat/MessageBubble";
-import type { ChatMessage } from "@/components/chat/types";
-import { cn } from "@/lib/utils";
+import { MessageBubble } from "./MessageBubble";
+import type { ChatMessage } from "./types";
+import { cn } from "../sdk";
 
 // Distance from the bottom (px) that still counts as "at the bottom".
 const AT_BOTTOM_THRESHOLD = 80;

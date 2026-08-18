@@ -11,7 +11,7 @@
  *    :func:`authedFetch` and hand out a blob object URL instead.
  */
 
-import { authedFetch, fetchJSON, HERMES_BASE_PATH } from "@/lib/api";
+import { authedFetch, fetchJSON, HERMES_BASE_PATH } from "../sdk";
 
 /** Direct ``/api/files/download`` URL in loopback mode, else ``null``. */
 export function directFileUrl(path: string): string | null {

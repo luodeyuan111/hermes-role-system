@@ -213,12 +213,6 @@ code { font-size: 0.875rem; }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Indeterminate progress bar for running tool cards (chat/ToolCard.tsx). */
-@keyframes tool-card-indeterminate {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(400%); }
-}
-
 /* Hide scrollbar utility — used by the header's overflow-x nav row. */
 .scrollbar-none {
   -ms-overflow-style: none;
@@ -249,29 +243,4 @@ code { font-size: 0.875rem; }
   pointer-events: none;
   background: repeating-conic-gradient(currentColor 0% 25%, #0000 0% 50%) 0 0 /
     2px 2px;
-}
-
-
-/* ------------------------------------------------------------------ */
-/* Fix @nous-research/ui globals.css `*::selection, code { … }` rule.  */
-/* Two bugs in that one selector list:                                 */
-/*  1. The bare `code` selector (almost certainly meant to be          */
-/*     `code::selection`) permanently paints every unclassed <code>    */
-/*     element — e.g. Markdown `pre > code` blocks — with the          */
-/*     selection colors, so code blocks look forever highlighted.      */
-/*  2. The universal `*::selection` lets nested elements each paint    */
-/*     their own selection background; translucent theme colors stack  */
-/*     layer on layer, so the highlight shifts shade depending on how  */
-/*     deep the selected text sits. Forcing the opaque `-base` token   */
-/*     makes every layer paint the same fully-opaque color, which      */
-/*     renders the stacking invisible.                                 */
-/* ------------------------------------------------------------------ */
-code {
-  background: inherit;
-  color: inherit;
-}
-
-::selection {
-  background: var(--selection-bg, var(--midground-base, var(--midground)));
-  color: var(--background);
 }

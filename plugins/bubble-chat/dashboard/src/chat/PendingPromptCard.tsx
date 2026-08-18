@@ -10,8 +10,8 @@
 import { useState } from "react";
 import { HelpCircle, ShieldAlert } from "lucide-react";
 
-import type { PendingPrompt } from "@/components/chat/types";
-import { cn } from "@/lib/utils";
+import type { PendingPrompt } from "./types";
+import { cn } from "../sdk";
 
 const APPROVAL_OPTIONS: Array<{ value: string; label: string; danger?: boolean }> = [
   { value: "once", label: "允许一次" },

@@ -91,7 +91,7 @@ import ChannelsPage from "@/pages/ChannelsPage";
 import WebhooksPage from "@/pages/WebhooksPage";
 import SystemPage from "@/pages/SystemPage";
 import ChatPage from "@/pages/ChatPage";
-import BubbleChatPage from "@/pages/BubbleChatPage";
+import { SelectionSwitcher } from "@nous-research/ui";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -115,6 +115,11 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
   return <Navigate to="/sessions" replace />;
 }
 
+// The /chat nav entry stays a BUILT-IN item even though the bubble-chat
+// plugin overrides the /chat route: buildNavItems skips manifests with
+// `tab.override`, so the sidebar label/icon for /chat come from here, not
+// from the plugin manifest. (MessagesSquare matches the plugin manifest's
+// declared icon.)
 const CHAT_NAV_ITEM: NavItem = {
   path: "/chat",
   labelKey: "chat",
@@ -122,8 +127,11 @@ const CHAT_NAV_ITEM: NavItem = {
   icon: MessagesSquare,
 };
 
-// The old PTY/xterm chat stays reachable at /chat-legacy (plain route, no
-// persistent host — the bubble chat owns /chat now).
+// Residual escape hatch from the bubble-chat plugin extraction: the old
+// PTY/xterm chat stays reachable at /chat-legacy so the terminal surface
+// remains usable while the `bubble-chat` plugin owns /chat via
+// `tab.override` (disable/hide the plugin and /chat falls back to ChatPage
+// too — see the builtinRoutes memo below).
 const LEGACY_CHAT_NAV_ITEM: NavItem = {
   path: "/chat-legacy",
   label: "Legacy Chat",
@@ -131,13 +139,10 @@ const LEGACY_CHAT_NAV_ITEM: NavItem = {
 };
 
 /**
- * Built-in routes except /chat.  Chat is rendered persistently (outside
- * <Routes>) when embedded — see the persistent chat host block rendered
- * inline near the bottom of this file — so BubbleChatPage's WebSocket and
- * live gateway session survive when the user visits another tab and comes
- * back.  A `display:none` toggle hides the page without unmounting.
- * Routing still owns the URL so /chat deep-links, browser back/forward,
- * and nav highlight keep working.
+ * Built-in routes except /chat, which is added by the `builtinRoutes` memo
+ * below: while plugin manifests are loading — or when a plugin overrides
+ * /chat — the route renders a sink instead of ChatPage so the terminal
+ * page never mounts (and spawns a PTY) underneath the plugin's page.
  */
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
@@ -162,10 +167,10 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/docs": DocsPage,
 };
 
-// Route placeholder for /chat.  The persistent BubbleChatPage host (rendered
-// outside <Routes> when embedded chat is on) paints on top; this empty
-// element just claims the path so the `*` catch-all redirect doesn't
-// fire when the user navigates to /chat.
+// Route placeholder for /chat, rendered while plugin manifests are in
+// flight and whenever a plugin overrides /chat: it claims the path so the
+// `*` catch-all redirect doesn't fire, without mounting ChatPage (which
+// would eagerly spawn a PTY that the plugin route then replaces).
 function ChatRouteSink() {
   return null;
 }
@@ -409,22 +414,13 @@ export default function App() {
   }, []);
 
   // A plugin can replace the built-in /chat page via `tab.override: "/chat"`
-  // in its manifest.  When one does, `buildRoutes` already swaps the route
-  // element for <PluginPage /> — but we also have to suppress the
-  // persistent BubbleChatPage host below, or the plugin's page and the
-  // built-in chat would paint on top of each other.  The override is niche
-  // (nothing ships overriding /chat today) but it's an advertised
-  // extension point, so preserve the pre-persistence contract: when a
-  // plugin owns /chat, the built-in chat UI is entirely absent.
-  //
-  // Waiting on `pluginsLoading` is load-bearing: manifests arrive
-  // asynchronously from /api/dashboard/plugins, so on initial render
-  // `chatOverriddenByPlugin` is always false.  Without the loading
-  // gate, the persistent host would mount, open its WebSocket session,
-  // and THEN get yanked out from under the user when the plugin's
-  // manifest resolves — killing the session mid-paint.  Delaying host
-  // mount by the plugin-load window (typically <50ms, worst case 2s
-  // safety timeout) is the cheaper trade-off.
+  // in its manifest (the bundled bubble-chat plugin does exactly this).
+  // `buildRoutes` swaps the route element for <PluginPage /> once manifests
+  // arrive — but manifests load asynchronously, so on initial render
+  // `chatOverriddenByPlugin` is always false. The `pluginsLoading` gate
+  // below keeps ChatPage (which eagerly spawns a PTY on mount) out of the
+  // /chat route until the override question is settled, avoiding a
+  // flash-of-terminal that the plugin route then tears down.
   const chatOverriddenByPlugin = useMemo(
     () => manifests.some((m) => m.tab.override === "/chat"),
     [manifests],
@@ -433,9 +429,14 @@ export default function App() {
   const builtinRoutes = useMemo(
     () => ({
       ...BUILTIN_ROUTES_CORE,
-      ...(embeddedChat ? { "/chat": ChatRouteSink } : {}),
+      ...(embeddedChat
+        ? {
+            "/chat":
+              pluginsLoading || chatOverriddenByPlugin ? ChatRouteSink : ChatPage,
+          }
+        : {}),
     }),
-    [embeddedChat],
+    [embeddedChat, pluginsLoading, chatOverriddenByPlugin],
   );
 
   const builtinNav = useMemo(() => {
@@ -497,9 +498,13 @@ export default function App() {
       data-layout-variant={layoutVariant}
       className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-background-base text-text-primary antialiased"
     >
-      {/* SelectionSwitcher (Nous DS easter egg that re-colors ::selection on
-          every selectstart) intentionally not mounted — users read it as a
-          selection-highlight bug. */}
+      {/* Nous DS easter egg: cycles --selection-bg on every selectstart.
+          The stacking/translucency glitches that once made this read as a
+          selection-highlight bug are fixed by the opaque ::selection rule,
+          which moved to the bubble-chat plugin's stylesheet with the chat
+          extraction (plugin CSS loads after the host bundle, so it still
+          wins the cascade while the plugin is enabled). */}
+      <SelectionSwitcher />
 
       <div
         aria-hidden
@@ -763,34 +768,6 @@ export default function App() {
                     />
                   </Routes>
                 </ProfileKeyedRoutes>
-
-                {embeddedChat &&
-                  !chatOverriddenByPlugin &&
-                  (pluginsLoading ? (
-                    isChatRoute ? (
-                      <div
-                        className="flex min-h-0 min-w-0 flex-1 items-center justify-center"
-                        aria-busy="true"
-                        aria-live="polite"
-                      >
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Spinner />
-                          <span>Loading chat…</span>
-                        </div>
-                      </div>
-                    ) : null
-                  ) : (
-                    <div
-                      data-chat-active={isChatRoute ? "true" : "false"}
-                      className={cn(
-                        "min-h-0 min-w-0",
-                        isChatRoute ? "flex flex-1 flex-col" : "hidden",
-                      )}
-                      aria-hidden={!isChatRoute}
-                    >
-                      <BubbleChatPage isActive={isChatRoute} />
-                    </div>
-                  ))}
               </div>
               <PluginSlot name="post-main" />
             </div>
@@ -811,8 +788,9 @@ export default function App() {
  * fetchJSON ?profile= injection) silently targeted the newly selected
  * profile B — the exact stale-target footgun the switcher exists to kill.
  * Keying by profile resets every page's local state so it refetches under
- * the new scope. The persistent BubbleChatPage host below handles its own
- * profile switch (its session lifecycle effect re-runs on profile change).
+ * the new scope. Plugin pages remount too — the bubble-chat plugin reads
+ * the new `?profile=` projection on remount and re-runs its session
+ * lifecycle inside its own module-level store.
  */
 function ProfileKeyedRoutes({ children }: { children: ReactNode }) {
   const { profile } = useProfileScope();

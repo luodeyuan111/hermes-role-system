@@ -34,21 +34,21 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Paperclip, SendHorizontal, Square } from "lucide-react";
-import { Button } from "@nous-research/ui/ui/components/button";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Button } from "../sdk";
+import { Spinner } from "../shared/Spinner";
 
 import {
   AttachmentBar,
   type PendingFile,
   type PendingImage,
-} from "@/components/chat/AttachmentBar";
-import { SlashPalette, type SlashItem } from "@/components/chat/SlashPalette";
-import { api } from "@/lib/api";
+} from "./AttachmentBar";
+import { SlashPalette, type SlashItem } from "./SlashPalette";
+import { api } from "../sdk";
 import {
   filesFromTransfer,
   uploadChatImage,
-} from "@/lib/chatImagePaste";
-import { cn } from "@/lib/utils";
+} from "../chatImagePaste";
+import { cn } from "../sdk";
 
 const MAX_TEXTAREA_HEIGHT = 200;
 const DRAFT_KEY_PREFIX = "hermes.bubblechat.draft.";

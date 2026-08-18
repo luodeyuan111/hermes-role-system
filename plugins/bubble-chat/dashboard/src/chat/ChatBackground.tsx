@@ -21,11 +21,11 @@ import {
   type CSSProperties,
 } from "react";
 import { ImagePlus, Loader2, Palette, RotateCcw, X } from "lucide-react";
-import { Button } from "@nous-research/ui/ui/components/button";
+import { Button } from "../sdk";
 
-import { resolveImageUrl } from "@/components/chat/fileAccess";
-import { uploadChatImage } from "@/lib/chatImagePaste";
-import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "./fileAccess";
+import { uploadChatImage } from "../chatImagePaste";
+import { cn } from "../sdk";
 
 export const CHAT_BACKGROUND_KEY = "hermes.bubblechat.background";
 

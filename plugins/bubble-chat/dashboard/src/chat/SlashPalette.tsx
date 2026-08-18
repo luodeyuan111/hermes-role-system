@@ -7,7 +7,7 @@
 
 import { Sparkles, Terminal } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../sdk";
 
 export interface SlashItem {
   /** Command name without the leading slash. */

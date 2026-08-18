@@ -1,12 +1,7 @@
 /**
- * Rich-content extraction for chat messages: pulls local media refs
+ * Rich-content extraction for bubble-chat messages: pulls local media refs
  * (MEDIA: lines, standalone media paths, inline image paths) and clickable
  * file paths out of message / tool-result text before Markdown rendering.
- *
- * The bubble-chat UI moved to the `bubble-chat` dashboard plugin (which
- * carries its own copy of this file); the only in-bundle consumer left is
- * components/Markdown.tsx (`isLocalFileRef` for `localFileLinks` mode),
- * shared with the legacy terminal ChatPage and the Sessions page.
  *
  * Matching is deliberately conservative — a token must start with `/` or
  * `~/`, contain no whitespace, and end in a known extension before it is

@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../sdk";
 
 export function ReasoningBlock({
   text,
