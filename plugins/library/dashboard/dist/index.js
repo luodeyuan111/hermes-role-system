@@ -1861,6 +1861,7 @@
     onOpenFile,
     onToast,
     onUnmarkFeed,
+    unmarkOrigin,
     unmarkBusy
   }) {
     const [feed, setFeed] = useState(null);
@@ -1999,7 +2000,7 @@
             type: "button",
             onClick: onUnmarkFeed,
             disabled: unmarkBusy,
-            title: "\u4ECE feed_dirs \u53D6\u6D88\u4FE1\u606F\u6E90\u6807\u8BB0\uFF08\u9605\u8BFB\u72B6\u6001\u4FDD\u7559\uFF09",
+            title: unmarkOrigin === "branch" ? "\u79FB\u9664 library.yaml \u4E2D\u8BE5\u5206\u652F\u7684 type:feed \u914D\u7F6E\uFF08notes \u7B49\u914D\u7F6E\u4FDD\u7559\uFF0C\u52A0\u56DE\u5373\u53EF\u6062\u590D\uFF1B\u9605\u8BFB\u72B6\u6001\u4FDD\u7559\uFF09" : "\u4ECE feed_dirs \u53D6\u6D88\u4FE1\u606F\u6E90\u6807\u8BB0\uFF08\u9605\u8BFB\u72B6\u6001\u4FDD\u7559\uFF09",
             className: "rounded-full border border-current/15 px-2 py-0.5 text-text-secondary hover:border-current/30 disabled:opacity-50",
             children: "\u53D6\u6D88\u4FE1\u606F\u6E90"
           }
@@ -3704,7 +3705,8 @@
             onSelectFile: handleSelectFile,
             onOpenFile: handleOpenFile,
             onToast: showToast,
-            onUnmarkFeed: feedDir ? () => void handleFeedMark(false) : void 0,
+            onUnmarkFeed: feedBranch || feedDir ? () => void handleFeedMark(false) : void 0,
+            unmarkOrigin: feedBranch ? "branch" : "dir",
             unmarkBusy: feedMarking
           }
         ) : /* @__PURE__ */ jsx(

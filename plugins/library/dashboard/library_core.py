@@ -33,7 +33,10 @@ listed in the config is not accessible at all.
 
 Information-source (feed) roots — two equivalent ways to declare one:
   1. Branch-level ``type: feed`` policy (above), configured by hand. This is
-     the only form that can carry a ``notes`` policy (条目笔记目录).
+     the only form that can carry a ``notes`` policy (条目笔记目录). It can
+     be cancelled from the dashboard (``/feed/unmark`` deletes just the
+     ``type`` key, preserving ``notes`` etc.), but marking a branch as
+     ``type: feed`` stays a hand-edit — ``/feed/mark`` refuses it.
   2. Top-level ``feed_dirs`` list in library.yaml — absolute paths of ANY
      enrolled directory, marked/unmarked from the dashboard (``/feed/mark``,
      ``/feed/unmark``). Both forms are unioned when deciding whether a
@@ -1118,25 +1121,66 @@ def mark_feed_dir(path: str) -> Dict[str, Any]:
     return {"marked": True, "path": key, "feed_dirs": feed_dirs}
 
 
-def unmark_feed_dir(path: str) -> Dict[str, Any]:
-    """Remove a directory from ``feed_dirs`` (idempotent).
+def unmark_feed(path: str) -> Dict[str, Any]:
+    """Remove a directory's information-source mark (idempotent).
+
+    Two origins, reported in the response as ``origin``:
+
+      * ``branch`` — the path is exactly a branch root whose policy is
+        ``type: feed`` in library.yaml: delete just the ``type`` key from
+        that branch's policy. ``notes``/``preview``/``convert`` and any other
+        keys are preserved, so re-adding ``type: feed`` by hand fully
+        restores the feed; a branch left with only ordinary keys (or none —
+        the then-empty entry is dropped) simply becomes a normal branch.
+      * ``dir`` — the path is listed in the top-level ``feed_dirs``:
+        remove the entry.
 
     Never touches the recorded reading state — ``feed_state`` rows are keyed
     by absolute path and survive unmarking, so re-marking restores them.
     """
-    resolved, _root, _policy, _branch = resolve_enrolled(path)
+    resolved, root, policy, branch = resolve_enrolled(path)
     raw = _read_raw_config()
+    key = str(resolved)
+
+    if (branch is not None and policy.get("type") == "feed"
+            and resolved == Path(root["path"]) / branch):
+        changed = False
+        for entry in raw.get("roots") or []:
+            try:
+                entry_path = str(Path(entry.get("path") or "").resolve())
+            except (OSError, RuntimeError):
+                continue
+            if entry_path != root["path"]:
+                continue
+            branches = entry.get("branches") or {}
+            pol = branches.get(branch)
+            if isinstance(pol, dict) and "type" in pol:
+                del pol["type"]
+                if not pol:
+                    # 空分支条目等价于未列出（默认策略）——一并删掉保持干净。
+                    del branches[branch]
+                changed = True
+            break
+        if changed:
+            _write_config(raw)
+            _invalidate_list_caches()
+        return {
+            "unmarked": changed,
+            "origin": "branch" if changed else None,
+            "path": key,
+            "branch": branch,
+        }
+
     feed_dirs = raw.get("feed_dirs")
     if not isinstance(feed_dirs, list):
         feed_dirs = []
-    key = str(resolved)
     if key not in feed_dirs:
-        return {"unmarked": False, "path": key, "feed_dirs": feed_dirs}
+        return {"unmarked": False, "origin": None, "path": key, "feed_dirs": feed_dirs}
     feed_dirs.remove(key)
     raw["feed_dirs"] = feed_dirs
     _write_config(raw)
     _invalidate_list_caches()
-    return {"unmarked": True, "path": key, "feed_dirs": feed_dirs}
+    return {"unmarked": True, "origin": "dir", "path": key, "feed_dirs": feed_dirs}
 
 
 

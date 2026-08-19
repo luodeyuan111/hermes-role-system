@@ -20,8 +20,10 @@ interface LibraryFeedViewProps {
   onSelectFile: (file: LibraryFileEntry) => void;
   onOpenFile: (file: LibraryFileEntry) => void;
   onToast: (message: string, kind: "success" | "error") => void;
-  /** 仅 feed_dirs 标记的信息源传入（分支级 type:feed 是手工配置，不可在此取消） */
+  /** 两种来源的信息源都传入（分支级取消只删 type:feed 键，notes 保留） */
   onUnmarkFeed?: () => void;
+  /** 取消按钮的 title 按来源区分文案 */
+  unmarkOrigin?: "branch" | "dir";
   unmarkBusy?: boolean;
 }
 
@@ -44,6 +46,7 @@ export function LibraryFeedView({
   onOpenFile,
   onToast,
   onUnmarkFeed,
+  unmarkOrigin,
   unmarkBusy,
 }: LibraryFeedViewProps) {
   const [feed, setFeed] = useState<LibraryFeedResponse | null>(null);
@@ -205,7 +208,11 @@ export function LibraryFeedView({
               type="button"
               onClick={onUnmarkFeed}
               disabled={unmarkBusy}
-              title="从 feed_dirs 取消信息源标记（阅读状态保留）"
+              title={
+                unmarkOrigin === "branch"
+                  ? "移除 library.yaml 中该分支的 type:feed 配置（notes 等配置保留，加回即可恢复；阅读状态保留）"
+                  : "从 feed_dirs 取消信息源标记（阅读状态保留）"
+              }
               className="rounded-full border border-current/15 px-2 py-0.5 text-text-secondary hover:border-current/30 disabled:opacity-50"
             >
               取消信息源

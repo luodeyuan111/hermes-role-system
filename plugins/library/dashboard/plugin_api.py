@@ -200,9 +200,15 @@ async def library_feed_mark(payload: FeedMark):
 
 @router.post("/feed/unmark")
 async def library_feed_unmark(payload: FeedMark):
-    """Remove a directory from ``feed_dirs`` (keeps recorded reading state)."""
+    """Cancel a path's information-source mark (keeps recorded reading state).
+
+    Works for both origins (reported as ``origin`` in the response): a
+    ``feed_dirs`` entry is removed from the list; a branch-level
+    ``type: feed`` root loses just the ``type`` key in library.yaml (its
+    ``notes`` etc. are preserved — re-add ``type: feed`` to restore).
+    """
     try:
-        return await run_in_threadpool(_library.unmark_feed_dir, payload.path)
+        return await run_in_threadpool(_library.unmark_feed, payload.path)
     except _library.LibraryAccessError as exc:
         raise HTTPException(status_code=403, detail=str(exc))
 

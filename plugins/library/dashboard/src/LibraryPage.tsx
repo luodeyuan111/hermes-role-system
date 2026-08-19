@@ -652,7 +652,10 @@ export default function LibraryPage() {
                 onSelectFile={handleSelectFile}
                 onOpenFile={handleOpenFile}
                 onToast={showToast}
-                onUnmarkFeed={feedDir ? () => void handleFeedMark(false) : undefined}
+                onUnmarkFeed={
+                  feedBranch || feedDir ? () => void handleFeedMark(false) : undefined
+                }
+                unmarkOrigin={feedBranch ? "branch" : "dir"}
                 unmarkBusy={feedMarking}
               />
             ) : (

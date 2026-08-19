@@ -260,7 +260,13 @@ export const libraryApi = {
       },
     ),
   unmarkFeed: (path: string) =>
-    fetchJSON<{ unmarked: boolean; path: string; feed_dirs: string[] }>(
+    fetchJSON<{
+      unmarked: boolean;
+      /** "branch"=删了分支 type:feed 键；"dir"=从 feed_dirs 移除；null=本就不是信息源 */
+      origin: "branch" | "dir" | null;
+      path: string;
+      feed_dirs?: string[];
+    }>(
       "/api/plugins/library/feed/unmark",
       {
         method: "POST",
