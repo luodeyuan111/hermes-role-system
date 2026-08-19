@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ClipboardPaste,
   File,
+  Rss,
   FileAudio,
   FileCode,
   FileImage,
@@ -103,6 +104,9 @@ interface LibraryFileAreaProps {
   /** 剪贴板（复制/剪切暂存）；null 时粘贴按钮 disabled。不传则不渲染粘贴按钮 */
   clipboard?: { paths: string[]; mode: "copy" | "cut" } | null;
   onPaste?: () => void;
+  /** 提供则在面包屑行显示「标记为信息源」（当前目录不是任何信息源根时） */
+  onMarkFeed?: () => void;
+  markBusy?: boolean;
 }
 
 export function LibraryFileArea({
@@ -118,6 +122,8 @@ export function LibraryFileArea({
   onNavigate,
   clipboard,
   onPaste,
+  onMarkFeed,
+  markBusy,
 }: LibraryFileAreaProps) {
   // 面包屑：匹配到 root 后从 root 名开始，否则退化为完整路径段
   const crumbs = (() => {
@@ -300,6 +306,18 @@ export function LibraryFileArea({
             </span>
           ))}
         </nav>
+        {onMarkFeed && (
+          <button
+            type="button"
+            onClick={onMarkFeed}
+            disabled={markBusy}
+            title="把当前目录聚合为信息源（写入 library.yaml 的 feed_dirs）"
+            className="flex shrink-0 items-center gap-1 rounded-sm border border-current/15 px-2 py-1 text-xs text-text-secondary hover:border-current/30 hover:text-midground disabled:opacity-50"
+          >
+            <Rss className="size-3.5" />
+            标记为信息源
+          </button>
+        )}
         {onPaste && (
           <button
             type="button"

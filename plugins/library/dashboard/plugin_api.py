@@ -66,7 +66,7 @@ def _library_resolve_file(path: str) -> Tuple[Path, Dict[str, bool]]:
 @router.get("/config")
 async def library_config():
     cfg = await run_in_threadpool(_library.load_config)
-    return {"roots": cfg["roots"]}
+    return {"roots": cfg["roots"], "feed_dirs": cfg["feed_dirs"]}
 
 
 @router.get("/tree")
@@ -165,13 +165,46 @@ async def library_sync():
 
 @router.get("/feed")
 async def library_feed(path: str):
-    """Aggregated item view of a ``type: feed`` branch (信息源)."""
+    """Aggregated item view of an information-source root (信息源).
+
+    A feed root is either a branch-level ``type: feed`` branch root or any
+    directory listed in the top-level ``feed_dirs`` (see /feed/mark).
+    """
     resolved, root, policy, branch = _library_resolve(path)
     if not resolved.is_dir():
         raise HTTPException(status_code=400, detail="Path is not a directory")
-    if branch is None or policy.get("type") != "feed":
-        raise HTTPException(status_code=400, detail="Not a feed branch")
-    return await run_in_threadpool(_library.list_feed, root, resolved, branch)
+    info = await run_in_threadpool(
+        _library.feed_root_of, resolved, root, policy, branch
+    )
+    if info is None:
+        raise HTTPException(status_code=400, detail="Not a feed root")
+    return await run_in_threadpool(
+        _library.list_feed, resolved, info["branch"], info["notes_enabled"]
+    )
+
+
+class FeedMark(BaseModel):
+    path: str
+
+
+@router.post("/feed/mark")
+async def library_feed_mark(payload: FeedMark):
+    """Mark an enrolled directory as an information-source root (feed_dirs)."""
+    try:
+        return await run_in_threadpool(_library.mark_feed_dir, payload.path)
+    except _library.LibraryAccessError as exc:
+        raise HTTPException(status_code=403, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/feed/unmark")
+async def library_feed_unmark(payload: FeedMark):
+    """Remove a directory from ``feed_dirs`` (keeps recorded reading state)."""
+    try:
+        return await run_in_threadpool(_library.unmark_feed_dir, payload.path)
+    except _library.LibraryAccessError as exc:
+        raise HTTPException(status_code=403, detail=str(exc))
 
 
 class FeedStatusUpdate(BaseModel):
@@ -182,11 +215,12 @@ class FeedStatusUpdate(BaseModel):
 @router.post("/feed/status")
 async def library_feed_status(payload: FeedStatusUpdate):
     """Set the reading state of a feed item (index.db only; source read-only)."""
-    resolved, _root, policy, branch = _library_resolve(payload.path)
-    if branch is None or policy.get("type") != "feed":
-        raise HTTPException(status_code=400, detail="Not a feed branch")
+    resolved, _root, _policy, _branch = _library_resolve(payload.path)
     if not resolved.is_file():
         raise HTTPException(status_code=404, detail="File not found")
+    inside = await run_in_threadpool(_library.feed_root_containing, resolved)
+    if inside is None:
+        raise HTTPException(status_code=400, detail="Not inside a feed root")
     try:
         return await run_in_threadpool(
             _library.set_feed_status, resolved, payload.status
@@ -201,12 +235,19 @@ class FeedNoteCreate(BaseModel):
 
 @router.post("/feed/note")
 async def library_feed_note(payload: FeedNoteCreate):
-    """Create (or look up) the paper note bound to a feed item."""
-    resolved, _root, policy, branch = _library_resolve(payload.path)
-    if branch is None or policy.get("type") != "feed":
-        raise HTTPException(status_code=400, detail="Not a feed branch")
+    """Create (or look up) the paper note bound to a feed item.
+
+    Only branch-level ``type: feed`` roots can carry a notes configuration;
+    feed_dirs-marked roots get a plain 400 (the frontend hides the button).
+    """
+    resolved, root, policy, branch = _library_resolve(payload.path)
     if not resolved.is_file():
         raise HTTPException(status_code=404, detail="File not found")
+    if branch is None or policy.get("type") != "feed":
+        raise HTTPException(
+            status_code=400,
+            detail="Feed root has no notes directory configured",
+        )
     try:
         return await run_in_threadpool(_library.create_feed_note, resolved)
     except ValueError as exc:

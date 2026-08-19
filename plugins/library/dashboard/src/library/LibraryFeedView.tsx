@@ -20,6 +20,9 @@ interface LibraryFeedViewProps {
   onSelectFile: (file: LibraryFileEntry) => void;
   onOpenFile: (file: LibraryFileEntry) => void;
   onToast: (message: string, kind: "success" | "error") => void;
+  /** 仅 feed_dirs 标记的信息源传入（分支级 type:feed 是手工配置，不可在此取消） */
+  onUnmarkFeed?: () => void;
+  unmarkBusy?: boolean;
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -40,6 +43,8 @@ export function LibraryFeedView({
   onSelectFile,
   onOpenFile,
   onToast,
+  onUnmarkFeed,
+  unmarkBusy,
 }: LibraryFeedViewProps) {
   const [feed, setFeed] = useState<LibraryFeedResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -184,6 +189,9 @@ export function LibraryFeedView({
   }
   if (!feed) return null;
 
+  // feed_dirs 标记的信息源没有 notes 配置——隐藏条目笔记按钮
+  const notesEnabled = feed.notes_enabled;
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* 筛选栏 */}
@@ -192,6 +200,17 @@ export function LibraryFeedView({
           <span className="text-text-tertiary">
             共 {feed.stats.total} 篇 · 筛选后 {filtered.length} 篇
           </span>
+          {onUnmarkFeed && (
+            <button
+              type="button"
+              onClick={onUnmarkFeed}
+              disabled={unmarkBusy}
+              title="从 feed_dirs 取消信息源标记（阅读状态保留）"
+              className="rounded-full border border-current/15 px-2 py-0.5 text-text-secondary hover:border-current/30 disabled:opacity-50"
+            >
+              取消信息源
+            </button>
+          )}
           <span className="mx-1 text-text-tertiary">|</span>
           {["全部", ...statuses].map((s) => (
             <button
@@ -319,26 +338,28 @@ export function LibraryFeedView({
                             <ExternalLink className="size-3.5" />
                           </a>
                         )}
-                        <button
-                          type="button"
-                          aria-label={it.note_path ? "打开条目笔记" : "创建条目笔记"}
-                          title={
-                            it.note_path ? `笔记：${it.note_path}` : "创建条目笔记"
-                          }
-                          disabled={pendingNote === it.path}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void openNote(it);
-                          }}
-                          className={cn(
-                            "shrink-0 p-0.5 disabled:opacity-50",
-                            it.note_path
-                              ? "text-midground hover:text-midground/70"
-                              : "text-text-tertiary hover:text-midground",
-                          )}
-                        >
-                          <NotebookPen className="size-3.5" />
-                        </button>
+                        {notesEnabled && (
+                          <button
+                            type="button"
+                            aria-label={it.note_path ? "打开条目笔记" : "创建条目笔记"}
+                            title={
+                              it.note_path ? `笔记：${it.note_path}` : "创建条目笔记"
+                            }
+                            disabled={pendingNote === it.path}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void openNote(it);
+                            }}
+                            className={cn(
+                              "shrink-0 p-0.5 disabled:opacity-50",
+                              it.note_path
+                                ? "text-midground hover:text-midground/70"
+                                : "text-text-tertiary hover:text-midground",
+                            )}
+                          >
+                            <NotebookPen className="size-3.5" />
+                          </button>
+                        )}
                       </span>
                       <span className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-text-tertiary">
                         <span className="shrink-0 rounded-sm border border-current/10 px-1 py-px">

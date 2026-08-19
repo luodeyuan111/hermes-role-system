@@ -31,15 +31,30 @@ Branch policy semantics (per first-level directory under a root):
 Branches not listed default to ``{preview: true, convert: true}``; a root not
 listed in the config is not accessible at all.
 
+Information-source (feed) roots — two equivalent ways to declare one:
+  1. Branch-level ``type: feed`` policy (above), configured by hand. This is
+     the only form that can carry a ``notes`` policy (条目笔记目录).
+  2. Top-level ``feed_dirs`` list in library.yaml — absolute paths of ANY
+     enrolled directory, marked/unmarked from the dashboard (``/feed/mark``,
+     ``/feed/unmark``). Both forms are unioned when deciding whether a
+     directory renders as an aggregated feed.
+Inside a feed root, first-level subdirectories are sources and the markdown
+files under them are items; ``.md`` files directly under the feed root are
+collected too, under the fixed source name ``(root)``. Deeper nesting is
+walked but still attributed to the first-level source. feed_dirs roots have
+no notes configuration — the 条目笔记 button stays hidden for them.
+
 Feed reading state (待读/在读/已读) is kept in the ``feed_state`` table keyed
 by absolute path — source files stay read-only, so a state change never
-touches the markdown the fetch scripts produced.
+touches the markdown the fetch scripts produced, and marking/unmarking a
+feed dir never touches the recorded state either.
 """
 
 from __future__ import annotations
 
 import asyncio
 import hashlib
+import logging
 import os
 import re
 import shutil
@@ -50,6 +65,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Locations
@@ -75,10 +92,10 @@ def _cache_root() -> Path:
     return library_home() / "cache"
 
 
-# Default enrolment for a brand-new install: no roots. Existing deployments
-# keep their own library.yaml under the library home; this only seeds the
-# first-run config file.
-_DEFAULT_CONFIG = {"roots": []}
+# Default enrolment for a brand-new install: no roots, no feeds. Existing
+# deployments keep their own library.yaml under the library home; this only
+# seeds the first-run config file.
+_DEFAULT_CONFIG = {"roots": [], "feed_dirs": []}
 
 # Policy defaults for branches not listed under an enrolled root.
 _DEFAULT_BRANCH_POLICY = {
@@ -141,7 +158,40 @@ def load_config() -> Dict[str, Any]:
             "name": Path(resolved).name or resolved,
             "branches": branches,
         })
-    return {"roots": roots}
+    feed_dirs: List[str] = []
+    for entry in raw.get("feed_dirs") or []:
+        if not isinstance(entry, str) or not entry.strip():
+            continue
+        try:
+            resolved_dir = Path(entry).resolve()
+        except (OSError, RuntimeError):
+            log.warning("feed_dirs entry unresolvable, ignored: %r", entry)
+            continue
+        if str(resolved_dir) in feed_dirs:
+            continue
+        if not resolved_dir.is_dir():
+            log.warning("feed_dirs entry is not a directory, ignored: %s", resolved_dir)
+            continue
+        # Must land inside an enabled enrolled root/branch (same confinement
+        # as resolve_enrolled, but against the roots normalised above —
+        # calling resolve_enrolled here would recurse into load_config).
+        enrolled = False
+        for root in roots:
+            root_path = root["path"]
+            s = str(resolved_dir)
+            if s == root_path or s.startswith(root_path + os.sep):
+                policy = branch_policy(root, _branch_of(root_path, resolved_dir))
+                if policy["enabled"]:
+                    enrolled = True
+                break
+        if not enrolled or _in_library_home(resolved_dir):
+            log.warning(
+                "feed_dirs entry is outside every enabled enrolled root, ignored: %s",
+                resolved_dir,
+            )
+            continue
+        feed_dirs.append(str(resolved_dir))
+    return {"roots": roots, "feed_dirs": feed_dirs}
 
 
 # ---------------------------------------------------------------------------
@@ -779,15 +829,23 @@ def search_files(query: str, limit: int = 50) -> List[Dict[str, Any]]:
 
 
 # ---------------------------------------------------------------------------
-# Feed branches (type: feed) — aggregated view over information-source trees
+# Feed roots (信息源) — aggregated view over information-source trees
 # ---------------------------------------------------------------------------
 #
-# A feed branch holds one subdirectory per source (e.g. ``arxiv-cs.AI``),
+# A feed root holds one subdirectory per source (e.g. ``arxiv-cs.AI``),
 # each filled with dated markdown items carrying YAML frontmatter
-# (title/authors/link/pub_date/status/tags). ``list_feed`` walks the branch,
-# parses just the frontmatter block of every item, and overlays the reading
-# state kept in ``feed_state`` — the source files themselves are never
-# modified, so the fetch scripts stay the single writer.
+# (title/authors/link/pub_date/status/tags); ``.md`` files directly under the
+# feed root are collected under the fixed source name ``(root)``.
+# ``list_feed`` walks the root, parses just the frontmatter block of every
+# item, and overlays the reading state kept in ``feed_state`` — the source
+# files themselves are never modified, so the fetch scripts stay the single
+# writer.
+#
+# A directory becomes a feed root either via a branch-level ``type: feed``
+# policy (hand-written in library.yaml; the only form that can carry a
+# ``notes`` policy) or via the top-level ``feed_dirs`` list (marked from the
+# dashboard; no notes). ``feed_root_of`` is the single predicate both the
+# routes and the note/status handlers use, so the two forms never drift.
 
 FEED_STATUSES = ("待读", "在读", "已读")
 
@@ -847,14 +905,77 @@ def _feed_note_map() -> Dict[str, str]:
     }
 
 
-def list_feed(root: Dict[str, Any], branch_path: Path, branch: str) -> Dict[str, Any]:
-    """Aggregated item list for a feed branch, plus per-source/status stats.
+def feed_root_of(
+    resolved: Path,
+    root: Dict[str, Any],
+    policy: Dict[str, Any],
+    branch: Optional[str],
+) -> Optional[Dict[str, Any]]:
+    """Feed-root descriptor when ``resolved`` IS an information-source root.
 
-    Every ``.md`` file under the branch becomes an item; its source is the
-    first-level subdirectory name (``(root)`` for files directly under the
-    branch). Items are sorted by date desc, then title.
+    ``root``/``policy``/``branch`` come from ``resolve_enrolled``. Returns
+    ``{"path", "origin", "branch", "root", "policy", "notes_enabled"}`` or
+    None. Two origins, unioned:
+
+      * ``branch`` — the path is exactly a branch root whose policy is
+        ``type: feed`` (notes come from the branch policy);
+      * ``dir``   — the path is listed in the top-level ``feed_dirs``
+        (never has notes).
     """
-    cache_key = str(branch_path)
+    if branch is not None and policy.get("type") == "feed":
+        if resolved == Path(root["path"]) / branch:
+            return {
+                "path": str(resolved),
+                "origin": "branch",
+                "branch": branch,
+                "root": root,
+                "policy": policy,
+                "notes_enabled": bool(policy.get("notes")),
+            }
+    if str(resolved) in load_config()["feed_dirs"]:
+        return {
+            "path": str(resolved),
+            "origin": "dir",
+            "branch": None,
+            "root": root,
+            "policy": policy,
+            "notes_enabled": False,
+        }
+    return None
+
+
+def feed_root_containing(resolved: Path) -> Optional[str]:
+    """The feed root whose tree contains ``resolved`` (itself included).
+
+    Used by the status/note write paths: an item's reading state may change
+    wherever it sits inside ANY feed root (branch-level or feed_dirs).
+    """
+    s = str(resolved)
+    cfg = load_config()
+    for feed_dir in cfg["feed_dirs"]:
+        if s == feed_dir or s.startswith(feed_dir + os.sep):
+            return feed_dir
+    for root in cfg["roots"]:
+        for name, policy in root["branches"].items():
+            if policy.get("type") != "feed":
+                continue
+            branch_path = root["path"] + os.sep + name
+            if s == branch_path or s.startswith(branch_path + os.sep):
+                return branch_path
+    return None
+
+
+def list_feed(feed_path: Path, branch: Optional[str] = None,
+              notes_enabled: bool = False) -> Dict[str, Any]:
+    """Aggregated item list for a feed root, plus per-source/status stats.
+
+    Every ``.md`` file under the root becomes an item; its source is the
+    first-level subdirectory name (``(root)`` for files directly under the
+    feed root). Items are sorted by date desc, then title. ``branch`` is the
+    branch name for branch-level feeds (None for feed_dirs feeds) and
+    ``notes_enabled`` tells the frontend whether to offer 条目笔记.
+    """
+    cache_key = str(feed_path)
     now = time.time()
     cached = _feed_cache.get(cache_key)
     if cached and now - cached[0] < _FEED_CACHE_TTL_S:
@@ -863,9 +984,9 @@ def list_feed(root: Dict[str, Any], branch_path: Path, branch: str) -> Dict[str,
     states = _feed_state_map()
     notes = _feed_note_map()
     items: List[Dict[str, Any]] = []
-    for dirpath, dirnames, filenames in os.walk(branch_path):
+    for dirpath, dirnames, filenames in os.walk(feed_path):
         dirnames[:] = [d for d in dirnames if not _is_hidden(d)]
-        rel = os.path.relpath(dirpath, str(branch_path))
+        rel = os.path.relpath(dirpath, str(feed_path))
         source = rel.split(os.sep, 1)[0] if rel != "." else "(root)"
         for name in filenames:
             if _is_hidden(name) or ext_of(Path(name)) not in _MD_EXTS:
@@ -901,8 +1022,9 @@ def list_feed(root: Dict[str, Any], branch_path: Path, branch: str) -> Dict[str,
         source_stats[it["source"]] = source_stats.get(it["source"], 0) + 1
 
     data = {
-        "path": str(branch_path),
+        "path": str(feed_path),
         "branch": branch,
+        "notes_enabled": notes_enabled,
         "statuses": list(FEED_STATUSES),
         "items": items,
         "stats": {
@@ -940,6 +1062,81 @@ def set_feed_status(abs_path: Path, status: str) -> Dict[str, Any]:
                 break
         _feed_cache[key] = (at, data)
     return {"path": str(abs_path), "status": status}
+
+
+# ---------------------------------------------------------------------------
+# feed_dirs — marking enrolled directories as information sources
+# ---------------------------------------------------------------------------
+
+def _read_raw_config() -> Dict[str, Any]:
+    """Raw library.yaml as a dict (unlike ``load_config``, un-normalised —
+    unknown top-level keys are preserved on write)."""
+    ensure_layout()
+    try:
+        raw = yaml.safe_load(_config_path().read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        raw = None
+    return raw if isinstance(raw, dict) else {}
+
+
+def _write_config(raw: Dict[str, Any]) -> None:
+    """Atomically rewrite library.yaml (temp file + rename in the same dir)."""
+    cfg = _config_path()
+    tmp = cfg.with_name(cfg.name + ".tmp")
+    tmp.write_text(
+        yaml.safe_dump(raw, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
+    os.replace(tmp, cfg)
+
+
+def mark_feed_dir(path: str) -> Dict[str, Any]:
+    """Mark an enrolled directory as an information-source root (feed_dirs).
+
+    The path must resolve inside an enabled enrolled root (LibraryAccessError
+    → 403) and be a directory (ValueError → 400). Idempotent: already-listed
+    paths report ``marked: False``. A branch-level ``type: feed`` root needs
+    no mark — marking one is a ValueError.
+    """
+    resolved, root, policy, branch = resolve_enrolled(path)
+    if not resolved.is_dir():
+        raise ValueError(f"not a directory: {resolved}")
+    if (branch is not None and policy.get("type") == "feed"
+            and resolved == Path(root["path"]) / branch):
+        raise ValueError("path is already a feed via its branch policy")
+    raw = _read_raw_config()
+    feed_dirs = raw.get("feed_dirs")
+    if not isinstance(feed_dirs, list):
+        feed_dirs = []
+    key = str(resolved)
+    if key in feed_dirs:
+        return {"marked": False, "path": key, "feed_dirs": feed_dirs}
+    feed_dirs.append(key)
+    raw["feed_dirs"] = feed_dirs
+    _write_config(raw)
+    _invalidate_list_caches()
+    return {"marked": True, "path": key, "feed_dirs": feed_dirs}
+
+
+def unmark_feed_dir(path: str) -> Dict[str, Any]:
+    """Remove a directory from ``feed_dirs`` (idempotent).
+
+    Never touches the recorded reading state — ``feed_state`` rows are keyed
+    by absolute path and survive unmarking, so re-marking restores them.
+    """
+    resolved, _root, _policy, _branch = resolve_enrolled(path)
+    raw = _read_raw_config()
+    feed_dirs = raw.get("feed_dirs")
+    if not isinstance(feed_dirs, list):
+        feed_dirs = []
+    key = str(resolved)
+    if key not in feed_dirs:
+        return {"unmarked": False, "path": key, "feed_dirs": feed_dirs}
+    feed_dirs.remove(key)
+    raw["feed_dirs"] = feed_dirs
+    _write_config(raw)
+    _invalidate_list_caches()
+    return {"unmarked": True, "path": key, "feed_dirs": feed_dirs}
 
 
 

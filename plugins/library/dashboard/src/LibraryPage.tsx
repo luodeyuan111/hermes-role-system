@@ -21,6 +21,7 @@ import {
 } from "./router";
 import {
   feedBranchOf,
+  feedDirOf,
   libraryApi,
   type LibraryFileEntry,
   type LibraryRoot,
@@ -131,6 +132,7 @@ export default function LibraryPage() {
   const { setTitle } = usePageHeader();
 
   const [roots, setRoots] = useState<LibraryRoot[]>([]);
+  const [feedDirs, setFeedDirs] = useState<string[]>([]);
   const [rootsLoaded, setRootsLoaded] = useState(false);
   const [currentPath, setCurrentPath] = useState<string | null>(
     () => getLibraryPathParam(),
@@ -158,6 +160,7 @@ export default function LibraryPage() {
   const [renameTarget, setRenameTarget] = useState<LibraryFileEntry | null>(null);
   const [renaming, setRenaming] = useState(false);
   const [forwardOpen, setForwardOpen] = useState(false);
+  const [feedMarking, setFeedMarking] = useState(false);
 
   // 目录加载完成后要选中的文件（搜索结果/最近变更跳转用）
   const pendingSelectRef = useRef<string | null>(null);
@@ -167,34 +170,30 @@ export default function LibraryPage() {
     return () => setTitle(null);
   }, [setTitle]);
 
-  // 根目录配置
+  // 根目录配置 + feed_dirs（标记/取消信息源后需重拉）
+  const reloadConfig = useCallback(async () => {
+    try {
+      const res = await libraryApi.getConfig();
+      setRoots(res.roots);
+      setFeedDirs(res.feed_dirs);
+      setRootsLoaded(true);
+      setCurrentPath((prev) => prev ?? res.roots[0]?.path ?? null);
+    } catch (e) {
+      setRootsLoaded(true);
+      showToast(`加载资料馆配置失败:${e}`, "error");
+    }
+  }, [showToast]);
+
   useEffect(() => {
-    let cancelled = false;
-    libraryApi
-      .getConfig()
-      .then((res) => {
-        if (cancelled) return;
-        setRoots(res.roots);
-        setRootsLoaded(true);
-        setCurrentPath((prev) => prev ?? res.roots[0]?.path ?? null);
-      })
-      .catch((e) => {
-        if (!cancelled) {
-          setRootsLoaded(true);
-          showToast(`加载资料馆配置失败:${e}`, "error");
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
+    void reloadConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 当前目录列表
   useEffect(() => {
     if (!currentPath || view !== "browse") return;
-    if (feedBranchOf(roots, currentPath)) {
-      // feed 分支走聚合视图，不需要目录列表
+    if (feedBranchOf(roots, currentPath) || feedDirOf(feedDirs, currentPath)) {
+      // 信息源根走聚合视图，不需要目录列表
       setListing(null);
       setSelected(null);
       setListingLoading(false);
@@ -234,7 +233,7 @@ export default function LibraryPage() {
     return () => {
       cancelled = true;
     };
-  }, [currentPath, view, refreshKey, roots]);
+  }, [currentPath, view, refreshKey, roots, feedDirs]);
 
   // 搜索防抖（300ms）
   useEffect(() => {
@@ -429,9 +428,38 @@ export default function LibraryPage() {
     [showToast],
   );
 
+  // 标记/取消信息源（feed_dirs；分支级 type:feed 是 yaml 手工配置，不在此管理）
+  const handleFeedMark = useCallback(
+    async (mark: boolean) => {
+      if (!currentPath || feedMarking) return;
+      setFeedMarking(true);
+      try {
+        if (mark) {
+          await libraryApi.markFeed(currentPath);
+          showToast("已标记为信息源", "success");
+        } else {
+          await libraryApi.unmarkFeed(currentPath);
+          showToast("已取消信息源标记（阅读状态保留）", "success");
+        }
+        await reloadConfig();
+        setRefreshKey((k) => k + 1);
+      } catch (e) {
+        showToast(
+          `${mark ? "标记" : "取消"}失败:${e instanceof Error ? e.message : e}`,
+          "error",
+        );
+      } finally {
+        setFeedMarking(false);
+      }
+    },
+    [currentPath, feedMarking, reloadConfig, showToast],
+  );
+
   const searching = searchQuery.length > 0;
-  // 当前路径是 feed 分支根（信息源）时，文件区切换为聚合视图
+  // 当前路径是信息源根（分支级 type:feed 或 feed_dirs 标记）时切换为聚合视图
   const feedBranch = feedBranchOf(roots, currentPath);
+  const feedDir = feedDirOf(feedDirs, currentPath);
+  const isFeed = feedBranch !== null || feedDir !== null;
 
   return (
     <div className="hermes-library flex min-h-0 w-full min-w-0 flex-1 flex-col pt-1 sm:pt-2">
@@ -616,7 +644,7 @@ export default function LibraryPage() {
                   </ul>
                 </div>
               </div>
-            ) : feedBranch && currentPath ? (
+            ) : isFeed && currentPath ? (
               <LibraryFeedView
                 path={currentPath}
                 refreshKey={refreshKey}
@@ -624,6 +652,8 @@ export default function LibraryPage() {
                 onSelectFile={handleSelectFile}
                 onOpenFile={handleOpenFile}
                 onToast={showToast}
+                onUnmarkFeed={feedDir ? () => void handleFeedMark(false) : undefined}
+                unmarkBusy={feedMarking}
               />
             ) : (
               <LibraryFileArea
@@ -639,6 +669,8 @@ export default function LibraryPage() {
                 onNavigate={navigate}
                 clipboard={clipboard}
                 onPaste={() => void handlePaste()}
+                onMarkFeed={currentPath ? () => void handleFeedMark(true) : undefined}
+                markBusy={feedMarking}
               />
             )}
           </main>
@@ -671,11 +703,11 @@ export default function LibraryPage() {
               <LibraryPreviewPane
                 file={selected}
                 refreshKey={refreshKey}
-                onCopy={feedBranch ? undefined : handleCopy}
-                onCut={feedBranch ? undefined : handleCut}
-                onRename={feedBranch ? undefined : handleRename}
-                onDelete={feedBranch ? undefined : handleDelete}
-                onForward={feedBranch ? undefined : handleForward}
+                onCopy={isFeed ? undefined : handleCopy}
+                onCut={isFeed ? undefined : handleCut}
+                onRename={isFeed ? undefined : handleRename}
+                onDelete={isFeed ? undefined : handleDelete}
+                onForward={isFeed ? undefined : handleForward}
               />
             </aside>
           )}

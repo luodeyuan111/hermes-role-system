@@ -124,13 +124,16 @@ export interface FeedItem {
   date: string;
   status: string;
   tags: string;
-  /** 条目笔记路径；null 表示尚未创建 */
+  /** 条目笔记路径；null 表示尚未创建（notes_enabled=false 时恒为 null） */
   note_path: string | null;
 }
 
 export interface LibraryFeedResponse {
   path: string;
-  branch: string;
+  /** 分支级 type:feed 的分支名；feed_dirs 标记的信息源为 null */
+  branch: string | null;
+  /** false（feed_dirs 标记的信息源）时前端隐藏条目笔记按钮 */
+  notes_enabled: boolean;
   statuses: string[];
   items: FeedItem[];
   stats: {
@@ -201,6 +204,16 @@ export function feedBranchOf(
   return null;
 }
 
+/** currentPath 若被 feed_dirs 标记为信息源根，返回该路径，否则 null。 */
+export function feedDirOf(
+  feedDirs: string[],
+  path: string | null,
+): string | null {
+  if (!path) return null;
+  const norm = path.replace(/\/+$/, "");
+  return feedDirs.some((d) => d.replace(/\/+$/, "") === norm) ? path : null;
+}
+
 /** 转发到对话的请求体（sessionId → 后端 session_id）。 */
 export interface LibraryForwardRequest {
   path: string;
@@ -209,7 +222,10 @@ export interface LibraryForwardRequest {
 }
 
 export const libraryApi = {
-  getConfig: () => fetchJSON<{ roots: LibraryRoot[] }>("/api/plugins/library/config"),
+  getConfig: () =>
+    fetchJSON<{ roots: LibraryRoot[]; feed_dirs: string[] }>(
+      "/api/plugins/library/config",
+    ),
   getTree: (path: string) =>
     fetchJSON<LibraryTreeResponse>(
       `/api/plugins/library/tree?path=${encodeURIComponent(path)}`,
@@ -234,6 +250,24 @@ export const libraryApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path, status }),
     }),
+  markFeed: (path: string) =>
+    fetchJSON<{ marked: boolean; path: string; feed_dirs: string[] }>(
+      "/api/plugins/library/feed/mark",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      },
+    ),
+  unmarkFeed: (path: string) =>
+    fetchJSON<{ unmarked: boolean; path: string; feed_dirs: string[] }>(
+      "/api/plugins/library/feed/unmark",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      },
+    ),
   createFeedNote: (path: string) =>
     fetchJSON<FeedNoteResponse>("/api/plugins/library/feed/note", {
       method: "POST",

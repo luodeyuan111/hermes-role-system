@@ -459,8 +459,16 @@
   ];
   var RefreshCw = createLucideIcon("refresh-cw", __iconNode29);
 
-  // ../../../node_modules/lucide-react/dist/esm/icons/save.js
+  // ../../../node_modules/lucide-react/dist/esm/icons/rss.js
   var __iconNode30 = [
+    ["path", { d: "M4 11a9 9 0 0 1 9 9", key: "pv89mb" }],
+    ["path", { d: "M4 4a16 16 0 0 1 16 16", key: "k0647b" }],
+    ["circle", { cx: "5", cy: "19", r: "1", key: "bfqh0e" }]
+  ];
+  var Rss = createLucideIcon("rss", __iconNode30);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/save.js
+  var __iconNode31 = [
     [
       "path",
       {
@@ -471,27 +479,27 @@
     ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
     ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
   ];
-  var Save = createLucideIcon("save", __iconNode30);
+  var Save = createLucideIcon("save", __iconNode31);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/scissors.js
-  var __iconNode31 = [
+  var __iconNode32 = [
     ["circle", { cx: "6", cy: "6", r: "3", key: "1lh9wr" }],
     ["path", { d: "M8.12 8.12 12 12", key: "1alkpv" }],
     ["path", { d: "M20 4 8.12 15.88", key: "xgtan2" }],
     ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
     ["path", { d: "M14.8 14.8 20 20", key: "ptml3r" }]
   ];
-  var Scissors = createLucideIcon("scissors", __iconNode31);
+  var Scissors = createLucideIcon("scissors", __iconNode32);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/search.js
-  var __iconNode32 = [
+  var __iconNode33 = [
     ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
     ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
   ];
-  var Search = createLucideIcon("search", __iconNode32);
+  var Search = createLucideIcon("search", __iconNode33);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/send.js
-  var __iconNode33 = [
+  var __iconNode34 = [
     [
       "path",
       {
@@ -501,24 +509,24 @@
     ],
     ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
   ];
-  var Send = createLucideIcon("send", __iconNode33);
+  var Send = createLucideIcon("send", __iconNode34);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/trash-2.js
-  var __iconNode34 = [
+  var __iconNode35 = [
     ["path", { d: "M10 11v6", key: "nco0om" }],
     ["path", { d: "M14 11v6", key: "outv1u" }],
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
     ["path", { d: "M3 6h18", key: "d0wm0j" }],
     ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
   ];
-  var Trash2 = createLucideIcon("trash-2", __iconNode34);
+  var Trash2 = createLucideIcon("trash-2", __iconNode35);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/x.js
-  var __iconNode35 = [
+  var __iconNode36 = [
     ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
     ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
   ];
-  var X = createLucideIcon("x", __iconNode35);
+  var X = createLucideIcon("x", __iconNode36);
 
   // src/sdk.ts
   function sdk() {
@@ -675,8 +683,15 @@
     }
     return null;
   }
+  function feedDirOf(feedDirs, path) {
+    if (!path) return null;
+    const norm = path.replace(/\/+$/, "");
+    return feedDirs.some((d) => d.replace(/\/+$/, "") === norm) ? path : null;
+  }
   var libraryApi = {
-    getConfig: () => fetchJSON("/api/plugins/library/config"),
+    getConfig: () => fetchJSON(
+      "/api/plugins/library/config"
+    ),
     getTree: (path) => fetchJSON(
       `/api/plugins/library/tree?path=${encodeURIComponent(path)}`
     ),
@@ -696,6 +711,22 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path, status })
     }),
+    markFeed: (path) => fetchJSON(
+      "/api/plugins/library/feed/mark",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path })
+      }
+    ),
+    unmarkFeed: (path) => fetchJSON(
+      "/api/plugins/library/feed/unmark",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path })
+      }
+    ),
     createFeedNote: (path) => fetchJSON("/api/plugins/library/feed/note", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1067,7 +1098,9 @@
     onOpenFile,
     onNavigate,
     clipboard,
-    onPaste
+    onPaste,
+    onMarkFeed,
+    markBusy
   }) {
     const crumbs = (() => {
       const path = listing?.path;
@@ -1235,6 +1268,20 @@
             }
           )
         ] }, crumb.path)) }),
+        onMarkFeed && /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: onMarkFeed,
+            disabled: markBusy,
+            title: "\u628A\u5F53\u524D\u76EE\u5F55\u805A\u5408\u4E3A\u4FE1\u606F\u6E90\uFF08\u5199\u5165 library.yaml \u7684 feed_dirs\uFF09",
+            className: "flex shrink-0 items-center gap-1 rounded-sm border border-current/15 px-2 py-1 text-xs text-text-secondary hover:border-current/30 hover:text-midground disabled:opacity-50",
+            children: [
+              /* @__PURE__ */ jsx(Rss, { className: "size-3.5" }),
+              "\u6807\u8BB0\u4E3A\u4FE1\u606F\u6E90"
+            ]
+          }
+        ),
         onPaste && /* @__PURE__ */ jsxs(
           "button",
           {
@@ -1812,7 +1859,9 @@
     selectedPath,
     onSelectFile,
     onOpenFile,
-    onToast
+    onToast,
+    onUnmarkFeed,
+    unmarkBusy
   }) {
     const [feed, setFeed] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -1934,6 +1983,7 @@
       ] });
     }
     if (!feed) return null;
+    const notesEnabled = feed.notes_enabled;
     return /* @__PURE__ */ jsxs("div", { className: "flex h-full min-h-0 flex-col", children: [
       /* @__PURE__ */ jsx("div", { className: "shrink-0 space-y-2 border-b border-current/10 px-3 py-2", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-1.5 text-xs", children: [
         /* @__PURE__ */ jsxs("span", { className: "text-text-tertiary", children: [
@@ -1943,6 +1993,17 @@
           filtered.length,
           " \u7BC7"
         ] }),
+        onUnmarkFeed && /* @__PURE__ */ jsx(
+          "button",
+          {
+            type: "button",
+            onClick: onUnmarkFeed,
+            disabled: unmarkBusy,
+            title: "\u4ECE feed_dirs \u53D6\u6D88\u4FE1\u606F\u6E90\u6807\u8BB0\uFF08\u9605\u8BFB\u72B6\u6001\u4FDD\u7559\uFF09",
+            className: "rounded-full border border-current/15 px-2 py-0.5 text-text-secondary hover:border-current/30 disabled:opacity-50",
+            children: "\u53D6\u6D88\u4FE1\u606F\u6E90"
+          }
+        ),
         /* @__PURE__ */ jsx("span", { className: "mx-1 text-text-tertiary", children: "|" }),
         ["\u5168\u90E8", ...statuses].map((s) => /* @__PURE__ */ jsxs(
           "button",
@@ -2074,7 +2135,7 @@
                         children: /* @__PURE__ */ jsx(ExternalLink, { className: "size-3.5" })
                       }
                     ),
-                    /* @__PURE__ */ jsx(
+                    notesEnabled && /* @__PURE__ */ jsx(
                       "button",
                       {
                         type: "button",
@@ -3190,6 +3251,7 @@
     const { toast, showToast } = useToast();
     const { setTitle } = usePageHeader();
     const [roots, setRoots] = useState([]);
+    const [feedDirs, setFeedDirs] = useState([]);
     const [rootsLoaded, setRootsLoaded] = useState(false);
     const [currentPath, setCurrentPath] = useState(
       () => getLibraryPathParam()
@@ -3214,31 +3276,30 @@
     const [renameTarget, setRenameTarget] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [forwardOpen, setForwardOpen] = useState(false);
+    const [feedMarking, setFeedMarking] = useState(false);
     const pendingSelectRef = useRef(null);
     useLayoutEffect(() => {
       setTitle("\u8D44\u6599\u9986");
       return () => setTitle(null);
     }, [setTitle]);
-    useEffect(() => {
-      let cancelled = false;
-      libraryApi.getConfig().then((res) => {
-        if (cancelled) return;
+    const reloadConfig = useCallback(async () => {
+      try {
+        const res = await libraryApi.getConfig();
         setRoots(res.roots);
+        setFeedDirs(res.feed_dirs);
         setRootsLoaded(true);
         setCurrentPath((prev) => prev ?? res.roots[0]?.path ?? null);
-      }).catch((e) => {
-        if (!cancelled) {
-          setRootsLoaded(true);
-          showToast(`\u52A0\u8F7D\u8D44\u6599\u9986\u914D\u7F6E\u5931\u8D25:${e}`, "error");
-        }
-      });
-      return () => {
-        cancelled = true;
-      };
+      } catch (e) {
+        setRootsLoaded(true);
+        showToast(`\u52A0\u8F7D\u8D44\u6599\u9986\u914D\u7F6E\u5931\u8D25:${e}`, "error");
+      }
+    }, [showToast]);
+    useEffect(() => {
+      void reloadConfig();
     }, []);
     useEffect(() => {
       if (!currentPath || view !== "browse") return;
-      if (feedBranchOf(roots, currentPath)) {
+      if (feedBranchOf(roots, currentPath) || feedDirOf(feedDirs, currentPath)) {
         setListing(null);
         setSelected(null);
         setListingLoading(false);
@@ -3274,7 +3335,7 @@
       return () => {
         cancelled = true;
       };
-    }, [currentPath, view, refreshKey, roots]);
+    }, [currentPath, view, refreshKey, roots, feedDirs]);
     useEffect(() => {
       const timer = setTimeout(() => setSearchQuery(searchInput.trim()), 300);
       return () => clearTimeout(timer);
@@ -3436,8 +3497,35 @@
       },
       [showToast]
     );
+    const handleFeedMark = useCallback(
+      async (mark) => {
+        if (!currentPath || feedMarking) return;
+        setFeedMarking(true);
+        try {
+          if (mark) {
+            await libraryApi.markFeed(currentPath);
+            showToast("\u5DF2\u6807\u8BB0\u4E3A\u4FE1\u606F\u6E90", "success");
+          } else {
+            await libraryApi.unmarkFeed(currentPath);
+            showToast("\u5DF2\u53D6\u6D88\u4FE1\u606F\u6E90\u6807\u8BB0\uFF08\u9605\u8BFB\u72B6\u6001\u4FDD\u7559\uFF09", "success");
+          }
+          await reloadConfig();
+          setRefreshKey((k) => k + 1);
+        } catch (e) {
+          showToast(
+            `${mark ? "\u6807\u8BB0" : "\u53D6\u6D88"}\u5931\u8D25:${e instanceof Error ? e.message : e}`,
+            "error"
+          );
+        } finally {
+          setFeedMarking(false);
+        }
+      },
+      [currentPath, feedMarking, reloadConfig, showToast]
+    );
     const searching = searchQuery.length > 0;
     const feedBranch = feedBranchOf(roots, currentPath);
+    const feedDir = feedDirOf(feedDirs, currentPath);
+    const isFeed = feedBranch !== null || feedDir !== null;
     return /* @__PURE__ */ jsxs("div", { className: "hermes-library flex min-h-0 w-full min-w-0 flex-1 flex-col pt-1 sm:pt-2", children: [
       /* @__PURE__ */ jsx(Toast, { toast }),
       /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 flex-wrap items-center gap-2 border-b border-current/10 pb-2", children: [
@@ -3607,7 +3695,7 @@
               }
             ) }, file.path)) })
           ] })
-        ] }) : feedBranch && currentPath ? /* @__PURE__ */ jsx(
+        ] }) : isFeed && currentPath ? /* @__PURE__ */ jsx(
           LibraryFeedView,
           {
             path: currentPath,
@@ -3615,7 +3703,9 @@
             selectedPath: selected?.path ?? null,
             onSelectFile: handleSelectFile,
             onOpenFile: handleOpenFile,
-            onToast: showToast
+            onToast: showToast,
+            onUnmarkFeed: feedDir ? () => void handleFeedMark(false) : void 0,
+            unmarkBusy: feedMarking
           }
         ) : /* @__PURE__ */ jsx(
           LibraryFileArea,
@@ -3631,7 +3721,9 @@
             onOpenFile: handleOpenFile,
             onNavigate: navigate,
             clipboard,
-            onPaste: () => void handlePaste()
+            onPaste: () => void handlePaste(),
+            onMarkFeed: currentPath ? () => void handleFeedMark(true) : void 0,
+            markBusy: feedMarking
           }
         ) }),
         paneCollapsed ? /* @__PURE__ */ jsx("div", { className: "flex w-8 shrink-0 flex-col items-center border-l border-current/10 pt-2", children: /* @__PURE__ */ jsx(
@@ -3661,11 +3753,11 @@
             {
               file: selected,
               refreshKey,
-              onCopy: feedBranch ? void 0 : handleCopy,
-              onCut: feedBranch ? void 0 : handleCut,
-              onRename: feedBranch ? void 0 : handleRename,
-              onDelete: feedBranch ? void 0 : handleDelete,
-              onForward: feedBranch ? void 0 : handleForward
+              onCopy: isFeed ? void 0 : handleCopy,
+              onCut: isFeed ? void 0 : handleCut,
+              onRename: isFeed ? void 0 : handleRename,
+              onDelete: isFeed ? void 0 : handleDelete,
+              onForward: isFeed ? void 0 : handleForward
             }
           )
         ] })
@@ -3751,6 +3843,7 @@ lucide-react/dist/esm/icons/panel-right-open.js:
 lucide-react/dist/esm/icons/pen-line.js:
 lucide-react/dist/esm/icons/pencil.js:
 lucide-react/dist/esm/icons/refresh-cw.js:
+lucide-react/dist/esm/icons/rss.js:
 lucide-react/dist/esm/icons/save.js:
 lucide-react/dist/esm/icons/scissors.js:
 lucide-react/dist/esm/icons/search.js:
