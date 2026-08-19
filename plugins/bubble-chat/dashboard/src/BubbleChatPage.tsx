@@ -131,7 +131,10 @@ export default function BubbleChatPage() {
   const draftKey = resumeParam ?? "new";
 
   return (
-    <div className="flex min-h-0 flex-1 gap-2 pb-2">
+    // `hermes-bubble-chat` is the CSS scope anchor: build.mjs prefixes every
+    // emitted plugin rule with it so plugin utilities can never restyle host
+    // chrome (see the scopeCss comment in build.mjs).
+    <div className="hermes-bubble-chat flex min-h-0 flex-1 gap-2 pb-2">
       {/* Conversation switcher — desktop only (mobile uses the drawer below). */}
       {sidebarCollapsed ? (
         <div

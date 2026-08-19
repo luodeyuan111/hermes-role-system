@@ -4540,161 +4540,166 @@ ${body}` : body);
     const connected = state.connState === "open";
     const composerDisabled = !connected || !state.sessionReady;
     const draftKey = resumeParam ?? "new";
-    return /* @__PURE__ */ jsxs("div", { className: "flex min-h-0 flex-1 gap-2 pb-2", children: [
-      sidebarCollapsed ? /* @__PURE__ */ jsx(
-        "div",
-        {
-          className: cn(
-            "hidden lg:flex w-10 shrink-0 min-h-0 flex-col items-center",
-            "rounded-xl border border-current/10 py-2"
-          ),
-          children: /* @__PURE__ */ jsx(
-            Button,
+    return (
+      // `hermes-bubble-chat` is the CSS scope anchor: build.mjs prefixes every
+      // emitted plugin rule with it so plugin utilities can never restyle host
+      // chrome (see the scopeCss comment in build.mjs).
+      /* @__PURE__ */ jsxs("div", { className: "hermes-bubble-chat flex min-h-0 flex-1 gap-2 pb-2", children: [
+        sidebarCollapsed ? /* @__PURE__ */ jsx(
+          "div",
+          {
+            className: cn(
+              "hidden lg:flex w-10 shrink-0 min-h-0 flex-col items-center",
+              "rounded-xl border border-current/10 py-2"
+            ),
+            children: /* @__PURE__ */ jsx(
+              Button,
+              {
+                ghost: true,
+                size: "icon",
+                onClick: toggleSidebar,
+                "aria-label": "\u5C55\u5F00\u4F1A\u8BDD\u5217\u8868",
+                title: "\u5C55\u5F00\u4F1A\u8BDD\u5217\u8868",
+                className: "text-text-secondary hover:text-foreground",
+                children: /* @__PURE__ */ jsx(PanelLeftOpen, {})
+              }
+            )
+          }
+        ) : /* @__PURE__ */ jsx(
+          "div",
+          {
+            className: cn(
+              "hidden lg:flex w-60 shrink-0 min-h-0 flex-col",
+              "rounded-xl border border-current/10 py-2"
+            ),
+            children: /* @__PURE__ */ jsx(
+              ChatSessionList,
+              {
+                activeSessionId: resumeParam,
+                profile: scopedProfile,
+                onNewChat: startNewChat,
+                manageable: true,
+                onSessionDeleted: handleSessionDeleted,
+                onCollapse: toggleSidebar
+              }
+            )
+          }
+        ),
+        drawerOpen && /* @__PURE__ */ jsxs("div", { className: "fixed inset-0 z-50 lg:hidden", children: [
+          /* @__PURE__ */ jsx(
+            "div",
             {
-              ghost: true,
-              size: "icon",
-              onClick: toggleSidebar,
-              "aria-label": "\u5C55\u5F00\u4F1A\u8BDD\u5217\u8868",
-              title: "\u5C55\u5F00\u4F1A\u8BDD\u5217\u8868",
-              className: "text-text-secondary hover:text-foreground",
-              children: /* @__PURE__ */ jsx(PanelLeftOpen, {})
+              className: "absolute inset-0 bg-black/50",
+              "aria-hidden": true,
+              onClick: () => setDrawerOpen(false)
             }
-          )
-        }
-      ) : /* @__PURE__ */ jsx(
-        "div",
-        {
-          className: cn(
-            "hidden lg:flex w-60 shrink-0 min-h-0 flex-col",
-            "rounded-xl border border-current/10 py-2"
           ),
-          children: /* @__PURE__ */ jsx(
+          /* @__PURE__ */ jsx("div", { className: "absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-current/10 bg-background-base py-2 shadow-xl", children: /* @__PURE__ */ jsx(
             ChatSessionList,
             {
               activeSessionId: resumeParam,
               profile: scopedProfile,
               onNewChat: startNewChat,
+              onPicked: () => setDrawerOpen(false),
               manageable: true,
-              onSessionDeleted: handleSessionDeleted,
-              onCollapse: toggleSidebar
+              onSessionDeleted: handleSessionDeleted
             }
-          )
-        }
-      ),
-      drawerOpen && /* @__PURE__ */ jsxs("div", { className: "fixed inset-0 z-50 lg:hidden", children: [
-        /* @__PURE__ */ jsx(
-          "div",
-          {
-            className: "absolute inset-0 bg-black/50",
-            "aria-hidden": true,
-            onClick: () => setDrawerOpen(false)
-          }
-        ),
-        /* @__PURE__ */ jsx("div", { className: "absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-current/10 bg-background-base py-2 shadow-xl", children: /* @__PURE__ */ jsx(
-          ChatSessionList,
-          {
-            activeSessionId: resumeParam,
-            profile: scopedProfile,
-            onNewChat: startNewChat,
-            onPicked: () => setDrawerOpen(false),
-            manageable: true,
-            onSessionDeleted: handleSessionDeleted
-          }
-        ) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "flex min-w-0 min-h-0 flex-1 flex-col gap-2", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center", children: [
-          /* @__PURE__ */ jsx("span", { className: "lg:hidden", children: /* @__PURE__ */ jsx(
-            Button,
-            {
-              ghost: true,
-              size: "icon",
-              onClick: () => setDrawerOpen(true),
-              "aria-label": "\u4F1A\u8BDD\u5217\u8868",
-              title: "\u4F1A\u8BDD\u5217\u8868",
-              children: /* @__PURE__ */ jsx(PanelLeft, {})
-            }
-          ) }),
-          /* @__PURE__ */ jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsx(ChatBackgroundPicker, { bg: chatBg, profile: scopedProfile }) })
+          ) })
         ] }),
-        state.error && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive", children: [
-          /* @__PURE__ */ jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
-          /* @__PURE__ */ jsx("span", { className: "min-w-0 flex-1 wrap-break-word", children: state.error }),
+        /* @__PURE__ */ jsxs("div", { className: "flex min-w-0 min-h-0 flex-1 flex-col gap-2", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center", children: [
+            /* @__PURE__ */ jsx("span", { className: "lg:hidden", children: /* @__PURE__ */ jsx(
+              Button,
+              {
+                ghost: true,
+                size: "icon",
+                onClick: () => setDrawerOpen(true),
+                "aria-label": "\u4F1A\u8BDD\u5217\u8868",
+                title: "\u4F1A\u8BDD\u5217\u8868",
+                children: /* @__PURE__ */ jsx(PanelLeft, {})
+              }
+            ) }),
+            /* @__PURE__ */ jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsx(ChatBackgroundPicker, { bg: chatBg, profile: scopedProfile }) })
+          ] }),
+          state.error && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive", children: [
+            /* @__PURE__ */ jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
+            /* @__PURE__ */ jsx("span", { className: "min-w-0 flex-1 wrap-break-word", children: state.error }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                ghost: true,
+                size: "icon",
+                onClick: bubbleChatStore.connectGateway,
+                "aria-label": "\u91CD\u65B0\u8FDE\u63A5",
+                title: "\u91CD\u65B0\u8FDE\u63A5",
+                children: /* @__PURE__ */ jsx(RefreshCw, {})
+              }
+            )
+          ] }),
+          !connected && !state.error && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 rounded-lg border border-current/10 bg-muted/40 px-3 py-2 text-xs text-text-secondary", children: [
+            /* @__PURE__ */ jsx(Spinner, {}),
+            state.connState === "connecting" ? "\u6B63\u5728\u8FDE\u63A5\u7F51\u5173\u2026" : "\u8FDE\u63A5\u5DF2\u65AD\u5F00",
+            state.connState === "closed" && /* @__PURE__ */ jsx(Button, { ghost: true, size: "sm", onClick: bubbleChatStore.connectGateway, prefix: /* @__PURE__ */ jsx(RefreshCw, {}), children: "\u91CD\u65B0\u8FDE\u63A5" })
+          ] }),
+          /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl",
+              style: chatBg.style,
+              children: [
+                chatBg.dim > 0 && /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    "aria-hidden": true,
+                    className: "pointer-events-none absolute inset-0",
+                    style: { backgroundColor: `rgba(0, 0, 0, ${chatBg.dim / 100})` }
+                  }
+                ),
+                state.loadingHistory ? /* @__PURE__ */ jsxs("div", { className: "flex min-h-0 flex-1 items-center justify-center gap-2 text-sm text-text-secondary", children: [
+                  /* @__PURE__ */ jsx(Spinner, {}),
+                  " \u52A0\u8F7D\u804A\u5929\u8BB0\u5F55\u2026"
+                ] }) : /* @__PURE__ */ jsx(
+                  MessageList,
+                  {
+                    messages: state.messages,
+                    emptyHint: resumeParam ? "\u8FD9\u4E2A\u4F1A\u8BDD\u8FD8\u6CA1\u6709\u6D88\u606F" : "\u5F00\u59CB\u65B0\u7684\u5BF9\u8BDD\u5427",
+                    onRetry: retryMessage,
+                    onEdit: editMessage
+                  }
+                )
+              ]
+            }
+          ),
+          state.statusText && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 px-1 text-xs text-text-tertiary", children: [
+            /* @__PURE__ */ jsx("span", { className: "inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-tertiary" }),
+            /* @__PURE__ */ jsx("span", { className: "truncate", children: state.statusText })
+          ] }),
+          state.pendingPrompt && /* @__PURE__ */ jsx(
+            PendingPromptCard,
+            {
+              prompt: state.pendingPrompt,
+              busy: state.promptBusy,
+              onClarify: bubbleChatStore.answerClarify,
+              onApproval: bubbleChatStore.answerApproval
+            }
+          ),
           /* @__PURE__ */ jsx(
-            Button,
+            Composer,
             {
-              ghost: true,
-              size: "icon",
-              onClick: bubbleChatStore.connectGateway,
-              "aria-label": "\u91CD\u65B0\u8FDE\u63A5",
-              title: "\u91CD\u65B0\u8FDE\u63A5",
-              children: /* @__PURE__ */ jsx(RefreshCw, {})
+              draftKey,
+              disabled: composerDisabled,
+              generating: state.generating,
+              busy: state.slashBusy,
+              profile: scopedProfile,
+              inject,
+              onSend: send,
+              onInterrupt: bubbleChatStore.interrupt,
+              onAttachImage: bubbleChatStore.attachImage
             }
           )
-        ] }),
-        !connected && !state.error && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 rounded-lg border border-current/10 bg-muted/40 px-3 py-2 text-xs text-text-secondary", children: [
-          /* @__PURE__ */ jsx(Spinner, {}),
-          state.connState === "connecting" ? "\u6B63\u5728\u8FDE\u63A5\u7F51\u5173\u2026" : "\u8FDE\u63A5\u5DF2\u65AD\u5F00",
-          state.connState === "closed" && /* @__PURE__ */ jsx(Button, { ghost: true, size: "sm", onClick: bubbleChatStore.connectGateway, prefix: /* @__PURE__ */ jsx(RefreshCw, {}), children: "\u91CD\u65B0\u8FDE\u63A5" })
-        ] }),
-        /* @__PURE__ */ jsxs(
-          "div",
-          {
-            className: "relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl",
-            style: chatBg.style,
-            children: [
-              chatBg.dim > 0 && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  "aria-hidden": true,
-                  className: "pointer-events-none absolute inset-0",
-                  style: { backgroundColor: `rgba(0, 0, 0, ${chatBg.dim / 100})` }
-                }
-              ),
-              state.loadingHistory ? /* @__PURE__ */ jsxs("div", { className: "flex min-h-0 flex-1 items-center justify-center gap-2 text-sm text-text-secondary", children: [
-                /* @__PURE__ */ jsx(Spinner, {}),
-                " \u52A0\u8F7D\u804A\u5929\u8BB0\u5F55\u2026"
-              ] }) : /* @__PURE__ */ jsx(
-                MessageList,
-                {
-                  messages: state.messages,
-                  emptyHint: resumeParam ? "\u8FD9\u4E2A\u4F1A\u8BDD\u8FD8\u6CA1\u6709\u6D88\u606F" : "\u5F00\u59CB\u65B0\u7684\u5BF9\u8BDD\u5427",
-                  onRetry: retryMessage,
-                  onEdit: editMessage
-                }
-              )
-            ]
-          }
-        ),
-        state.statusText && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 px-1 text-xs text-text-tertiary", children: [
-          /* @__PURE__ */ jsx("span", { className: "inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-tertiary" }),
-          /* @__PURE__ */ jsx("span", { className: "truncate", children: state.statusText })
-        ] }),
-        state.pendingPrompt && /* @__PURE__ */ jsx(
-          PendingPromptCard,
-          {
-            prompt: state.pendingPrompt,
-            busy: state.promptBusy,
-            onClarify: bubbleChatStore.answerClarify,
-            onApproval: bubbleChatStore.answerApproval
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          Composer,
-          {
-            draftKey,
-            disabled: composerDisabled,
-            generating: state.generating,
-            busy: state.slashBusy,
-            profile: scopedProfile,
-            inject,
-            onSend: send,
-            onInterrupt: bubbleChatStore.interrupt,
-            onAttachImage: bubbleChatStore.attachImage
-          }
-        )
+        ] })
       ] })
-    ] });
+    );
   }
 
   // src/index.tsx

@@ -47,6 +47,44 @@ async function buildJs() {
   });
 }
 
+/**
+ * Scope every emitted rule under the plugin root class so the plugin's
+ * utilities can NEVER style host chrome. This is load-bearing, not cosmetic:
+ * the compiled utilities are unlayered CSS, and the plugin <link> is injected
+ * after the host stylesheet — unlayered rules outrank the host's entire
+ * `@layer utilities` cascade, so a bare `.fixed` from the plugin flattens the
+ * host sidebar's `lg:sticky` back to `fixed`, sliding the whole content
+ * column under the navigation bar. Scoping to the plugin root eliminates the
+ * collision class entirely (and, by raising specificity to (0,2,0), keeps
+ * className overrides on host DS components winning inside the plugin).
+ *
+ * `keepGlobal` selectors stay untouched on purpose: :root/:host theme
+ * aliases, keyframes, and the deliberate host-layout rule in styles.css
+ * (`main:has(.hermes-library) …`, which PROMOTES the route-outlet wrapper —
+ * it targets host elements by design and must keep winning).
+ */
+const PLUGIN_SCOPE = ".hermes-library";
+const KEEP_GLOBAL = [/^:root\b/, /^:host\b/, /^main\b/];
+
+async function scopeCss(css) {
+  const postcss = (
+    await import(pathToFileURL(repoRequire.resolve("postcss")).href)
+  ).default;
+  const root = postcss.parse(css);
+  root.walkRules((rule) => {
+    // Leave @keyframes frames (from/to/%) alone.
+    for (let p = rule.parent; p; p = p.parent) {
+      if (p.type === "atrule" && /keyframes$/.test(p.name)) return;
+    }
+    rule.selectors = rule.selectors.map((s) => {
+      const sel = s.trim();
+      if (KEEP_GLOBAL.some((re) => re.test(sel))) return sel;
+      return `${PLUGIN_SCOPE} ${sel}`;
+    });
+  });
+  return root.toString();
+}
+
 async function buildCss() {
   const { compile } = await import(
     pathToFileURL(webRequire.resolve("@tailwindcss/node")).href
@@ -75,7 +113,7 @@ async function buildCss() {
     sources: [{ base: SRC, pattern: "**/*.{ts,tsx,css}", negated: false }],
   });
   const candidates = scanner.scan();
-  const css = compiler.build(candidates);
+  const css = await scopeCss(compiler.build(candidates));
   await writeFile(path.join(DIST, "style.css"), css, "utf8");
   console.log(`dist/style.css  ${(css.length / 1024).toFixed(1)} KiB (${candidates.length} candidates)`);
 }
