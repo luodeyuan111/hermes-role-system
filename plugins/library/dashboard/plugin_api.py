@@ -463,7 +463,16 @@ async def library_file_forward(payload: LibraryForward):
     # 之外的环境加载即崩，hermes 升级时需复查该私有契约是否仍成立。
     from hermes_cli import web_server as _ws
 
-    db = _ws._open_session_db_for_profile(None)
+    # 上游 v0.20+ 给该函数加了必选关键字参数 read_only；旧版（含本仓库
+    # 基线）没有。按运行环境的实际签名自适应，保证插件在新旧 hermes
+    # 上都能跑。此处只做会话存在性预检（纯读），故传 read_only=True。
+    import inspect as _inspect
+
+    _open_db = _ws._open_session_db_for_profile
+    if "read_only" in _inspect.signature(_open_db).parameters:
+        db = _open_db(None, read_only=True)
+    else:
+        db = _open_db(None)
     try:
         sid = db.resolve_session_id(payload.session_id)
         session = db.get_session(sid) if sid else None
