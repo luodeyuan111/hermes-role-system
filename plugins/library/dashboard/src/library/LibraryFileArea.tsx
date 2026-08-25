@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  Check,
   ClipboardPaste,
+  Copy,
   File,
   Rss,
   FileAudio,
@@ -284,6 +286,20 @@ export function LibraryFileArea({
   const isEmpty =
     listing && listing.dirs.length === 0 && listing.files.length === 0;
 
+  // 复制当前目录的绝对路径（配合 /chat 直接粘贴路径使用）。
+  const [pathCopied, setPathCopied] = useState(false);
+  const copyCurrentDir = useCallback(async () => {
+    const path = listing?.path;
+    if (!path) return;
+    try {
+      await navigator.clipboard.writeText(path);
+      setPathCopied(true);
+      setTimeout(() => setPathCopied(false), 1500);
+    } catch {
+      /* 剪贴板不可用（非安全上下文等） */
+    }
+  }, [listing?.path]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex min-w-0 items-center gap-2 border-b border-current/10 px-3 py-2">
@@ -306,6 +322,20 @@ export function LibraryFileArea({
             </span>
           ))}
         </nav>
+        <button
+          type="button"
+          onClick={copyCurrentDir}
+          disabled={!listing?.path}
+          title="复制当前目录路径"
+          aria-label="复制当前目录路径"
+          className="flex shrink-0 items-center rounded-sm border border-current/15 px-1.5 py-1 text-xs text-text-secondary hover:border-current/30 hover:text-midground disabled:opacity-50"
+        >
+          {pathCopied ? (
+            <Check className="size-3.5 text-emerald-400" />
+          ) : (
+            <Copy className="size-3.5" />
+          )}
+        </button>
         {onMarkFeed && (
           <button
             type="button"

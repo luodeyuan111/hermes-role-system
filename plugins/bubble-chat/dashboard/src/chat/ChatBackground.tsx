@@ -20,7 +20,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import { ImagePlus, Loader2, Palette, RotateCcw, X } from "lucide-react";
+import { ImagePlus, Loader2, Palette, RotateCcw, Sparkles, X } from "lucide-react";
 import { Button } from "../sdk";
 
 import { resolveImageUrl } from "./fileAccess";
@@ -130,18 +130,82 @@ export function useChatBackground() {
   return { setting, apply, style, dim };
 }
 
+/* ---------------------------------------------------------------------- */
+/*  Agent avatar (助手头像)                                                */
+/* ---------------------------------------------------------------------- */
+
+export const AGENT_AVATAR_KEY = "hermes.bubblechat.agentAvatar";
+
+/**
+ * Custom assistant avatar. Stores the gateway-local image path (never a
+ * data URL) in localStorage, exactly like the background image; the URL is
+ * re-resolved for display. Browser-local only.
+ */
+export function useAgentAvatar() {
+  const [path, setPath] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(AGENT_AVATAR_KEY);
+    } catch {
+      return null;
+    }
+  });
+  const [url, setUrl] = useState<string | null>(null);
+
+  const apply = useCallback((next: string | null) => {
+    setPath(next);
+    try {
+      if (next) localStorage.setItem(AGENT_AVATAR_KEY, next);
+      else localStorage.removeItem(AGENT_AVATAR_KEY);
+    } catch {
+      /* storage may be unavailable (private mode) — session-only then */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!path) {
+      setUrl(null);
+      return;
+    }
+    let cancelled = false;
+    let blobUrl: string | null = null;
+    resolveImageUrl(path)
+      .then((u) => {
+        if (cancelled) {
+          if (u.startsWith("blob:")) URL.revokeObjectURL(u);
+          return;
+        }
+        if (u.startsWith("blob:")) blobUrl = u;
+        setUrl(u);
+      })
+      .catch(() => {
+        if (!cancelled) setUrl(null);
+      });
+    return () => {
+      cancelled = true;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [path]);
+
+  return { path, url, apply };
+}
+
 export function ChatBackgroundPicker({
   bg,
   profile,
+  avatar,
 }: {
   bg: ReturnType<typeof useChatBackground>;
   /** Management profile scope for the image upload. */
   profile?: string;
+  /** 助手头像设置（可选；不传则面板只显示背景设置）。 */
+  avatar?: ReturnType<typeof useAgentAvatar>;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const avatarFileRef = useRef<HTMLInputElement | null>(null);
   const { setting, apply, dim } = bg;
 
   const currentPreset = setting?.type === "preset" ? setting.value : null;
@@ -160,6 +224,20 @@ export function ChatBackgroundPicker({
     }
   };
 
+  const uploadAvatar = async (file: File) => {
+    if (!avatar) return;
+    setAvatarBusy(true);
+    setError(null);
+    try {
+      const res = await uploadChatImage(file, profile ?? "");
+      avatar.apply(res.path);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "头像上传失败");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
   return (
     <div className="relative">
       <Button
@@ -167,11 +245,11 @@ export function ChatBackgroundPicker({
         size="sm"
         onClick={() => setOpen((o) => !o)}
         prefix={<Palette />}
-        aria-label="聊天背景"
-        title="聊天背景"
+        aria-label="个性化"
+        title="个性化（背景 / 助手头像）"
         className="text-text-secondary hover:text-foreground"
       >
-        背景
+        个性化
       </Button>
 
       {open && (
@@ -286,6 +364,57 @@ export function ChatBackgroundPicker({
               </div>
             )}
 
+            {avatar && (
+              <div className="flex flex-col gap-1.5 border-t border-current/10 pt-2.5">
+                <span className="text-xs font-medium text-foreground">助手头像</span>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-success/15 text-success">
+                    {avatar.url ? (
+                      <img
+                        src={avatar.url}
+                        alt="助手头像"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                  </span>
+                  <Button
+                    outlined
+                    size="sm"
+                    disabled={avatarBusy}
+                    onClick={() => avatarFileRef.current?.click()}
+                    prefix={
+                      avatarBusy ? <Loader2 className="animate-spin" /> : <ImagePlus />
+                    }
+                  >
+                    {avatarBusy ? "上传中…" : "上传头像"}
+                  </Button>
+                  {avatar.path && (
+                    <button
+                      type="button"
+                      onClick={() => avatar.apply(null)}
+                      title="恢复默认头像"
+                      className="cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-foreground"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={avatarFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void uploadAvatar(f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => apply(null)}
@@ -302,7 +431,7 @@ export function ChatBackgroundPicker({
             </button>
 
             <p className="text-[0.625rem] leading-relaxed text-text-tertiary">
-              背景设置仅保存在当前浏览器（localStorage），不会影响其他设备。
+              背景与头像设置仅保存在当前浏览器（localStorage），不会影响其他设备。
             </p>
           </div>
         </>

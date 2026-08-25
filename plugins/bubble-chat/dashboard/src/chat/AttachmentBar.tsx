@@ -6,9 +6,10 @@
  */
 
 import { useEffect, useState } from "react";
-import { File as FileIcon, ImageOff, X } from "lucide-react";
+import { File as FileIcon, Folder, ImageOff, Music, X } from "lucide-react";
 import { Spinner } from "../shared/Spinner";
 
+import { mediaKindForPath } from "./content";
 import { resolveImageUrl } from "./fileAccess";
 import { cn } from "../sdk";
 
@@ -22,11 +23,14 @@ export interface PendingImage {
 
 export interface PendingFile {
   id: string;
-  /** Absolute gateway path returned by /api/files/upload-stream. */
+  /** Absolute path: upload target for regular files, the original
+   *  location for directory references (no upload happens for those). */
   path: string;
   name: string;
   size: number;
   uploading?: boolean;
+  /** Directory reference (attached by path, never uploaded). */
+  dir?: boolean;
 }
 
 export function formatBytes(bytes: number): string {
@@ -111,13 +115,17 @@ function FileChip({ file, onRemove }: { file: PendingFile; onRemove: () => void 
     >
       {file.uploading ? (
         <Spinner />
+      ) : file.dir ? (
+        <Folder className="h-4 w-4 shrink-0 text-text-secondary" />
+      ) : mediaKindForPath(file.name) === "audio" ? (
+        <Music className="h-4 w-4 shrink-0 text-text-secondary" />
       ) : (
         <FileIcon className="h-4 w-4 shrink-0 text-text-secondary" />
       )}
       <span className="min-w-0">
         <span className="block truncate text-xs text-foreground">{file.name}</span>
         <span className="block text-[10px] text-text-tertiary">
-          {file.uploading ? "上传中…" : formatBytes(file.size)}
+          {file.uploading ? "上传中…" : file.dir ? "文件夹（按路径引用）" : formatBytes(file.size)}
         </span>
       </span>
       <button

@@ -21,6 +21,7 @@ export function MessageList({
   emptyHint,
   onRetry,
   onEdit,
+  agentAvatarUrl,
 }: {
   messages: ChatMessage[];
   emptyHint?: string;
@@ -28,6 +29,8 @@ export function MessageList({
   onRetry?: (msg: ChatMessage) => void;
   /** Bubble action: refill the composer for editing (user messages). */
   onEdit?: (msg: ChatMessage) => void;
+  /** Custom assistant avatar URL (个性化设置), null/undefined = default icon. */
+  agentAvatarUrl?: string | null;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const atBottomRef = useRef(true);
@@ -49,10 +52,22 @@ export function MessageList({
   }, []);
 
   // New message (or streaming growth): follow the tail only when the user
-  // hasn't scrolled up into the backlog.
+  // hasn't scrolled up into the backlog. rAF-coalesced: the store emits per
+  // streaming delta (20-50/s) and scrollTo forces a synchronous layout of
+  // the whole list each time — at delta rate that alone can trip Firefox's
+  // "this page is slowing down" warning on long conversations.
+  const scrollRafRef = useRef(0);
   useEffect(() => {
-    if (atBottomRef.current) scrollToBottom();
+    if (!atBottomRef.current || scrollRafRef.current) return;
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = 0;
+      scrollToBottom();
+    });
   }, [messages, scrollToBottom]);
+  useEffect(
+    () => () => cancelAnimationFrame(scrollRafRef.current),
+    [],
+  );
 
   // Retry is offered on every user message and on the latest assistant
   // reply (which resubmits the user text that prompted it).
@@ -79,6 +94,7 @@ export function MessageList({
             <MessageBubble
               key={m.id}
               msg={m}
+              agentAvatarUrl={agentAvatarUrl}
               onRetry={
                 onRetry && (m.role === "user" || m.id === lastAssistantId)
                   ? onRetry

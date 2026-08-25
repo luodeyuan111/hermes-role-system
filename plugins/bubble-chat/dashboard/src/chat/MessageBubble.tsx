@@ -6,7 +6,7 @@
  * render below the text via MediaInline; leftover file paths become FileChips.
  */
 
-import { useMemo, useState, type MouseEvent } from "react";
+import { memo, useMemo, useState, type MouseEvent } from "react";
 import { Check, Copy, Pencil, RotateCcw, Sparkles } from "lucide-react";
 
 import { Markdown } from "../Markdown";
@@ -63,26 +63,45 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function Avatar({ role }: { role: "user" | "assistant" }) {
+function Avatar({
+  role,
+  src,
+}: {
+  role: "user" | "assistant";
+  /** Custom assistant avatar URL (from 个性化设置); falls back to the icon. */
+  src?: string | null;
+}) {
   return (
     <div
       aria-hidden
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium",
+        "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-medium",
         role === "user"
           ? "bg-primary/15 text-primary"
           : "bg-success/15 text-success",
       )}
     >
-      {role === "user" ? "我" : <Sparkles className="h-4 w-4" />}
+      {role === "user" ? (
+        "我"
+      ) : src ? (
+        <img src={src} alt="" className="h-full w-full object-cover" />
+      ) : (
+        <Sparkles className="h-5 w-5" />
+      )}
     </div>
   );
 }
 
-export function MessageBubble({
+// Memoized: the store emits per streaming delta (20-50/s), and without a
+// stable-reference bail-out every one of those re-renders ALL bubbles in a
+// long conversation — enough main-thread work for Firefox's "this page is
+// slowing down" warning. Untouched messages keep the same object identity
+// (store patches via map), so they skip render entirely.
+export const MessageBubble = memo(function MessageBubble({
   msg,
   onRetry,
   onEdit,
+  agentAvatarUrl,
 }: {
   msg: ChatMessage;
   /** Resubmit this message's text (user) or the prompting user text
@@ -90,6 +109,8 @@ export function MessageBubble({
   onRetry?: (msg: ChatMessage) => void;
   /** Refill the composer with this message's text for editing. */
   onEdit?: (msg: ChatMessage) => void;
+  /** Custom assistant avatar URL (个性化设置), null/undefined = default icon. */
+  agentAvatarUrl?: string | null;
 }) {
   // Hooks run unconditionally (system/tool rows return early below).
   const { text, media } = useMemo(() => extractMediaFromText(msg.text), [msg.text]);
@@ -153,7 +174,7 @@ export function MessageBubble({
         isUser ? "flex-row-reverse" : "flex-row",
       )}
     >
-      <Avatar role={isUser ? "user" : "assistant"} />
+      <Avatar role={isUser ? "user" : "assistant"} src={agentAvatarUrl} />
 
       <div
         className={cn(
@@ -230,4 +251,4 @@ export function MessageBubble({
       {fileModal}
     </div>
   );
-}
+});

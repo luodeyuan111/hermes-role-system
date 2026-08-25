@@ -851,6 +851,28 @@ PLATFORM_HINTS = {
         "![alt](/path) for local files; local paths are not served that way. "
         "Use MEDIA:/absolute/path instead."
     ),
+    "dashboard": (
+        "You are in the Hermes dashboard's bubble chat (browser UI). "
+        "Markdown renders — headings, bold, italic, code blocks, lists, "
+        "links. To deliver a media file to the user (e.g. an image you "
+        "generated or an audio file from speech synthesis), put "
+        "MEDIA:/absolute/path/to/file on its OWN line in your response: "
+        "images display inline, and audio/video play inline right in the "
+        "chat. A bare absolute media path on its own line renders the same "
+        "way. Paths mentioned inside a sentence stay clickable file chips "
+        "instead, so prefer the own-line form when the user should see or "
+        "hear the result immediately."
+    ),
+    "pet": (
+        "You are talking through a tiny desktop-pet overlay with "
+        "TEXT-TO-SPEECH: every reply is synthesized and read aloud sentence "
+        "by sentence, and shown as one small bubble at a time. Keep replies "
+        "SHORT and spoken-style: one to three plain sentences, no markdown, "
+        "no headings, no lists, no tables, no code blocks, no URLs — write "
+        "exactly what should be said out loud. If a task needs detail, give "
+        "the one-line spoken summary and offer to continue in the full chat "
+        "UI. Do NOT emit MEDIA: tags here."
+    ),
 }
 
 # Telegram rich-messages extension — only injected when the user has opted in

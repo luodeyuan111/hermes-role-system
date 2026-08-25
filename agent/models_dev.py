@@ -20,6 +20,7 @@ rather than parsing the raw JSON themselves.
 
 import json
 import logging
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,6 +38,34 @@ _MODELS_DEV_CACHE_TTL = 3600  # 1 hour in-memory
 # In-memory cache
 _models_dev_cache: Dict[str, Any] = {}
 _models_dev_cache_time: float = 0
+
+# Background-refresh guard: at most one in-flight network refresh, so a
+# burst of cold agent builds can't stack concurrent fetches.
+_refresh_lock = threading.Lock()
+_refresh_in_flight = False
+
+
+def _background_refresh() -> None:
+    """Refresh the registry from the network off the caller's critical path."""
+    global _refresh_in_flight
+    try:
+        fetch_models_dev(force_refresh=True)
+    except Exception as e:
+        logger.debug("models.dev background refresh failed: %s", e)
+    finally:
+        with _refresh_lock:
+            _refresh_in_flight = False
+
+
+def _kick_background_refresh() -> None:
+    global _refresh_in_flight
+    with _refresh_lock:
+        if _refresh_in_flight:
+            return
+        _refresh_in_flight = True
+    threading.Thread(
+        target=_background_refresh, daemon=True, name="models-dev-refresh"
+    ).start()
 
 
 # ---------------------------------------------------------------------------
@@ -244,18 +273,22 @@ def fetch_models_dev(force_refresh: bool = False) -> Dict[str, Any]:
 
     Cache hierarchy (when ``force_refresh=False``):
       1. In-memory cache, populated and < TTL old → return immediately.
-      2. **Disk cache file < TTL old by mtime → load, populate in-mem, return.**
-         No network call. Saves ~500 ms per cold-start agent construction;
-         ``models.dev`` only changes when providers add new models, so a
-         1 hour staleness window is acceptable (same TTL as in-mem cache).
-      3. Network fetch → on success, save to disk + in-mem and return.
+      2. **ANY loadable disk cache → return it right away, fresh or stale.**
+         The registry changes only when providers add models, and a blocking
+         network fetch here stalls cold agent construction (tool-definition
+         checks read capabilities synchronously) for the whole timeout window
+         when the link is slow or dead. A stale file just kicks a background
+         refresh (stale-while-revalidate) so the data self-heals off the
+         critical path.
+      3. No disk cache at all (first run on a machine) → one blocking
+         network fetch → on success, save to disk + in-mem and return.
       4. Network fails → fall back to ANY available disk cache (even stale)
          with a short 5 min in-mem grace period before retrying network.
 
     When ``force_refresh=True`` (used by ``hermes config refresh``, the
-    \"refresh model catalog\" code path), stages 1 and 2 are skipped. The
-    function always hits the network and only falls back to disk if the
-    network call fails.
+    \"refresh model catalog\" code path, and the background refresher),
+    stages 1 and 2 are skipped. The function always hits the network and
+    only falls back to disk if the network call fails.
     """
     global _models_dev_cache, _models_dev_cache_time
 
@@ -268,27 +301,34 @@ def fetch_models_dev(force_refresh: bool = False) -> Dict[str, Any]:
     ):
         return _models_dev_cache
 
-    # Stage 2: fresh-by-mtime disk cache short-circuits the network call.
-    # Only kicks in on cold-start processes (in-mem cache is empty or
-    # expired) and only when the user hasn't asked for a forced refresh.
-    # Skipped if the disk cache file is missing, unreadable, or older
-    # than _MODELS_DEV_CACHE_TTL.
+    # Stage 2: any disk cache short-circuits the network call. Fresh files
+    # are authoritative; stale ones are served anyway (models.dev data ages
+    # gracefully) while a background refresh updates them.
     if not force_refresh:
         disk_age = _disk_cache_age_seconds()
-        if disk_age is not None and disk_age < _MODELS_DEV_CACHE_TTL:
+        if disk_age is not None:
             disk_data = _load_disk_cache()
             if disk_data:
                 _models_dev_cache = disk_data
                 # Anchor in-mem TTL to the disk file's age so we don't
                 # extend an already-aging cache by another full hour.
                 _models_dev_cache_time = time.time() - disk_age
-                logger.debug(
-                    "Loaded models.dev from fresh disk cache "
-                    "(%d providers, age=%.0fs)", len(disk_data), disk_age,
-                )
+                if disk_age >= _MODELS_DEV_CACHE_TTL:
+                    logger.debug(
+                        "models.dev disk cache is stale (age=%.0fs) — "
+                        "serving it and refreshing in the background",
+                        disk_age,
+                    )
+                    _kick_background_refresh()
+                else:
+                    logger.debug(
+                        "Loaded models.dev from fresh disk cache "
+                        "(%d providers, age=%.0fs)", len(disk_data), disk_age,
+                    )
                 return _models_dev_cache
 
-    # Stage 3: network fetch.
+    # Stage 3: network fetch (first run ever, forced refresh, or the
+    # background refresher).
     try:
         response = requests.get(MODELS_DEV_URL, timeout=15)
         response.raise_for_status()

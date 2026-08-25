@@ -1251,6 +1251,17 @@
       ] })
     ] });
     const isEmpty = listing && listing.dirs.length === 0 && listing.files.length === 0;
+    const [pathCopied, setPathCopied] = useState(false);
+    const copyCurrentDir = useCallback(async () => {
+      const path = listing?.path;
+      if (!path) return;
+      try {
+        await navigator.clipboard.writeText(path);
+        setPathCopied(true);
+        setTimeout(() => setPathCopied(false), 1500);
+      } catch {
+      }
+    }, [listing?.path]);
     return /* @__PURE__ */ jsxs("div", { className: "flex h-full min-h-0 flex-col", children: [
       /* @__PURE__ */ jsxs("div", { className: "flex min-w-0 items-center gap-2 border-b border-current/10 px-3 py-2", children: [
         /* @__PURE__ */ jsx("nav", { className: "flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-sm [scrollbar-width:none]", children: crumbs.map((crumb, i) => /* @__PURE__ */ jsxs("span", { className: "flex shrink-0 items-center gap-1", children: [
@@ -1268,6 +1279,18 @@
             }
           )
         ] }, crumb.path)) }),
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            type: "button",
+            onClick: copyCurrentDir,
+            disabled: !listing?.path,
+            title: "\u590D\u5236\u5F53\u524D\u76EE\u5F55\u8DEF\u5F84",
+            "aria-label": "\u590D\u5236\u5F53\u524D\u76EE\u5F55\u8DEF\u5F84",
+            className: "flex shrink-0 items-center rounded-sm border border-current/15 px-1.5 py-1 text-xs text-text-secondary hover:border-current/30 hover:text-midground disabled:opacity-50",
+            children: pathCopied ? /* @__PURE__ */ jsx(Check, { className: "size-3.5 text-emerald-400" }) : /* @__PURE__ */ jsx(Copy, { className: "size-3.5" })
+          }
+        ),
         onMarkFeed && /* @__PURE__ */ jsxs(
           "button",
           {

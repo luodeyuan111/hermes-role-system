@@ -15,6 +15,7 @@
  * affordance and the chat pane keeps working.
  */
 
+import { memo } from "react";
 import { Button, useI18n, api, cn, timeAgo } from "./sdk";
 import type { SessionInfo, SessionSearchResult } from "./sdk";
 import { ListItem } from "./shared/ListItem";
@@ -96,7 +97,21 @@ function rowLabel(session: SessionInfo, untitled: string): string {
   return untitled;
 }
 
-export function ChatSessionList({
+/** Source badge shown before the row label for non-dashboard sessions, so
+ *  pet/TUI/QQ-originated conversations are recognizable at a glance. */
+const SOURCE_BADGES: Record<string, string> = {
+  pet: "🐾",
+  tui: "⌨️",
+  qqbot: "🐧",
+  cron: "⏰",
+};
+
+function sourceBadge(source: string | null): string | null {
+  if (!source || source === "dashboard") return null;
+  return SOURCE_BADGES[source] ?? null;
+}
+
+export function ChatSessionListImpl({
   activeSessionId,
   profile,
   className,
@@ -534,6 +549,11 @@ export function ChatSessionList({
                         className="mr-1 inline h-3 w-3 fill-warning align-[-0.1em] text-warning"
                       />
                     )}
+                    {sourceBadge(s.source) && (
+                      <span className="mr-1" title={`来源：${s.source}`}>
+                        {sourceBadge(s.source)}
+                      </span>
+                    )}
                     {rowLabel(s, t.sessions.untitledSession)}
                   </span>
                   {manageable && !selectMode && (
@@ -793,3 +813,8 @@ export function ChatSessionList({
     </aside>
   );
 }
+
+// Memoized: the bubble-chat store emits per streaming delta (20-50/s),
+// re-rendering the whole page each time; the sidebar's props are all
+// stable references, so it can skip those renders entirely.
+export const ChatSessionList = memo(ChatSessionListImpl);

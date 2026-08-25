@@ -157,11 +157,18 @@ function historyToChatMessages(msg: SessionMessage, index: number): ChatMessage[
     return out;
   }
 
+  // Persisted thinking (assistant rows): restored into the collapsible
+  // reasoning block so a refresh no longer drops the chain of thought.
+  // Precedence mirrors the desktop client.
+  const reasoning =
+    msg.reasoning || msg.reasoning_content || msg.reasoning_details || undefined;
+
   out.push({
     ...base,
     id: `h${index}`,
     role: msg.role,
     text,
+    reasoning: msg.role === "assistant" ? reasoning : undefined,
     images: images.length > 0 ? images : undefined,
   });
 
@@ -814,7 +821,14 @@ class BubbleChatStore {
     hooks: { onNew: () => void; onPrefill: (message: string) => void },
   ): void => {
     if (!this.gw || !this.liveSid || !text) return;
-    if (text.startsWith("/")) {
+    // Leading-"/" routes to slash.exec only when the first token is a
+    // plausible command name (no further "/"). An absolute path pasted
+    // from a file manager ("/home/velya/…") is plain text for the agent —
+    // sending it to the slash worker would just die as "unknown command".
+    const firstToken = text.split(/\s/, 1)[0];
+    const isSlashCommand =
+      firstToken.startsWith("/") && !firstToken.slice(1).includes("/");
+    if (isSlashCommand) {
       // Echo the command as a user bubble, then execute it.
       this.patchMessages((prev) => [
         ...prev,

@@ -13,7 +13,9 @@
  *    onAttachImage callback) before prompt.submit and their paths ride
  *    along to onSend so the local echo bubble shows the user's own
  *    pictures; file paths are appended to the prompt text as
- *    ``已上传文件：<path>`` lines.
+ *    ``已上传文件：<path>`` lines. Copied/dropped directories never
+ *    upload (the browser exposes them as zero-byte Files); they attach
+ *    by reference and ride along as ``文件夹路径：<path>`` lines.
  *  - Slash palette: while the draft is a bare "/cmd" prefix, a completion
  *    panel (built-in gateway commands + enabled skills from /api/skills)
  *    opens above the textarea with ↑↓/Tab/Enter/Esc navigation.
@@ -23,6 +25,7 @@
  */
 
 import {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -45,8 +48,11 @@ import {
 import { SlashPalette, type SlashItem } from "./SlashPalette";
 import { api } from "../sdk";
 import {
-  filesFromTransfer,
+  clipboardSourcePaths,
+  describeTransfer,
+  splitTransfer,
   uploadChatImage,
+  type TransferDirectory,
 } from "../chatImagePaste";
 import { cn } from "../sdk";
 
@@ -105,10 +111,11 @@ function transferHasFiles(data: DataTransfer | null): boolean {
   return (data.files?.length ?? 0) > 0;
 }
 
-/** Draft is a bare "/cmd" prefix (no whitespace yet) → return the query. */
+/** Draft is a bare "/cmd" prefix (no whitespace yet) → return the query.
+ *  An absolute path ("/home/…") is NOT a command prefix — no palette. */
 function slashQueryOf(text: string): string | null {
   const m = /^\/(\S*)$/.exec(text);
-  return m ? m[1] : null;
+  return m && !m[1].includes("/") ? m[1] : null;
 }
 
 function sanitizeFileName(name: string): string {
@@ -125,7 +132,7 @@ function timestamp(): string {
   );
 }
 
-export function Composer({
+function ComposerImpl({
   draftKey,
   disabled,
   generating,
@@ -290,6 +297,27 @@ export function Composer({
     [addImages, addFiles],
   );
 
+  /** Attach directories by reference: the browser hands a copied/dropped
+   *  folder over as a zero-byte File, so uploading it would produce an
+   *  empty file that points nowhere. The chip carries the real source
+   *  path (from text/uri-list) and send() cites it as 文件夹路径. */
+  const addDirRefs = useCallback(
+    (dirs: TransferDirectory[]) => {
+      if (disabled || dirs.length === 0) return;
+      for (const d of dirs) {
+        if (!d.path) {
+          setUploadError(`无法获取文件夹「${d.name}」的路径，请手动输入`);
+          continue;
+        }
+        setFiles((prev) => [
+          ...prev,
+          { id: nextId(), path: d.path!, name: d.name, size: 0, dir: true },
+        ]);
+      }
+    },
+    [disabled],
+  );
+
   /* ---------------------------------------------------------------- */
   /*  Paste / drag-and-drop / file picker                              */
   /* ---------------------------------------------------------------- */
@@ -297,15 +325,38 @@ export function Composer({
   const onPaste = useCallback(
     (e: ClipboardEvent<HTMLTextAreaElement>) => {
       // Any file in the clipboard (image OR pdf/doc/…) becomes an
-      // attachment; only a file-less paste falls through to plain text.
-      // Letting a copied file paste as its bare "/abs/path" text would hit
-      // the slash-command branch downstream and the turn would go nowhere.
-      const batch = filesFromTransfer(e.clipboardData);
-      if (batch.length === 0) return;
+      // attachment; only a file-less paste falls through to plain text
+      // (a pasted absolute path now survives send(): the slash router
+      // only fires for command-shaped text). A copied DIRECTORY also
+      // shows up as a file-kind item (zero bytes, empty MIME) — split it
+      // out and attach it by path reference instead of uploading an
+      // empty file the agent cannot do anything with.
+      const { files: batch, dirs } = splitTransfer(e.clipboardData);
+      if (batch.length === 0 && dirs.length === 0) return;
       e.preventDefault();
       addBatch(batch);
+      const unresolved = dirs.filter((d) => !d.path);
+      if (unresolved.length === 0) {
+        addDirRefs(dirs);
+        return;
+      }
+      // The paste event's DataTransfer exposed no path payload (seen with
+      // Firefox + Nautilus). Log what WAS there for diagnosis, and try the
+      // async Clipboard API as a last resort before erroring out.
+      console.debug(
+        "[bubble-chat] 目录路径未从粘贴事件解析，剪贴板快照：",
+        describeTransfer(e.clipboardData),
+      );
+      void (async () => {
+        const paths = await clipboardSourcePaths();
+        for (const d of unresolved) {
+          d.path =
+            paths.find((p) => p.split("/").pop() === d.name) ?? null;
+        }
+        addDirRefs(dirs);
+      })();
     },
-    [addBatch],
+    [addBatch, addDirRefs],
   );
 
   const onDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -332,9 +383,11 @@ export function Composer({
       e.preventDefault();
       dragDepthRef.current = 0;
       setDragActive(false);
-      addBatch(Array.from(e.dataTransfer.files));
+      const { files: batch, dirs } = splitTransfer(e.dataTransfer);
+      addBatch(batch);
+      addDirRefs(dirs);
     },
-    [addBatch],
+    [addBatch, addDirRefs],
   );
 
   const onFilePicked = useCallback(
@@ -424,7 +477,7 @@ export function Composer({
         out = images.map((i) => `[User attached image: ${i.name}]`).join("\n");
       }
       for (const f of files) {
-        out += `${out ? "\n" : ""}已上传文件：${f.path}`;
+        out += `${out ? "\n" : ""}${f.dir ? "文件夹路径" : "已上传文件"}：${f.path}`;
       }
       // Hand the uploaded image paths along so the local echo bubble can
       // render the user's own pictures (image.attach itself is silent).
@@ -598,3 +651,8 @@ export function Composer({
     </div>
   );
 }
+
+// Memoized: the store emits per streaming delta (20-50/s) and the page
+// re-renders on each; the composer's props are stable references, so it
+// only needs to re-render for its own local state (typing, attachments).
+export const Composer = memo(ComposerImpl);

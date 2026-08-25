@@ -1,0 +1,14 @@
+{
+  "name": "pet",
+  "label": "桌宠",
+  "description": "Hermes 桌面桌宠（hermes-desktop-pet）的配置页：绑定对话、头像、语音合成、气泡停留时长",
+  "icon": "PawPrint",
+  "version": "0.1.0",
+  "tab": {
+    "path": "/pet",
+    "position": "after:library"
+  },
+  "entry": "dist/index.js",
+  "css": "dist/style.css",
+  "api": "plugin_api.py"
+}

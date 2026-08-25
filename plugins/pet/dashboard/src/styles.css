@@ -1,0 +1,100 @@
+/*
+ * Hermes bubble-chat (赫墨斯聊天) — plugin styles.
+ *
+ * Utilities only: the theme tokens below are declared `@theme inline` so the
+ * generated CSS references the host page's custom properties (its globals.css
+ * / index.css) instead of redefining them — the plugin must never emit its
+ * own `:root` block or it would recolor the whole dashboard (plugin <link>
+ * is injected after the host stylesheet and would win the cascade).
+ * `theme(reference)` gives utility resolution the default Tailwind palette
+ * (text-amber-500 & co) without emitting those variables either.
+ */
+@import 'tailwindcss/theme.css' theme(reference);
+@import 'tailwindcss/utilities';
+
+/* Same token values the host resolves against (DS globals.css @theme +
+   hermes index.css @theme blocks, including its shadcn-compat remap),
+   inline so they never leak as CSS vars. */
+@theme inline {
+  --spacing: calc(0.25rem * var(--theme-spacing-mul, 1));
+  --font-sans: var(--theme-font-sans);
+  --font-mono: var(--theme-font-mono);
+
+  --color-background: var(--background);
+  --color-background-base: var(--background-base);
+  --color-midground: var(--midground);
+  --color-midground-base: var(--midground-base);
+  /* The host remaps foreground → midground (shadcn-compat block in index.css). */
+  --color-foreground: var(--midground);
+  --color-foreground-base: var(--foreground-base);
+  --color-text-primary: var(--text-primary, var(--midground));
+  --color-text-secondary: var(
+    --text-secondary,
+    color-mix(in srgb, var(--midground-base) 80%, transparent)
+  );
+  --color-text-tertiary: var(
+    --text-tertiary,
+    color-mix(in srgb, var(--midground-base) 65%, transparent)
+  );
+  --color-text-disabled: color-mix(in srgb, var(--midground-base) 40%, transparent);
+  --color-current: currentColor;
+  --color-success: var(--success, #4ade80);
+  --color-destructive: var(--destructive, #fb2c36);
+  --color-warning: var(--warning, #ffbd38);
+
+  /* Shadcn-compat tokens the chat components use (same values as the
+     host index.css shadcn-compat @theme block). */
+  --color-primary: var(--midground);
+  --color-secondary: color-mix(in srgb, var(--midground-base) 6%, var(--background-base));
+  --color-muted: color-mix(in srgb, var(--midground-base) 8%, var(--background-base));
+  --color-muted-foreground: var(
+    --text-secondary,
+    color-mix(in srgb, var(--midground-base) 80%, transparent)
+  );
+  --color-border: color-mix(in srgb, var(--midground-base) 15%, transparent);
+
+  --radius-sm: calc(var(--theme-radius) - 4px);
+  --radius-md: calc(var(--theme-radius) - 2px);
+  --radius-lg: var(--theme-radius);
+  --radius-xl: calc(var(--theme-radius) + 4px);
+}
+
+/* DS typography utilities used by the copied components. */
+@utility font-courier {
+  font-family: 'Courier New', var(--font-mono), monospace;
+}
+
+/* Indeterminate progress bar for running tool cards (chat/ToolCard.tsx).
+   Lives in the plugin since the bubble-chat extraction (was index.css). */
+@keyframes tool-card-indeterminate {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(400%); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Fix @nous-research/ui globals.css `*::selection, code { … }` rule.  */
+/* Two bugs in that one selector list:                                 */
+/*  1. The bare `code` selector (almost certainly meant to be          */
+/*     `code::selection`) permanently paints every unclassed <code>    */
+/*     element — e.g. Markdown `pre > code` blocks — with the          */
+/*     selection colors, so code blocks look forever highlighted.      */
+/*  2. The universal `*::selection` lets nested elements each paint    */
+/*     their own selection background; translucent theme colors stack  */
+/*     layer on layer, so the highlight shifts shade depending on how  */
+/*     deep the selected text sits. Forcing the opaque `-base` token   */
+/*     makes every layer paint the same fully-opaque color, which      */
+/*     renders the stacking invisible.                                 */
+/* Moved here from index.css with the bubble-chat extraction: the fix  */
+/* only matters while the chat UI is present, and the plugin <link> is */
+/* injected after the host stylesheets, so equal-specificity rules     */
+/* here win the cascade.                                               */
+/* ------------------------------------------------------------------ */
+code {
+  background: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--selection-bg, var(--midground-base, var(--midground)));
+  color: var(--background);
+}

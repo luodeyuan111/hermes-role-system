@@ -104,6 +104,184 @@ export function firstImageFromClipboard(
   return imageFilesFromTransfer(data)[0] ?? null;
 }
 
+/* ---------------------------------------------------------------------- */
+/*  Directory handling (paste/drop of a copied folder)                    */
+/* ---------------------------------------------------------------------- */
+
+export interface TransferDirectory {
+  /** Directory basename as the File entry reports it. */
+  name: string;
+  /** Absolute source path parsed from text/uri-list, when available. */
+  path: string | null;
+}
+
+export interface TransferSplit {
+  /** Regular files (upload these). */
+  files: File[];
+  /** Directories. The browser hands a copied/dropped folder over as a
+   *  zero-byte File with no content — uploading it produces an empty file
+   *  that points nowhere, so directories attach by reference instead. */
+  dirs: TransferDirectory[];
+}
+
+/** Parse clipboard text chunks into local paths (file:// URIs and bare
+ *  absolute paths; skips comments and gnome-copied-files verb lines). */
+function parsePathLines(raw: string): string[] {
+  const out: string[] = [];
+  for (const line of raw.split(/\r?\n/)) {
+    const s = line.trim();
+    if (!s || s.startsWith("#")) continue;
+    if (s === "copy" || s === "cut") continue; // gnome-copied-files verb line
+    if (s.startsWith("file://")) {
+      try {
+        out.push(decodeURIComponent(new URL(s).pathname).replace(/\/+$/, ""));
+      } catch {
+        /* unparseable URI — skip */
+      }
+    } else if (s.startsWith("/")) {
+      out.push(s.replace(/\/+$/, ""));
+    }
+  }
+  return out;
+}
+
+/**
+ * Resolve source paths from a copy/drop payload. Browsers differ wildly in
+ * what they expose on PASTE: Chromium gives `text/uri-list`, Firefox often
+ * only has `text/plain` (Nautilus fills it with the path/URI list). Try
+ * every likely type.
+ */
+function transferSourcePaths(data: DataTransfer): string[] {
+  const chunks: string[] = [];
+  for (const type of [
+    "text/uri-list",
+    "x-special/gnome-copied-files",
+    "application/vnd.gnome.copied-files",
+    "text/plain",
+  ]) {
+    try {
+      const v = data.getData(type);
+      if (v) chunks.push(v);
+    } catch {
+      /* type unavailable in this browser/event */
+    }
+  }
+  return [...new Set(parsePathLines(chunks.join("\n")))];
+}
+
+/** Debug snapshot of a DataTransfer's string payloads — for diagnosing
+ *  clipboard quirks across browsers/file managers. */
+export function describeTransfer(
+  data: DataTransfer | null,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!data) return out;
+  for (const type of Array.from(data.types ?? [])) {
+    try {
+      const v = data.getData(type);
+      out[type] = v.length > 300 ? `${v.slice(0, 300)}…` : v;
+    } catch {
+      out[type] = "<unreadable>";
+    }
+  }
+  return out;
+}
+
+/** Async last resort: some browsers expose more clipboard MIME types via
+ *  navigator.clipboard.read() than on the paste event's DataTransfer. */
+export async function clipboardSourcePaths(): Promise<string[]> {
+  if (!navigator.clipboard?.read) return [];
+  try {
+    const items = await navigator.clipboard.read();
+    const chunks: string[] = [];
+    for (const item of items) {
+      for (const type of item.types) {
+        if (!/text|uri|gnome|special/i.test(type)) continue;
+        try {
+          chunks.push(await (await item.getType(type)).text());
+        } catch {
+          /* type unreadable — skip */
+        }
+      }
+    }
+    return [...new Set(parsePathLines(chunks.join("\n")))];
+  } catch {
+    return [];
+  }
+}
+
+/** True when a file-kind item is actually a directory. Chromium/FF expose
+ *  one as a FileSystemDirectoryEntry on drop; on paste the entry API often
+ *  yields nothing, so fall back to the directory tell: a zero-byte File
+ *  with an empty MIME type (a real empty file almost always has a type). */
+function itemIsDirectory(item: DataTransferItem | null, file: File): boolean {
+  if (item) {
+    try {
+      const entry = item.webkitGetAsEntry?.();
+      if (entry) return entry.isDirectory;
+    } catch {
+      /* fall through to the heuristic */
+    }
+  }
+  return file.type === "" && file.size === 0;
+}
+
+/**
+ * Split a DataTransfer into regular files and directories. Directory
+ * source paths come from the clipboard's path payloads (uri-list /
+ * gnome-copied-files / plain text), matched by basename with a
+ * positional fallback.
+ */
+export function splitTransfer(data: DataTransfer | null): TransferSplit {
+  const files: File[] = [];
+  const dirs: TransferDirectory[] = [];
+  if (!data) return { files, dirs };
+  const seen = new Set<string>();
+  const uriPaths = transferSourcePaths(data);
+  const claimed = new Set<string>();
+
+  const resolveDirPath = (file: File): string | null => {
+    const byName = uriPaths.find(
+      (p) => !claimed.has(p) && p.split("/").pop() === file.name,
+    );
+    const hit =
+      byName ??
+      (dirs.length < uriPaths.length && !claimed.has(uriPaths[dirs.length])
+        ? uriPaths[dirs.length]
+        : undefined) ??
+      null;
+    if (hit) claimed.add(hit);
+    return hit;
+  };
+
+  const add = (item: DataTransferItem | null, file: File | null) => {
+    if (!file) return;
+    const key = imageFileKey(file);
+    if (seen.has(key)) return;
+    seen.add(key);
+    if (itemIsDirectory(item, file)) {
+      dirs.push({ name: file.name, path: resolveDirPath(file) });
+    } else {
+      files.push(file);
+    }
+  };
+
+  if (data.items?.length) {
+    for (let i = 0; i < data.items.length; i++) {
+      const item = data.items[i];
+      if (item.kind === "file") add(item, item.getAsFile());
+    }
+  }
+
+  if (data.files?.length) {
+    for (let i = 0; i < data.files.length; i++) {
+      add(null, data.files[i]);
+    }
+  }
+
+  return { files, dirs };
+}
+
 /** True when a drag payload may contain an image (for dragover preventDefault). */
 export function transferMayContainImage(data: DataTransfer | null): boolean {
   if (!data) return false;

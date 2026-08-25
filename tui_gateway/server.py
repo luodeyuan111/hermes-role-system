@@ -8468,6 +8468,10 @@ def _(rid, params: dict) -> dict:
     sid = params.get("session_id", "")
     raw_text = params.get("text", "")
     text = sanitize_user_prompt_text(raw_text) if isinstance(raw_text, str) else raw_text
+    # Optional per-request client channel ("pet" = desktop pet overlay, …) —
+    # mapped to a one-turn system note in _run_prompt_submit so the model can
+    # switch reply style per request regardless of the session's origin.
+    channel = str(params.get("channel") or "").strip().lower()
     truncate_user_ordinal = params.get("truncate_before_user_ordinal")
     session, err = _sess_nowait(params, rid)
     if err:
@@ -8526,17 +8530,27 @@ def _(rid, params: dict) -> dict:
     _start_agent_build(sid, session)
 
     def run_after_agent_ready() -> None:
-        err = _wait_agent(session, rid)
-        if err:
-            _emit(
-                "error",
-                sid,
-                {
-                    "message": err.get("error", {}).get(
-                        "message", "agent initialization failed"
-                    )
-                },
-            )
+        # Wait for the lazy agent build with NO hard cap: the build's one-time
+        # network probes (models.dev registry) can legitimately exceed the old
+        # 30s timeout on a slow link, and erroring out DROPPED the user's
+        # message. Poll so session.interrupt can still cancel the wait.
+        ready = session.get("agent_ready")
+        init_noticed = False
+        while ready is not None and not ready.is_set():
+            if not init_noticed:
+                init_noticed = True
+                _emit("status.update", sid, {"text": "正在初始化会话（首次较慢）…"})
+            with session["history_lock"]:
+                if session.get("_turn_cancel_requested") or not session.get("running"):
+                    session["running"] = False
+                    _clear_inflight_turn(session)
+                    return
+            ready.wait(timeout=1.0)
+        if init_noticed:
+            _emit("status.update", sid, {"text": ""})
+        err_msg = session.get("agent_error")
+        if err_msg:
+            _emit("error", sid, {"message": str(err_msg)})
             with session["history_lock"]:
                 session["running"] = False
                 _clear_inflight_turn(session)
@@ -8546,7 +8560,7 @@ def _(rid, params: dict) -> dict:
                 session["running"] = False
                 _clear_inflight_turn(session)
                 return
-        _run_prompt_submit(rid, sid, session, text)
+        _run_prompt_submit(rid, sid, session, text, channel)
 
     run_thread = threading.Thread(target=run_after_agent_ready, daemon=True)
     # Keep a handle so session.interrupt can tell a live turn from a stuck
@@ -8950,7 +8964,20 @@ def _start_notification_poller(sid: str, session: dict) -> threading.Event:
     return stop
 
 
-def _run_prompt_submit(rid, sid: str, session: dict, text: Any) -> None:
+# Per-request client channel notes — prompt.submit's optional `channel`
+# param is mapped to a one-turn system note (see _run_prompt_submit).
+_CHANNEL_NOTES = {
+    "pet": (
+        "[Channel: desktop-pet] This message comes from the desktop pet "
+        "overlay, where your reply is shown one small bubble at a time and "
+        "read aloud via text-to-speech. Answer SHORT and spoken-style: one "
+        "to three plain sentences, no markdown, no lists, no tables, no code "
+        "blocks, no URLs — exactly what should be said out loud."
+    ),
+}
+
+
+def _run_prompt_submit(rid, sid: str, session: dict, text: Any, channel: str = "") -> None:
     with session["history_lock"]:
         history = list(session["history"])
         history_version = int(session.get("history_version", 0))
@@ -9099,6 +9126,14 @@ def _run_prompt_submit(rid, sid: str, session: dict, text: Any) -> None:
                 "conversation_history": list(history),
                 "stream_callback": _stream,
             }
+            # Per-request client channel marker (e.g. the desktop pet passes
+            # channel="pet"): appended as a one-turn system note so the model
+            # can switch reply style per REQUEST, not just per session — a
+            # pet-bound web session keeps its normal persona for web messages
+            # and answers spoken-style when the pet is the one asking.
+            channel_note = _CHANNEL_NOTES.get(channel)
+            if channel_note:
+                run_kwargs["system_message"] = channel_note
             try:
                 if "task_id" in inspect.signature(agent.run_conversation).parameters:
                     run_kwargs["task_id"] = session["session_key"]

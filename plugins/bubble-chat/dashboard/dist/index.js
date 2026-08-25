@@ -193,8 +193,20 @@
   ];
   var File2 = createLucideIcon("file", __iconNode9);
 
-  // ../../../node_modules/lucide-react/dist/esm/icons/image-off.js
+  // ../../../node_modules/lucide-react/dist/esm/icons/folder.js
   var __iconNode10 = [
+    [
+      "path",
+      {
+        d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
+        key: "1kt360"
+      }
+    ]
+  ];
+  var Folder = createLucideIcon("folder", __iconNode10);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/image-off.js
+  var __iconNode11 = [
     ["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "a6p6uj" }],
     ["path", { d: "M10.41 10.41a2 2 0 1 1-2.83-2.83", key: "1bzlo9" }],
     ["line", { x1: "13.5", x2: "6", y1: "13.5", y2: "21", key: "1q0aeu" }],
@@ -208,42 +220,42 @@
     ],
     ["path", { d: "M21 15V5a2 2 0 0 0-2-2H9", key: "43el77" }]
   ];
-  var ImageOff = createLucideIcon("image-off", __iconNode10);
+  var ImageOff = createLucideIcon("image-off", __iconNode11);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-plus.js
-  var __iconNode11 = [
+  var __iconNode12 = [
     ["path", { d: "M16 5h6", key: "1vod17" }],
     ["path", { d: "M19 2v6", key: "4bpg5p" }],
     ["path", { d: "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5", key: "1ue2ih" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }]
   ];
-  var ImagePlus = createLucideIcon("image-plus", __iconNode11);
+  var ImagePlus = createLucideIcon("image-plus", __iconNode12);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image.js
-  var __iconNode12 = [
+  var __iconNode13 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
   ];
-  var Image = createLucideIcon("image", __iconNode12);
+  var Image = createLucideIcon("image", __iconNode13);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/list-checks.js
-  var __iconNode13 = [
+  var __iconNode14 = [
     ["path", { d: "M13 5h8", key: "a7qcls" }],
     ["path", { d: "M13 12h8", key: "h98zly" }],
     ["path", { d: "M13 19h8", key: "c3s6r1" }],
     ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
     ["path", { d: "m3 7 2 2 4-4", key: "1obspn" }]
   ];
-  var ListChecks = createLucideIcon("list-checks", __iconNode13);
+  var ListChecks = createLucideIcon("list-checks", __iconNode14);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/loader-circle.js
-  var __iconNode14 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-  var LoaderCircle = createLucideIcon("loader-circle", __iconNode14);
+  var __iconNode15 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+  var LoaderCircle = createLucideIcon("loader-circle", __iconNode15);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square-plus.js
-  var __iconNode15 = [
+  var __iconNode16 = [
     [
       "path",
       {
@@ -254,10 +266,10 @@
     ["path", { d: "M12 8v6", key: "1ib9pf" }],
     ["path", { d: "M9 11h6", key: "1fldmi" }]
   ];
-  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode15);
+  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode16);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square.js
-  var __iconNode16 = [
+  var __iconNode17 = [
     [
       "path",
       {
@@ -266,10 +278,18 @@
       }
     ]
   ];
-  var MessageSquare = createLucideIcon("message-square", __iconNode16);
+  var MessageSquare = createLucideIcon("message-square", __iconNode17);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/music.js
+  var __iconNode18 = [
+    ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
+    ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
+    ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
+  ];
+  var Music = createLucideIcon("music", __iconNode18);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/palette.js
-  var __iconNode17 = [
+  var __iconNode19 = [
     [
       "path",
       {
@@ -282,33 +302,33 @@
     ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
     ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
   ];
-  var Palette = createLucideIcon("palette", __iconNode17);
+  var Palette = createLucideIcon("palette", __iconNode19);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-close.js
-  var __iconNode18 = [
+  var __iconNode20 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m16 15-3-3 3-3", key: "14y99z" }]
   ];
-  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode18);
+  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode20);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-open.js
-  var __iconNode19 = [
+  var __iconNode21 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m14 9 3 3-3 3", key: "8010ee" }]
   ];
-  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode19);
+  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode21);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left.js
-  var __iconNode20 = [
+  var __iconNode22 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }]
   ];
-  var PanelLeft = createLucideIcon("panel-left", __iconNode20);
+  var PanelLeft = createLucideIcon("panel-left", __iconNode22);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/paperclip.js
-  var __iconNode21 = [
+  var __iconNode23 = [
     [
       "path",
       {
@@ -317,10 +337,10 @@
       }
     ]
   ];
-  var Paperclip = createLucideIcon("paperclip", __iconNode21);
+  var Paperclip = createLucideIcon("paperclip", __iconNode23);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/pencil.js
-  var __iconNode22 = [
+  var __iconNode24 = [
     [
       "path",
       {
@@ -330,26 +350,26 @@
     ],
     ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
   ];
-  var Pencil = createLucideIcon("pencil", __iconNode22);
+  var Pencil = createLucideIcon("pencil", __iconNode24);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/refresh-cw.js
-  var __iconNode23 = [
+  var __iconNode25 = [
     ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
     ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
     ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
     ["path", { d: "M8 16H3v5", key: "1cv678" }]
   ];
-  var RefreshCw = createLucideIcon("refresh-cw", __iconNode23);
+  var RefreshCw = createLucideIcon("refresh-cw", __iconNode25);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/rotate-ccw.js
-  var __iconNode24 = [
+  var __iconNode26 = [
     ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
     ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
   ];
-  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode24);
+  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode26);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/send-horizontal.js
-  var __iconNode25 = [
+  var __iconNode27 = [
     [
       "path",
       {
@@ -359,10 +379,10 @@
     ],
     ["path", { d: "M6 12h16", key: "s4cdu5" }]
   ];
-  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode25);
+  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode27);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/shield-alert.js
-  var __iconNode26 = [
+  var __iconNode28 = [
     [
       "path",
       {
@@ -373,10 +393,10 @@
     ["path", { d: "M12 8v4", key: "1got3b" }],
     ["path", { d: "M12 16h.01", key: "1drbdi" }]
   ];
-  var ShieldAlert = createLucideIcon("shield-alert", __iconNode26);
+  var ShieldAlert = createLucideIcon("shield-alert", __iconNode28);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/sparkles.js
-  var __iconNode27 = [
+  var __iconNode29 = [
     [
       "path",
       {
@@ -388,16 +408,16 @@
     ["path", { d: "M22 4h-4", key: "gwowj6" }],
     ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
   ];
-  var Sparkles = createLucideIcon("sparkles", __iconNode27);
+  var Sparkles = createLucideIcon("sparkles", __iconNode29);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/square.js
-  var __iconNode28 = [
+  var __iconNode30 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
   ];
-  var Square = createLucideIcon("square", __iconNode28);
+  var Square = createLucideIcon("square", __iconNode30);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/star.js
-  var __iconNode29 = [
+  var __iconNode31 = [
     [
       "path",
       {
@@ -406,35 +426,35 @@
       }
     ]
   ];
-  var Star = createLucideIcon("star", __iconNode29);
+  var Star = createLucideIcon("star", __iconNode31);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/terminal.js
-  var __iconNode30 = [
+  var __iconNode32 = [
     ["path", { d: "M12 19h8", key: "baeox8" }],
     ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
   ];
-  var Terminal = createLucideIcon("terminal", __iconNode30);
+  var Terminal = createLucideIcon("terminal", __iconNode32);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/timer.js
-  var __iconNode31 = [
+  var __iconNode33 = [
     ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
     ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
     ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
   ];
-  var Timer = createLucideIcon("timer", __iconNode31);
+  var Timer = createLucideIcon("timer", __iconNode33);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/trash-2.js
-  var __iconNode32 = [
+  var __iconNode34 = [
     ["path", { d: "M10 11v6", key: "nco0om" }],
     ["path", { d: "M14 11v6", key: "outv1u" }],
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
     ["path", { d: "M3 6h18", key: "d0wm0j" }],
     ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
   ];
-  var Trash2 = createLucideIcon("trash-2", __iconNode32);
+  var Trash2 = createLucideIcon("trash-2", __iconNode34);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/wrench.js
-  var __iconNode33 = [
+  var __iconNode35 = [
     [
       "path",
       {
@@ -443,14 +463,14 @@
       }
     ]
   ];
-  var Wrench = createLucideIcon("wrench", __iconNode33);
+  var Wrench = createLucideIcon("wrench", __iconNode35);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/x.js
-  var __iconNode34 = [
+  var __iconNode36 = [
     ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
     ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
   ];
-  var X = createLucideIcon("x", __iconNode34);
+  var X = createLucideIcon("x", __iconNode36);
 
   // src/sdk.ts
   function sdk() {
@@ -586,7 +606,17 @@
     if (preview) return preview;
     return untitled;
   }
-  function ChatSessionList({
+  var SOURCE_BADGES = {
+    pet: "\u{1F43E}",
+    tui: "\u2328\uFE0F",
+    qqbot: "\u{1F427}",
+    cron: "\u23F0"
+  };
+  function sourceBadge(source) {
+    if (!source || source === "dashboard") return null;
+    return SOURCE_BADGES[source] ?? null;
+  }
+  function ChatSessionListImpl({
     activeSessionId,
     profile,
     className,
@@ -916,6 +946,7 @@ ${t.sessions.confirmDeleteMessage}`
                       className: "mr-1 inline h-3 w-3 fill-warning align-[-0.1em] text-warning"
                     }
                   ),
+                  sourceBadge(s.source) && /* @__PURE__ */ jsx("span", { className: "mr-1", title: `\u6765\u6E90\uFF1A${s.source}`, children: sourceBadge(s.source) }),
                   rowLabel(s, t.sessions.untitledSession)
                 ] }),
                 manageable && !selectMode && /* @__PURE__ */ jsxs(
@@ -1177,6 +1208,7 @@ ${t.sessions.confirmDeleteMessage}`
       }
     );
   }
+  var ChatSessionList = memo(ChatSessionListImpl);
 
   // src/chat/fileAccess.ts
   function directFileUrl(path) {
@@ -1247,29 +1279,119 @@ ${t.sessions.confirmDeleteMessage}`
   function imageFileKey(file) {
     return `${file.name}\0${file.type}\0${file.size}\0${file.lastModified}`;
   }
-  function filesFromTransfer(data) {
-    if (!data) return [];
+  function parsePathLines(raw) {
+    const out = [];
+    for (const line of raw.split(/\r?\n/)) {
+      const s = line.trim();
+      if (!s || s.startsWith("#")) continue;
+      if (s === "copy" || s === "cut") continue;
+      if (s.startsWith("file://")) {
+        try {
+          out.push(decodeURIComponent(new URL(s).pathname).replace(/\/+$/, ""));
+        } catch {
+        }
+      } else if (s.startsWith("/")) {
+        out.push(s.replace(/\/+$/, ""));
+      }
+    }
+    return out;
+  }
+  function transferSourcePaths(data) {
+    const chunks = [];
+    for (const type of [
+      "text/uri-list",
+      "x-special/gnome-copied-files",
+      "application/vnd.gnome.copied-files",
+      "text/plain"
+    ]) {
+      try {
+        const v = data.getData(type);
+        if (v) chunks.push(v);
+      } catch {
+      }
+    }
+    return [...new Set(parsePathLines(chunks.join("\n")))];
+  }
+  function describeTransfer(data) {
+    const out = {};
+    if (!data) return out;
+    for (const type of Array.from(data.types ?? [])) {
+      try {
+        const v = data.getData(type);
+        out[type] = v.length > 300 ? `${v.slice(0, 300)}\u2026` : v;
+      } catch {
+        out[type] = "<unreadable>";
+      }
+    }
+    return out;
+  }
+  async function clipboardSourcePaths() {
+    if (!navigator.clipboard?.read) return [];
+    try {
+      const items = await navigator.clipboard.read();
+      const chunks = [];
+      for (const item of items) {
+        for (const type of item.types) {
+          if (!/text|uri|gnome|special/i.test(type)) continue;
+          try {
+            chunks.push(await (await item.getType(type)).text());
+          } catch {
+          }
+        }
+      }
+      return [...new Set(parsePathLines(chunks.join("\n")))];
+    } catch {
+      return [];
+    }
+  }
+  function itemIsDirectory(item, file) {
+    if (item) {
+      try {
+        const entry = item.webkitGetAsEntry?.();
+        if (entry) return entry.isDirectory;
+      } catch {
+      }
+    }
+    return file.type === "" && file.size === 0;
+  }
+  function splitTransfer(data) {
     const files = [];
+    const dirs = [];
+    if (!data) return { files, dirs };
     const seen = /* @__PURE__ */ new Set();
-    const add = (file) => {
+    const uriPaths = transferSourcePaths(data);
+    const claimed = /* @__PURE__ */ new Set();
+    const resolveDirPath = (file) => {
+      const byName = uriPaths.find(
+        (p) => !claimed.has(p) && p.split("/").pop() === file.name
+      );
+      const hit = byName ?? (dirs.length < uriPaths.length && !claimed.has(uriPaths[dirs.length]) ? uriPaths[dirs.length] : void 0) ?? null;
+      if (hit) claimed.add(hit);
+      return hit;
+    };
+    const add = (item, file) => {
       if (!file) return;
       const key = imageFileKey(file);
       if (seen.has(key)) return;
       seen.add(key);
-      files.push(file);
+      if (itemIsDirectory(item, file)) {
+        dirs.push({ name: file.name, path: resolveDirPath(file) });
+      } else {
+        files.push(file);
+      }
     };
     if (data.items?.length) {
       for (let i = 0; i < data.items.length; i++) {
         const item = data.items[i];
-        if (item.kind === "file") add(item.getAsFile());
+        if (item.kind === "file") add(item, item.getAsFile());
       }
     }
     if (data.files?.length) {
       for (let i = 0; i < data.files.length; i++) {
-        add(data.files[i]);
+        add(null, data.files[i]);
       }
     }
-    return files;
+    return { files, dirs };
   }
   function fileToDataUrl(file) {
     return new Promise((resolve, reject) => {
@@ -1395,14 +1517,59 @@ ${t.sessions.confirmDeleteMessage}`
     const dim = setting?.type === "image" ? Math.min(60, Math.max(0, setting.dim ?? DEFAULT_IMAGE_DIM)) : 0;
     return { setting, apply, style, dim };
   }
+  var AGENT_AVATAR_KEY = "hermes.bubblechat.agentAvatar";
+  function useAgentAvatar() {
+    const [path, setPath] = useState(() => {
+      try {
+        return localStorage.getItem(AGENT_AVATAR_KEY);
+      } catch {
+        return null;
+      }
+    });
+    const [url, setUrl] = useState(null);
+    const apply = useCallback((next) => {
+      setPath(next);
+      try {
+        if (next) localStorage.setItem(AGENT_AVATAR_KEY, next);
+        else localStorage.removeItem(AGENT_AVATAR_KEY);
+      } catch {
+      }
+    }, []);
+    useEffect(() => {
+      if (!path) {
+        setUrl(null);
+        return;
+      }
+      let cancelled = false;
+      let blobUrl = null;
+      resolveImageUrl(path).then((u) => {
+        if (cancelled) {
+          if (u.startsWith("blob:")) URL.revokeObjectURL(u);
+          return;
+        }
+        if (u.startsWith("blob:")) blobUrl = u;
+        setUrl(u);
+      }).catch(() => {
+        if (!cancelled) setUrl(null);
+      });
+      return () => {
+        cancelled = true;
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
+      };
+    }, [path]);
+    return { path, url, apply };
+  }
   function ChatBackgroundPicker({
     bg,
-    profile
+    profile,
+    avatar
   }) {
     const [open, setOpen] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [avatarBusy, setAvatarBusy] = useState(false);
     const [error, setError] = useState(null);
     const fileRef = useRef(null);
+    const avatarFileRef = useRef(null);
     const { setting, apply, dim } = bg;
     const currentPreset = setting?.type === "preset" ? setting.value : null;
     const currentColor = setting?.type === "color" ? setting.value : "#282b33";
@@ -1418,6 +1585,19 @@ ${t.sessions.confirmDeleteMessage}`
         setBusy(false);
       }
     };
+    const uploadAvatar = async (file) => {
+      if (!avatar) return;
+      setAvatarBusy(true);
+      setError(null);
+      try {
+        const res = await uploadChatImage(file, profile ?? "");
+        avatar.apply(res.path);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "\u5934\u50CF\u4E0A\u4F20\u5931\u8D25");
+      } finally {
+        setAvatarBusy(false);
+      }
+    };
     return /* @__PURE__ */ jsxs("div", { className: "relative", children: [
       /* @__PURE__ */ jsx(
         Button,
@@ -1426,10 +1606,10 @@ ${t.sessions.confirmDeleteMessage}`
           size: "sm",
           onClick: () => setOpen((o) => !o),
           prefix: /* @__PURE__ */ jsx(Palette, {}),
-          "aria-label": "\u804A\u5929\u80CC\u666F",
-          title: "\u804A\u5929\u80CC\u666F",
+          "aria-label": "\u4E2A\u6027\u5316",
+          title: "\u4E2A\u6027\u5316\uFF08\u80CC\u666F / \u52A9\u624B\u5934\u50CF\uFF09",
           className: "text-text-secondary hover:text-foreground",
-          children: "\u80CC\u666F"
+          children: "\u4E2A\u6027\u5316"
         }
       ),
       open && /* @__PURE__ */ jsxs(Fragment2, { children: [
@@ -1539,6 +1719,54 @@ ${t.sessions.confirmDeleteMessage}`
             )
           ] }),
           error && /* @__PURE__ */ jsx("div", { className: "rounded border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive", children: error }),
+          avatar && /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-1.5 border-t border-current/10 pt-2.5", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-medium text-foreground", children: "\u52A9\u624B\u5934\u50CF" }),
+            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsx("span", { className: "flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-success/15 text-success", children: avatar.url ? /* @__PURE__ */ jsx(
+                "img",
+                {
+                  src: avatar.url,
+                  alt: "\u52A9\u624B\u5934\u50CF",
+                  className: "h-full w-full object-cover"
+                }
+              ) : /* @__PURE__ */ jsx(Sparkles, { className: "h-4 w-4" }) }),
+              /* @__PURE__ */ jsx(
+                Button,
+                {
+                  outlined: true,
+                  size: "sm",
+                  disabled: avatarBusy,
+                  onClick: () => avatarFileRef.current?.click(),
+                  prefix: avatarBusy ? /* @__PURE__ */ jsx(LoaderCircle, { className: "animate-spin" }) : /* @__PURE__ */ jsx(ImagePlus, {}),
+                  children: avatarBusy ? "\u4E0A\u4F20\u4E2D\u2026" : "\u4E0A\u4F20\u5934\u50CF"
+                }
+              ),
+              avatar.path && /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => avatar.apply(null),
+                  title: "\u6062\u590D\u9ED8\u8BA4\u5934\u50CF",
+                  className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-foreground",
+                  children: /* @__PURE__ */ jsx(RotateCcw, { className: "h-3.5 w-3.5" })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsx(
+              "input",
+              {
+                ref: avatarFileRef,
+                type: "file",
+                accept: "image/*",
+                className: "hidden",
+                onChange: (e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadAvatar(f);
+                  e.target.value = "";
+                }
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsxs(
             "button",
             {
@@ -1557,10 +1785,103 @@ ${t.sessions.confirmDeleteMessage}`
               ]
             }
           ),
-          /* @__PURE__ */ jsx("p", { className: "text-[0.625rem] leading-relaxed text-text-tertiary", children: "\u80CC\u666F\u8BBE\u7F6E\u4EC5\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\uFF08localStorage\uFF09\uFF0C\u4E0D\u4F1A\u5F71\u54CD\u5176\u4ED6\u8BBE\u5907\u3002" })
+          /* @__PURE__ */ jsx("p", { className: "text-[0.625rem] leading-relaxed text-text-tertiary", children: "\u80CC\u666F\u4E0E\u5934\u50CF\u8BBE\u7F6E\u4EC5\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\uFF08localStorage\uFF09\uFF0C\u4E0D\u4F1A\u5F71\u54CD\u5176\u4ED6\u8BBE\u5907\u3002" })
         ] })
       ] })
     ] });
+  }
+
+  // src/chat/content.ts
+  var MEDIA_LINE_RE = /^\s*[`"']?MEDIA:\s*(\S+?)[`"']?\s*$/;
+  var IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|bmp|svg|ico)$/i;
+  var AUDIO_EXT_RE = /\.(mp3|wav|ogg|aac|flac|m4a|wma)$/i;
+  var VIDEO_EXT_RE = /\.(mp4|webm|avi|mov|mkv|flv)$/i;
+  var FILE_EXT_RE = /\.[A-Za-z0-9]{1,10}$/;
+  function absPathTokenRe() {
+    return /(?:https?:\/\/|~\/|\/)[^\s"'`<>|(){}[\]]+/g;
+  }
+  function mediaKindForPath(path) {
+    if (IMAGE_EXT_RE.test(path)) return "image";
+    if (AUDIO_EXT_RE.test(path)) return "audio";
+    if (VIDEO_EXT_RE.test(path)) return "video";
+    return null;
+  }
+  function isStandalonePathLine(line) {
+    const trimmed = line.trim().replace(/^[`"']|[`"']$/g, "");
+    return /^(?:~\/|\/|(?:https?:)?\/\/)\S+$/.test(trimmed) ? trimmed : null;
+  }
+  function stripTrailingPunct(token) {
+    return token.replace(/[.,;:!?'")\]*。，、；：！？）】」』》]+$/, "");
+  }
+  var LEGACY_FILES_URL_RE = /^(?:https?:)?\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\/files\/(\S+)$/i;
+  function normalizeLocalPath(token) {
+    let p = token.trim().replace(/^[`"']+|[`"']+$/g, "");
+    p = stripTrailingPunct(p);
+    const legacyUrl = p.match(LEGACY_FILES_URL_RE);
+    if (legacyUrl) {
+      p = `/${legacyUrl[1]}`;
+    } else if (/^\/files\/\S/.test(p)) {
+      p = p.slice("/files".length);
+    } else if (p.includes("://") || p.startsWith("//")) {
+      return null;
+    }
+    p = stripTrailingPunct(p);
+    if (p.includes("%")) {
+      try {
+        p = decodeURIComponent(p);
+      } catch {
+      }
+    }
+    if (p.startsWith("/api/")) return null;
+    if (!p.startsWith("/") && !p.startsWith("~/")) return null;
+    if (p.startsWith("//")) return null;
+    return p;
+  }
+  function isLocalFileRef(href) {
+    return normalizeLocalPath(href) !== null;
+  }
+  function extractMediaFromText(text) {
+    const media = [];
+    if (!text) return { text, media };
+    const keptLines = [];
+    for (const line of text.split("\n")) {
+      const directive = line.match(MEDIA_LINE_RE)?.[1];
+      const candidate = directive ?? isStandalonePathLine(line);
+      const localPath = candidate ? normalizeLocalPath(candidate) : null;
+      const kind = localPath ? mediaKindForPath(localPath) : null;
+      if (localPath && kind) {
+        media.push({ kind, path: localPath });
+        continue;
+      }
+      keptLines.push(line);
+    }
+    let rest = keptLines.join("\n");
+    rest = rest.replace(absPathTokenRe(), (token) => {
+      const localPath = normalizeLocalPath(token);
+      if (localPath && mediaKindForPath(localPath) === "image") {
+        media.push({ kind: "image", path: localPath });
+        return "";
+      }
+      return token;
+    });
+    if (media.length === 0) return { text, media };
+    return { text: rest.replace(/\n{3,}/g, "\n\n").trim(), media };
+  }
+  function extractFilePaths(text, limit = 6) {
+    if (!text) return [];
+    const seen = /* @__PURE__ */ new Set();
+    const out = [];
+    for (const m of text.matchAll(absPathTokenRe())) {
+      const p = normalizeLocalPath(m[0]);
+      if (!p || p.length < 6) continue;
+      if (mediaKindForPath(p)) continue;
+      if (!FILE_EXT_RE.test(p)) continue;
+      if (seen.has(p)) continue;
+      seen.add(p);
+      out.push(p);
+      if (out.length >= limit) break;
+    }
+    return out;
   }
 
   // src/chat/AttachmentBar.tsx
@@ -1629,10 +1950,10 @@ ${t.sessions.confirmDeleteMessage}`
         ),
         title: file.path,
         children: [
-          file.uploading ? /* @__PURE__ */ jsx(Spinner, {}) : /* @__PURE__ */ jsx(File2, { className: "h-4 w-4 shrink-0 text-text-secondary" }),
+          file.uploading ? /* @__PURE__ */ jsx(Spinner, {}) : file.dir ? /* @__PURE__ */ jsx(Folder, { className: "h-4 w-4 shrink-0 text-text-secondary" }) : mediaKindForPath(file.name) === "audio" ? /* @__PURE__ */ jsx(Music, { className: "h-4 w-4 shrink-0 text-text-secondary" }) : /* @__PURE__ */ jsx(File2, { className: "h-4 w-4 shrink-0 text-text-secondary" }),
           /* @__PURE__ */ jsxs("span", { className: "min-w-0", children: [
             /* @__PURE__ */ jsx("span", { className: "block truncate text-xs text-foreground", children: file.name }),
-            /* @__PURE__ */ jsx("span", { className: "block text-[10px] text-text-tertiary", children: file.uploading ? "\u4E0A\u4F20\u4E2D\u2026" : formatBytes(file.size) })
+            /* @__PURE__ */ jsx("span", { className: "block text-[10px] text-text-tertiary", children: file.uploading ? "\u4E0A\u4F20\u4E2D\u2026" : file.dir ? "\u6587\u4EF6\u5939\uFF08\u6309\u8DEF\u5F84\u5F15\u7528\uFF09" : formatBytes(file.size) })
           ] }),
           /* @__PURE__ */ jsx(
             "button",
@@ -1758,7 +2079,7 @@ ${t.sessions.confirmDeleteMessage}`
   }
   function slashQueryOf(text) {
     const m = /^\/(\S*)$/.exec(text);
-    return m ? m[1] : null;
+    return m && !m[1].includes("/") ? m[1] : null;
   }
   function sanitizeFileName(name) {
     const cleaned = name.replace(/[^A-Za-z0-9_.\-一-龥]+/g, "_").replace(/^\.+/, "");
@@ -1769,7 +2090,7 @@ ${t.sessions.confirmDeleteMessage}`
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
   }
-  function Composer({
+  function ComposerImpl({
     draftKey,
     disabled,
     generating,
@@ -1887,14 +2208,46 @@ ${t.sessions.confirmDeleteMessage}`
       },
       [addImages, addFiles]
     );
+    const addDirRefs = useCallback(
+      (dirs) => {
+        if (disabled || dirs.length === 0) return;
+        for (const d of dirs) {
+          if (!d.path) {
+            setUploadError(`\u65E0\u6CD5\u83B7\u53D6\u6587\u4EF6\u5939\u300C${d.name}\u300D\u7684\u8DEF\u5F84\uFF0C\u8BF7\u624B\u52A8\u8F93\u5165`);
+            continue;
+          }
+          setFiles((prev) => [
+            ...prev,
+            { id: nextId(), path: d.path, name: d.name, size: 0, dir: true }
+          ]);
+        }
+      },
+      [disabled]
+    );
     const onPaste = useCallback(
       (e) => {
-        const batch = filesFromTransfer(e.clipboardData);
-        if (batch.length === 0) return;
+        const { files: batch, dirs } = splitTransfer(e.clipboardData);
+        if (batch.length === 0 && dirs.length === 0) return;
         e.preventDefault();
         addBatch(batch);
+        const unresolved = dirs.filter((d) => !d.path);
+        if (unresolved.length === 0) {
+          addDirRefs(dirs);
+          return;
+        }
+        console.debug(
+          "[bubble-chat] \u76EE\u5F55\u8DEF\u5F84\u672A\u4ECE\u7C98\u8D34\u4E8B\u4EF6\u89E3\u6790\uFF0C\u526A\u8D34\u677F\u5FEB\u7167\uFF1A",
+          describeTransfer(e.clipboardData)
+        );
+        void (async () => {
+          const paths = await clipboardSourcePaths();
+          for (const d of unresolved) {
+            d.path = paths.find((p) => p.split("/").pop() === d.name) ?? null;
+          }
+          addDirRefs(dirs);
+        })();
       },
-      [addBatch]
+      [addBatch, addDirRefs]
     );
     const onDragEnter = useCallback((e) => {
       if (!transferHasFiles(e.dataTransfer)) return;
@@ -1917,9 +2270,11 @@ ${t.sessions.confirmDeleteMessage}`
         e.preventDefault();
         dragDepthRef.current = 0;
         setDragActive(false);
-        addBatch(Array.from(e.dataTransfer.files));
+        const { files: batch, dirs } = splitTransfer(e.dataTransfer);
+        addBatch(batch);
+        addDirRefs(dirs);
       },
-      [addBatch]
+      [addBatch, addDirRefs]
     );
     const onFilePicked = useCallback(
       (e) => {
@@ -1983,7 +2338,7 @@ ${t.sessions.confirmDeleteMessage}`
           out = images.map((i) => `[User attached image: ${i.name}]`).join("\n");
         }
         for (const f of files) {
-          out += `${out ? "\n" : ""}\u5DF2\u4E0A\u4F20\u6587\u4EF6\uFF1A${f.path}`;
+          out += `${out ? "\n" : ""}${f.dir ? "\u6587\u4EF6\u5939\u8DEF\u5F84" : "\u5DF2\u4E0A\u4F20\u6587\u4EF6"}\uFF1A${f.path}`;
         }
         onSend(out, images.map((i) => i.path).filter(Boolean));
         setValue("");
@@ -2146,99 +2501,7 @@ ${t.sessions.confirmDeleteMessage}`
       }
     );
   }
-
-  // src/chat/content.ts
-  var MEDIA_LINE_RE = /^\s*[`"']?MEDIA:\s*(\S+?)[`"']?\s*$/;
-  var IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|bmp|svg|ico)$/i;
-  var AUDIO_EXT_RE = /\.(mp3|wav|ogg|aac|flac|m4a|wma)$/i;
-  var VIDEO_EXT_RE = /\.(mp4|webm|avi|mov|mkv|flv)$/i;
-  var FILE_EXT_RE = /\.[A-Za-z0-9]{1,10}$/;
-  function absPathTokenRe() {
-    return /(?:https?:\/\/|~\/|\/)[^\s"'`<>|(){}[\]]+/g;
-  }
-  function mediaKindForPath(path) {
-    if (IMAGE_EXT_RE.test(path)) return "image";
-    if (AUDIO_EXT_RE.test(path)) return "audio";
-    if (VIDEO_EXT_RE.test(path)) return "video";
-    return null;
-  }
-  function isStandalonePathLine(line) {
-    const trimmed = line.trim().replace(/^[`"']|[`"']$/g, "");
-    return /^(?:~\/|\/|(?:https?:)?\/\/)\S+$/.test(trimmed) ? trimmed : null;
-  }
-  function stripTrailingPunct(token) {
-    return token.replace(/[.,;:!?'")\]*。，、；：！？）】」』》]+$/, "");
-  }
-  var LEGACY_FILES_URL_RE = /^(?:https?:)?\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\/files\/(\S+)$/i;
-  function normalizeLocalPath(token) {
-    let p = token.trim().replace(/^[`"']+|[`"']+$/g, "");
-    p = stripTrailingPunct(p);
-    const legacyUrl = p.match(LEGACY_FILES_URL_RE);
-    if (legacyUrl) {
-      p = `/${legacyUrl[1]}`;
-    } else if (/^\/files\/\S/.test(p)) {
-      p = p.slice("/files".length);
-    } else if (p.includes("://") || p.startsWith("//")) {
-      return null;
-    }
-    p = stripTrailingPunct(p);
-    if (p.includes("%")) {
-      try {
-        p = decodeURIComponent(p);
-      } catch {
-      }
-    }
-    if (p.startsWith("/api/")) return null;
-    if (!p.startsWith("/") && !p.startsWith("~/")) return null;
-    if (p.startsWith("//")) return null;
-    return p;
-  }
-  function isLocalFileRef(href) {
-    return normalizeLocalPath(href) !== null;
-  }
-  function extractMediaFromText(text) {
-    const media = [];
-    if (!text) return { text, media };
-    const keptLines = [];
-    for (const line of text.split("\n")) {
-      const directive = line.match(MEDIA_LINE_RE)?.[1];
-      const candidate = directive ?? isStandalonePathLine(line);
-      const localPath = candidate ? normalizeLocalPath(candidate) : null;
-      const kind = localPath ? mediaKindForPath(localPath) : null;
-      if (localPath && kind) {
-        media.push({ kind, path: localPath });
-        continue;
-      }
-      keptLines.push(line);
-    }
-    let rest = keptLines.join("\n");
-    rest = rest.replace(absPathTokenRe(), (token) => {
-      const localPath = normalizeLocalPath(token);
-      if (localPath && mediaKindForPath(localPath) === "image") {
-        media.push({ kind: "image", path: localPath });
-        return "";
-      }
-      return token;
-    });
-    if (media.length === 0) return { text, media };
-    return { text: rest.replace(/\n{3,}/g, "\n\n").trim(), media };
-  }
-  function extractFilePaths(text, limit = 6) {
-    if (!text) return [];
-    const seen = /* @__PURE__ */ new Set();
-    const out = [];
-    for (const m of text.matchAll(absPathTokenRe())) {
-      const p = normalizeLocalPath(m[0]);
-      if (!p || p.length < 6) continue;
-      if (mediaKindForPath(p)) continue;
-      if (!FILE_EXT_RE.test(p)) continue;
-      if (seen.has(p)) continue;
-      seen.add(p);
-      out.push(p);
-      if (out.length >= limit) break;
-    }
-    return out;
-  }
+  var Composer = memo(ComposerImpl);
 
   // src/Markdown.tsx
   function Markdown({
@@ -2820,19 +3083,73 @@ ${t.sessions.confirmDeleteMessage}`
       }
     );
   }
+  function AudioPreviewModal({
+    src,
+    path,
+    onClose
+  }) {
+    return /* @__PURE__ */ jsx(
+      "div",
+      {
+        role: "dialog",
+        "aria-label": `\u64AD\u653E ${fileName2(path)}`,
+        onClick: onClose,
+        className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-[fade-in_0.15s_ease]",
+        children: /* @__PURE__ */ jsxs(
+          "div",
+          {
+            onClick: (e) => e.stopPropagation(),
+            className: cn(
+              "flex w-full max-w-md flex-col overflow-hidden",
+              "rounded-xl border border-current/15 bg-background-base shadow-2xl"
+            ),
+            children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 border-b border-current/10 px-4 py-2.5", children: [
+                /* @__PURE__ */ jsx(Music, { className: "h-4 w-4 shrink-0 text-primary" }),
+                /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
+                  /* @__PURE__ */ jsx("div", { className: "truncate text-sm font-medium", children: fileName2(path) }),
+                  /* @__PURE__ */ jsx("div", { className: "truncate text-[0.625rem] text-text-tertiary", children: path })
+                ] }),
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: onClose,
+                    "aria-label": "\u5173\u95ED",
+                    title: "\u5173\u95ED",
+                    className: "shrink-0 cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-foreground",
+                    children: /* @__PURE__ */ jsx(X, { className: "h-4 w-4" })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsx("div", { className: "px-4 py-4", children: /* @__PURE__ */ jsx("audio", { controls: true, autoPlay: true, src, className: "w-full" }) })
+            ]
+          }
+        )
+      }
+    );
+  }
   function useFileOpener() {
     const [textPreview, setTextPreview] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [pdfPreview, setPdfPreview] = useState(null);
+    const [audioPreview, setAudioPreview] = useState(null);
     const closePdfPreview = useCallback(() => {
       setPdfPreview((prev) => {
         if (prev) URL.revokeObjectURL(prev.src);
         return null;
       });
     }, []);
+    const closeAudioPreview = useCallback(() => {
+      setAudioPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev.src);
+        return null;
+      });
+    }, []);
     const open = useCallback(async (path) => {
       const name = fileName2(path);
-      if (mediaKindForPath(path) === "image") {
+      const mediaKind = mediaKindForPath(path);
+      if (mediaKind === "image") {
         const src = await resolveImageUrl(path);
         setImagePreview({ src, alt: name });
         return;
@@ -2840,6 +3157,11 @@ ${t.sessions.confirmDeleteMessage}`
       if (extOf(path) === "pdf") {
         const src = await fetchFileBlobUrl(path);
         setPdfPreview({ src, path });
+        return;
+      }
+      if (mediaKind === "audio") {
+        const src = await fetchFileBlobUrl(path);
+        setAudioPreview({ src, path });
         return;
       }
       if (TEXT_EXTS.has(extOf(path))) {
@@ -2881,6 +3203,14 @@ ${t.sessions.confirmDeleteMessage}`
           path: pdfPreview.path,
           onClose: closePdfPreview
         }
+      ),
+      audioPreview && /* @__PURE__ */ jsx(
+        AudioPreviewModal,
+        {
+          src: audioPreview.src,
+          path: audioPreview.path,
+          onClose: closeAudioPreview
+        }
       )
     ] });
     return { open, modal };
@@ -2890,14 +3220,16 @@ ${t.sessions.confirmDeleteMessage}`
     const [busy, setBusy] = useState(false);
     const { open, modal } = useFileOpener();
     const name = fileName2(path);
-    const isImage = mediaKindForPath(path) === "image";
-    const previewable = isImage || extOf(path) === "pdf" || TEXT_EXTS.has(extOf(path));
+    const mediaKind = mediaKindForPath(path);
+    const isImage = mediaKind === "image";
+    const isAudio = mediaKind === "audio";
+    const previewable = isImage || isAudio || extOf(path) === "pdf" || TEXT_EXTS.has(extOf(path));
     const handleClick = () => {
       if (missing || busy) return;
       setBusy(true);
       open(path).catch(() => setMissing(true)).finally(() => setBusy(false));
     };
-    const Icon2 = isImage ? Image : previewable ? FileText : File2;
+    const Icon2 = isImage ? Image : isAudio ? Music : previewable ? FileText : File2;
     return /* @__PURE__ */ jsxs(Fragment2, { children: [
       /* @__PURE__ */ jsxs(
         "button",
@@ -2929,27 +3261,44 @@ ${t.sessions.confirmDeleteMessage}`
     streaming
   }) {
     const [open, setOpen] = useState(false);
+    const [touched, setTouched] = useState(false);
+    const bodyRef = useRef(null);
+    const effectiveOpen = touched ? open : !!streaming;
+    useEffect(() => {
+      const el = bodyRef.current;
+      if (el && streaming && !touched) el.scrollTop = el.scrollHeight;
+    }, [text, streaming, touched]);
     if (!text.trim()) return null;
     return /* @__PURE__ */ jsxs("div", { className: "rounded-md border border-current/10 bg-muted/40 text-xs", children: [
       /* @__PURE__ */ jsxs(
         "button",
         {
           type: "button",
-          onClick: () => setOpen((v) => !v),
-          "aria-expanded": open,
+          onClick: () => {
+            setTouched(true);
+            setOpen(!effectiveOpen);
+          },
+          "aria-expanded": effectiveOpen,
           className: cn(
             "flex w-full items-center gap-1.5 px-2.5 py-1.5",
             "text-text-tertiary hover:text-text-secondary",
             "cursor-pointer transition-colors"
           ),
           children: [
-            open ? /* @__PURE__ */ jsx(ChevronDown, { className: "h-3 w-3 shrink-0" }) : /* @__PURE__ */ jsx(ChevronRight, { className: "h-3 w-3 shrink-0" }),
-            /* @__PURE__ */ jsx("span", { children: "\u601D\u8003\u8FC7\u7A0B" }),
+            effectiveOpen ? /* @__PURE__ */ jsx(ChevronDown, { className: "h-3 w-3 shrink-0" }) : /* @__PURE__ */ jsx(ChevronRight, { className: "h-3 w-3 shrink-0" }),
+            /* @__PURE__ */ jsx("span", { children: streaming ? "\u6B63\u5728\u601D\u8003\u2026" : "\u601D\u8003\u8FC7\u7A0B" }),
             streaming && /* @__PURE__ */ jsx("span", { className: "ml-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-tertiary" })
           ]
         }
       ),
-      open && /* @__PURE__ */ jsx("div", { className: "max-h-64 overflow-y-auto border-t border-current/10 px-2.5 py-2 whitespace-pre-wrap text-text-secondary", children: text })
+      effectiveOpen && /* @__PURE__ */ jsx(
+        "div",
+        {
+          ref: bodyRef,
+          className: "max-h-64 overflow-y-auto border-t border-current/10 px-2.5 py-2 whitespace-pre-wrap text-text-secondary",
+          children: text
+        }
+      )
     ] });
   }
 
@@ -3166,23 +3515,27 @@ ${t.sessions.confirmDeleteMessage}`
       }
     );
   }
-  function Avatar({ role }) {
+  function Avatar({
+    role,
+    src
+  }) {
     return /* @__PURE__ */ jsx(
       "div",
       {
         "aria-hidden": true,
         className: cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium",
+          "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-medium",
           role === "user" ? "bg-primary/15 text-primary" : "bg-success/15 text-success"
         ),
-        children: role === "user" ? "\u6211" : /* @__PURE__ */ jsx(Sparkles, { className: "h-4 w-4" })
+        children: role === "user" ? "\u6211" : src ? /* @__PURE__ */ jsx("img", { src, alt: "", className: "h-full w-full object-cover" }) : /* @__PURE__ */ jsx(Sparkles, { className: "h-5 w-5" })
       }
     );
   }
-  function MessageBubble({
+  var MessageBubble = memo(function MessageBubble2({
     msg,
     onRetry,
-    onEdit
+    onEdit,
+    agentAvatarUrl
   }) {
     const { text, media } = useMemo(() => extractMediaFromText(msg.text), [msg.text]);
     const filePaths = useMemo(() => extractFilePaths(text), [text]);
@@ -3226,7 +3579,7 @@ ${t.sessions.confirmDeleteMessage}`
           isUser ? "flex-row-reverse" : "flex-row"
         ),
         children: [
-          /* @__PURE__ */ jsx(Avatar, { role: isUser ? "user" : "assistant" }),
+          /* @__PURE__ */ jsx(Avatar, { role: isUser ? "user" : "assistant", src: agentAvatarUrl }),
           /* @__PURE__ */ jsxs(
             "div",
             {
@@ -3282,7 +3635,7 @@ ${t.sessions.confirmDeleteMessage}`
         ]
       }
     );
-  }
+  });
 
   // src/chat/MessageList.tsx
   var AT_BOTTOM_THRESHOLD = 80;
@@ -3290,7 +3643,8 @@ ${t.sessions.confirmDeleteMessage}`
     messages,
     emptyHint,
     onRetry,
-    onEdit
+    onEdit,
+    agentAvatarUrl
   }) {
     const containerRef = useRef(null);
     const atBottomRef = useRef(true);
@@ -3307,9 +3661,18 @@ ${t.sessions.confirmDeleteMessage}`
       atBottomRef.current = at;
       setAtBottom(at);
     }, []);
+    const scrollRafRef = useRef(0);
     useEffect(() => {
-      if (atBottomRef.current) scrollToBottom();
+      if (!atBottomRef.current || scrollRafRef.current) return;
+      scrollRafRef.current = requestAnimationFrame(() => {
+        scrollRafRef.current = 0;
+        scrollToBottom();
+      });
     }, [messages, scrollToBottom]);
+    useEffect(
+      () => () => cancelAnimationFrame(scrollRafRef.current),
+      []
+    );
     const lastAssistantId = useMemo(() => {
       for (let i = messages.length - 1; i >= 0; i--) {
         if (messages[i].role === "assistant") return messages[i].id;
@@ -3327,6 +3690,7 @@ ${t.sessions.confirmDeleteMessage}`
             MessageBubble,
             {
               msg: m,
+              agentAvatarUrl,
               onRetry: onRetry && (m.role === "user" || m.id === lastAssistantId) ? onRetry : void 0,
               onEdit: onEdit && m.role === "user" ? onEdit : void 0
             },
@@ -3867,11 +4231,13 @@ ${t.sessions.confirmDeleteMessage}`
       });
       return out;
     }
+    const reasoning = msg.reasoning || msg.reasoning_content || msg.reasoning_details || void 0;
     out.push({
       ...base,
       id: `h${index}`,
       role: msg.role,
       text,
+      reasoning: msg.role === "assistant" ? reasoning : void 0,
       images: images.length > 0 ? images : void 0
     });
     if (msg.role === "assistant" && msg.tool_calls) {
@@ -4388,7 +4754,9 @@ ${body}` : body);
      *  `onPrefill` refills the composer for /undo. */
     send = (text, images, hooks) => {
       if (!this.gw || !this.liveSid || !text) return;
-      if (text.startsWith("/")) {
+      const firstToken = text.split(/\s/, 1)[0];
+      const isSlashCommand = firstToken.startsWith("/") && !firstToken.slice(1).includes("/");
+      if (isSlashCommand) {
         this.patchMessages((prev) => [
           ...prev,
           {
@@ -4498,6 +4866,7 @@ ${body}` : body);
       () => localStorage.getItem("hermes.bubblechat.sidebarCollapsed") === "1"
     );
     const chatBg = useChatBackground();
+    const agentAvatar = useAgentAvatar();
     useEffect(() => {
       bubbleChatStore.attach({ profile: scopedProfile, resume: resumeParam });
     }, [scopedProfile, resumeParam, state.newChatNonce]);
@@ -4527,6 +4896,7 @@ ${body}` : body);
       },
       [resumeParam, startNewChat]
     );
+    const closeDrawer = useCallback(() => setDrawerOpen(false), []);
     const toggleSidebar = useCallback(() => {
       setSidebarCollapsed((v) => {
         const next = !v;
@@ -4600,7 +4970,7 @@ ${body}` : body);
               activeSessionId: resumeParam,
               profile: scopedProfile,
               onNewChat: startNewChat,
-              onPicked: () => setDrawerOpen(false),
+              onPicked: closeDrawer,
               manageable: true,
               onSessionDeleted: handleSessionDeleted
             }
@@ -4619,7 +4989,7 @@ ${body}` : body);
                 children: /* @__PURE__ */ jsx(PanelLeft, {})
               }
             ) }),
-            /* @__PURE__ */ jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsx(ChatBackgroundPicker, { bg: chatBg, profile: scopedProfile }) })
+            /* @__PURE__ */ jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsx(ChatBackgroundPicker, { bg: chatBg, profile: scopedProfile, avatar: agentAvatar }) })
           ] }),
           state.error && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive", children: [
             /* @__PURE__ */ jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
@@ -4664,7 +5034,8 @@ ${body}` : body);
                     messages: state.messages,
                     emptyHint: resumeParam ? "\u8FD9\u4E2A\u4F1A\u8BDD\u8FD8\u6CA1\u6709\u6D88\u606F" : "\u5F00\u59CB\u65B0\u7684\u5BF9\u8BDD\u5427",
                     onRetry: retryMessage,
-                    onEdit: editMessage
+                    onEdit: editMessage,
+                    agentAvatarUrl: agentAvatar.url
                   }
                 )
               ]
@@ -4729,6 +5100,7 @@ lucide-react/dist/esm/icons/circle-question-mark.js:
 lucide-react/dist/esm/icons/copy.js:
 lucide-react/dist/esm/icons/file-text.js:
 lucide-react/dist/esm/icons/file.js:
+lucide-react/dist/esm/icons/folder.js:
 lucide-react/dist/esm/icons/image-off.js:
 lucide-react/dist/esm/icons/image-plus.js:
 lucide-react/dist/esm/icons/image.js:
@@ -4736,6 +5108,7 @@ lucide-react/dist/esm/icons/list-checks.js:
 lucide-react/dist/esm/icons/loader-circle.js:
 lucide-react/dist/esm/icons/message-square-plus.js:
 lucide-react/dist/esm/icons/message-square.js:
+lucide-react/dist/esm/icons/music.js:
 lucide-react/dist/esm/icons/palette.js:
 lucide-react/dist/esm/icons/panel-left-close.js:
 lucide-react/dist/esm/icons/panel-left-open.js:

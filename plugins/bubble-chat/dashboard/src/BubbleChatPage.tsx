@@ -24,6 +24,7 @@ import { AlertCircle, PanelLeft, PanelLeftOpen, RefreshCw } from "lucide-react";
 import { ChatSessionList } from "./ChatSessionList";
 import {
   ChatBackgroundPicker,
+  useAgentAvatar,
   useChatBackground,
 } from "./chat/ChatBackground";
 import { Composer } from "./chat/Composer";
@@ -56,6 +57,8 @@ export default function BubbleChatPage() {
   );
   /** Chat background setting (localStorage-backed, see ChatBackground). */
   const chatBg = useChatBackground();
+  /** Custom assistant avatar (localStorage-backed, same pattern). */
+  const agentAvatar = useAgentAvatar();
 
   /* ---------------------------------------------------------------- */
   /*  Attach: mount / conversation switch / profile switch / 新对话     */
@@ -108,6 +111,9 @@ export default function BubbleChatPage() {
     },
     [resumeParam, startNewChat],
   );
+
+  // Stable ref so the memoized ChatSessionList in the drawer can bail out.
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   /** Fold/unfold the desktop session sidebar (persists in localStorage). */
   const toggleSidebar = useCallback(() => {
@@ -185,7 +191,7 @@ export default function BubbleChatPage() {
               activeSessionId={resumeParam}
               profile={scopedProfile}
               onNewChat={startNewChat}
-              onPicked={() => setDrawerOpen(false)}
+              onPicked={closeDrawer}
               manageable
               onSessionDeleted={handleSessionDeleted}
             />
@@ -208,7 +214,7 @@ export default function BubbleChatPage() {
             </Button>
           </span>
           <span className="ml-auto">
-            <ChatBackgroundPicker bg={chatBg} profile={scopedProfile} />
+            <ChatBackgroundPicker bg={chatBg} profile={scopedProfile} avatar={agentAvatar} />
           </span>
         </div>
 
@@ -266,6 +272,7 @@ export default function BubbleChatPage() {
               }
               onRetry={retryMessage}
               onEdit={editMessage}
+              agentAvatarUrl={agentAvatar.url}
             />
           )}
         </div>

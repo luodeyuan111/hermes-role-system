@@ -331,6 +331,13 @@ def _restore_or_build_system_prompt(agent, system_message, conversation_history)
         # Continuing session — reuse the exact system prompt from the
         # previous turn so the Anthropic cache prefix matches.
         agent._cached_system_prompt = stored_prompt
+        if system_message:
+            # A per-turn system_message (e.g. the tui_gateway `channel`
+            # note from prompt.submit) must still apply on reused prompts —
+            # append it for THIS turn only (never persisted). The append
+            # busts the prefix cache for this turn; that's intended — the
+            # caller opted into per-turn behavior by passing it.
+            agent._cached_system_prompt = stored_prompt + "\n\n" + system_message
         return
     if stored_prompt:
         stored_state = "stale_runtime"

@@ -9,6 +9,9 @@
 .hermes-bubble-chat .collapse {
   visibility: collapse;
 }
+.hermes-bubble-chat .visible {
+  visibility: visible;
+}
 .hermes-bubble-chat .absolute {
   position: absolute;
 }
@@ -147,6 +150,9 @@
 .hermes-bubble-chat .h-4 {
   height: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 4);
 }
+.hermes-bubble-chat .h-5 {
+  height: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 5);
+}
 .hermes-bubble-chat .h-7 {
   height: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 7);
 }
@@ -212,6 +218,9 @@
 }
 .hermes-bubble-chat .w-4 {
   width: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 4);
+}
+.hermes-bubble-chat .w-5 {
+  width: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 5);
 }
 .hermes-bubble-chat .w-8 {
   width: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 8);
@@ -710,6 +719,9 @@
 }
 .hermes-bubble-chat .pt-1 {
   padding-top: calc(0.25rem * var(--theme-spacing-mul, 1));
+}
+.hermes-bubble-chat .pt-2\.5 {
+  padding-top: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 2.5);
 }
 .hermes-bubble-chat .pb-1 {
   padding-bottom: calc(0.25rem * var(--theme-spacing-mul, 1));

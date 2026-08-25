@@ -3,16 +3,17 @@
  * Text-like files under 512 KB open in a preview modal (content via
  * /api/files/read, base64 data URL decoded client-side); images open the
  * full-screen zoom overlay; PDFs open in a modal with the browser's built-in
- * viewer (bytes fetched as a blob URL, sidestepping the download endpoint's
- * Content-Disposition: attachment); everything else opens with the host's
- * default application via /api/files/open (browser download as fallback).
+ * viewer and audio plays in a modal player (both fed by a fetched blob URL,
+ * sidestepping the download endpoint's Content-Disposition: attachment);
+ * everything else opens with the host's default application via
+ * /api/files/open (browser download as fallback).
  * Files that no longer exist grey out on first failed access.
  * `useFileOpener` exposes the same open logic for non-chip callers
  * (MessageBubble's intercepted Markdown links).
  */
 
 import { useCallback, useState } from "react";
-import { File, FileText, Image as ImageIcon, Loader2, X } from "lucide-react";
+import { File, FileText, Image as ImageIcon, Loader2, Music, X } from "lucide-react";
 
 import { mediaKindForPath } from "./content";
 import {
@@ -159,12 +160,65 @@ function PdfPreviewModal({
 }
 
 /**
+ * Audio preview modal: the fetched blob URL feeds an <audio> element, so
+ * TTS output (e.g. MiniMax synthesis results sent back by the agent) plays
+ * inline instead of downloading. Revoking the object URL is the caller's
+ * job (onClose).
+ */
+function AudioPreviewModal({
+  src,
+  path,
+  onClose,
+}: {
+  src: string;
+  path: string;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-label={`播放 ${fileName(path)}`}
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-[fade-in_0.15s_ease]"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={cn(
+          "flex w-full max-w-md flex-col overflow-hidden",
+          "rounded-xl border border-current/15 bg-background-base shadow-2xl",
+        )}
+      >
+        <div className="flex shrink-0 items-center gap-2 border-b border-current/10 px-4 py-2.5">
+          <Music className="h-4 w-4 shrink-0 text-primary" />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium">{fileName(path)}</div>
+            <div className="truncate text-[0.625rem] text-text-tertiary">{path}</div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="关闭"
+            title="关闭"
+            className="shrink-0 cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="px-4 py-4">
+          <audio controls autoPlay src={src} className="w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Shared "open a gateway-local path" logic: images zoom full-screen (the
  * same overlay MediaInline uses), previewable text opens the preview modal,
- * PDFs open the inline viewer modal, everything else opens with the host's
- * default application (download fallback). Rejects when the file is
- * inaccessible. Used by FileChip and by MessageBubble's local-link click
- * interception.
+ * PDFs open the inline viewer modal, audio plays in a modal player,
+ * everything else opens with the host's default application (download
+ * fallback). Rejects when the file is inaccessible. Used by FileChip and by
+ * MessageBubble's local-link click interception.
  */
 export function useFileOpener() {
   const [textPreview, setTextPreview] = useState<{
@@ -179,6 +233,10 @@ export function useFileOpener() {
     src: string;
     path: string;
   } | null>(null);
+  const [audioPreview, setAudioPreview] = useState<{
+    src: string;
+    path: string;
+  } | null>(null);
 
   const closePdfPreview = useCallback(() => {
     setPdfPreview((prev) => {
@@ -187,9 +245,17 @@ export function useFileOpener() {
     });
   }, []);
 
+  const closeAudioPreview = useCallback(() => {
+    setAudioPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev.src);
+      return null;
+    });
+  }, []);
+
   const open = useCallback(async (path: string) => {
     const name = fileName(path);
-    if (mediaKindForPath(path) === "image") {
+    const mediaKind = mediaKindForPath(path);
+    if (mediaKind === "image") {
       const src = await resolveImageUrl(path);
       setImagePreview({ src, alt: name });
       return;
@@ -200,6 +266,13 @@ export function useFileOpener() {
       // "preview" into a download.
       const src = await fetchFileBlobUrl(path);
       setPdfPreview({ src, path });
+      return;
+    }
+    if (mediaKind === "audio") {
+      // Same blob route as PDF (avoids the attachment disposition), but fed
+      // to an inline player.
+      const src = await fetchFileBlobUrl(path);
+      setAudioPreview({ src, path });
       return;
     }
     if (TEXT_EXTS.has(extOf(path))) {
@@ -243,6 +316,13 @@ export function useFileOpener() {
           onClose={closePdfPreview}
         />
       )}
+      {audioPreview && (
+        <AudioPreviewModal
+          src={audioPreview.src}
+          path={audioPreview.path}
+          onClose={closeAudioPreview}
+        />
+      )}
     </>
   );
 
@@ -255,8 +335,11 @@ export function FileChip({ path }: { path: string }) {
   const { open, modal } = useFileOpener();
 
   const name = fileName(path);
-  const isImage = mediaKindForPath(path) === "image";
-  const previewable = isImage || extOf(path) === "pdf" || TEXT_EXTS.has(extOf(path));
+  const mediaKind = mediaKindForPath(path);
+  const isImage = mediaKind === "image";
+  const isAudio = mediaKind === "audio";
+  const previewable =
+    isImage || isAudio || extOf(path) === "pdf" || TEXT_EXTS.has(extOf(path));
 
   const handleClick = () => {
     if (missing || busy) return;
@@ -266,7 +349,7 @@ export function FileChip({ path }: { path: string }) {
       .finally(() => setBusy(false));
   };
 
-  const Icon = isImage ? ImageIcon : previewable ? FileText : File;
+  const Icon = isImage ? ImageIcon : isAudio ? Music : previewable ? FileText : File;
 
   return (
     <>
