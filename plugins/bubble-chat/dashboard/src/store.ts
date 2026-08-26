@@ -36,6 +36,7 @@ import {
   nowSeconds,
   type ChatMessage,
   type PendingPrompt,
+  type TodoItem,
 } from "./chat/types";
 
 /** Result shapes for the gateway methods the store calls. */
@@ -109,6 +110,41 @@ function parseToolArgs(raw: string | undefined): unknown {
   } catch {
     return raw;
   }
+}
+
+/** Parse a todo list from a tool.complete payload value or a stored
+ *  result JSON string ({"todos": [...]}). Returns null when not parseable. */
+function parseTodoList(raw: unknown): TodoItem[] | null {
+  let data: unknown = raw;
+  if (typeof raw === "string") {
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (!data || typeof data !== "object") return null;
+  const todos = (data as Record<string, unknown>).todos;
+  if (!Array.isArray(todos)) return null;
+  return todos
+    .filter((t): t is Record<string, unknown> => !!t && typeof t === "object")
+    .map((t) => ({
+      id: String(t.id ?? ""),
+      content: String(t.content ?? ""),
+      status: String(t.status ?? "pending"),
+    }));
+}
+
+/** Latest todo list among a session's stored tool-result rows, or null. */
+function latestTodosFromHistory(messages: SessionMessage[]): TodoItem[] | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.role === "tool" && m.tool_name === "todo") {
+      const todos = parseTodoList(m.content);
+      if (todos) return todos;
+    }
+  }
+  return null;
 }
 
 /** Stringify a tool.complete `result` payload for display. */
@@ -253,6 +289,8 @@ export interface BubbleChatState {
   pendingPrompt: PendingPrompt | null;
   /** A clarify.respond/approval.respond call is in flight. */
   promptBusy: boolean;
+  /** The agent's per-session todo list (latest write wins). */
+  todos: TodoItem[];
   messages: ChatMessage[];
 }
 
@@ -267,6 +305,7 @@ const INITIAL_STATE: BubbleChatState = {
   slashBusy: false,
   pendingPrompt: null,
   promptBusy: false,
+  todos: [],
   messages: [],
 };
 
@@ -301,8 +340,34 @@ class BubbleChatStore {
 
   getSnapshot = (): BubbleChatState => this.state;
 
+  /** Watchdog: while generating, any silence longer than this surfaces a
+   *  status hint instead of looking like the turn vanished (429 storms,
+   *  dead turns with no terminal event — seen in production). */
+  private watchdogTimer: ReturnType<typeof setTimeout> | null = null;
+  private static readonly WATCHDOG_MS = 45_000;
+
+  private armWatchdog(): void {
+    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
+    this.watchdogTimer = setTimeout(() => {
+      this.watchdogTimer = null;
+      if (!this.state.generating) return;
+      this.emit({
+        statusText: "等待响应时间较长——可能被限流或回合异常，可点消息的重试",
+      });
+    }, BubbleChatStore.WATCHDOG_MS);
+  }
+
+  private disarmWatchdog(): void {
+    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
+    this.watchdogTimer = null;
+  }
+
   private emit(partial: Partial<BubbleChatState>): void {
     this.state = { ...this.state, ...partial };
+    // Watchdog follows the generating flag — armed on any turn start,
+    // disarmed when the turn settles (any path).
+    if (partial.generating === true) this.armWatchdog();
+    if (partial.generating === false) this.disarmWatchdog();
     for (const fn of this.listeners) {
       try {
         fn();
@@ -388,6 +453,7 @@ class BubbleChatStore {
       statusText: null,
       pendingPrompt: null,
       promptBusy: false,
+      todos: [],
       messages: [],
     });
     this.maybeStartSession();
@@ -421,6 +487,7 @@ class BubbleChatStore {
       statusText: null,
       pendingPrompt: null,
       promptBusy: false,
+      todos: [],
       messages: [],
     });
 
@@ -442,6 +509,9 @@ class BubbleChatStore {
             messages: mergeToolCards(
               hist.messages.flatMap(historyToChatMessages),
             ),
+            // Hydrate the todo panel from the latest todo tool row (stored
+            // results carry the full list as JSON).
+            todos: latestTodosFromHistory(hist.messages) ?? [],
             // A session resumed mid-turn keeps its busy indicator.
             generating: resumed.running === true,
             sessionReady: true,
@@ -485,6 +555,8 @@ class BubbleChatStore {
   private handleEvent(ev: GatewayEvent): void {
     // Drop events for other sessions (background tasks, other tabs).
     if (ev.session_id !== this.liveSid) return;
+    // Any event is proof of life — reset the silence watchdog.
+    if (this.state.generating) this.armWatchdog();
     const payload = (ev.payload ?? {}) as Record<string, unknown>;
 
     switch (ev.type) {
@@ -602,6 +674,13 @@ class BubbleChatStore {
 
       case "tool.complete": {
         const toolId = typeof payload.tool_id === "string" ? payload.tool_id : "";
+        const name = typeof payload.name === "string" ? payload.name : "";
+        // The todo tool's full list rides the tool.complete payload (server
+        // side already normalised it) — latest write wins, drives the panel.
+        if (name === "todo") {
+          const todos = parseTodoList(payload.todos ?? payload.result);
+          if (todos) this.emit({ todos });
+        }
         const mid = this.toolCards.get(toolId);
         if (mid) {
           const resultText = stringifyToolResult(payload.result);

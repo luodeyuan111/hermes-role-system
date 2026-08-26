@@ -149,23 +149,41 @@
   ];
   var CircleAlert = createLucideIcon("circle-alert", __iconNode5);
 
-  // ../../../node_modules/lucide-react/dist/esm/icons/circle-question-mark.js
+  // ../../../node_modules/lucide-react/dist/esm/icons/circle-check.js
   var __iconNode6 = [
+    ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+    ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ];
+  var CircleCheck = createLucideIcon("circle-check", __iconNode6);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/circle-question-mark.js
+  var __iconNode7 = [
     ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
     ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
     ["path", { d: "M12 17h.01", key: "p32p05" }]
   ];
-  var CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode6);
+  var CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode7);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/circle-slash.js
+  var __iconNode8 = [
+    ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+    ["line", { x1: "9", x2: "15", y1: "15", y2: "9", key: "1dfufj" }]
+  ];
+  var CircleSlash = createLucideIcon("circle-slash", __iconNode8);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/circle.js
+  var __iconNode9 = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+  var Circle = createLucideIcon("circle", __iconNode9);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/copy.js
-  var __iconNode7 = [
+  var __iconNode10 = [
     ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
     ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
   ];
-  var Copy = createLucideIcon("copy", __iconNode7);
+  var Copy = createLucideIcon("copy", __iconNode10);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/file-text.js
-  var __iconNode8 = [
+  var __iconNode11 = [
     [
       "path",
       {
@@ -178,10 +196,10 @@
     ["path", { d: "M16 13H8", key: "t4e002" }],
     ["path", { d: "M16 17H8", key: "z1uh3a" }]
   ];
-  var FileText = createLucideIcon("file-text", __iconNode8);
+  var FileText = createLucideIcon("file-text", __iconNode11);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/file.js
-  var __iconNode9 = [
+  var __iconNode12 = [
     [
       "path",
       {
@@ -191,10 +209,10 @@
     ],
     ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }]
   ];
-  var File2 = createLucideIcon("file", __iconNode9);
+  var File2 = createLucideIcon("file", __iconNode12);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/folder.js
-  var __iconNode10 = [
+  var __iconNode13 = [
     [
       "path",
       {
@@ -203,10 +221,10 @@
       }
     ]
   ];
-  var Folder = createLucideIcon("folder", __iconNode10);
+  var Folder = createLucideIcon("folder", __iconNode13);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-off.js
-  var __iconNode11 = [
+  var __iconNode14 = [
     ["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "a6p6uj" }],
     ["path", { d: "M10.41 10.41a2 2 0 1 1-2.83-2.83", key: "1bzlo9" }],
     ["line", { x1: "13.5", x2: "6", y1: "13.5", y2: "21", key: "1q0aeu" }],
@@ -220,42 +238,52 @@
     ],
     ["path", { d: "M21 15V5a2 2 0 0 0-2-2H9", key: "43el77" }]
   ];
-  var ImageOff = createLucideIcon("image-off", __iconNode11);
+  var ImageOff = createLucideIcon("image-off", __iconNode14);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-plus.js
-  var __iconNode12 = [
+  var __iconNode15 = [
     ["path", { d: "M16 5h6", key: "1vod17" }],
     ["path", { d: "M19 2v6", key: "4bpg5p" }],
     ["path", { d: "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5", key: "1ue2ih" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }]
   ];
-  var ImagePlus = createLucideIcon("image-plus", __iconNode12);
+  var ImagePlus = createLucideIcon("image-plus", __iconNode15);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image.js
-  var __iconNode13 = [
+  var __iconNode16 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
   ];
-  var Image = createLucideIcon("image", __iconNode13);
+  var Image = createLucideIcon("image", __iconNode16);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/list-checks.js
-  var __iconNode14 = [
+  var __iconNode17 = [
     ["path", { d: "M13 5h8", key: "a7qcls" }],
     ["path", { d: "M13 12h8", key: "h98zly" }],
     ["path", { d: "M13 19h8", key: "c3s6r1" }],
     ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
     ["path", { d: "m3 7 2 2 4-4", key: "1obspn" }]
   ];
-  var ListChecks = createLucideIcon("list-checks", __iconNode14);
+  var ListChecks = createLucideIcon("list-checks", __iconNode17);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/list-todo.js
+  var __iconNode18 = [
+    ["path", { d: "M13 5h8", key: "a7qcls" }],
+    ["path", { d: "M13 12h8", key: "h98zly" }],
+    ["path", { d: "M13 19h8", key: "c3s6r1" }],
+    ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
+    ["rect", { x: "3", y: "4", width: "6", height: "6", rx: "1", key: "cif1o7" }]
+  ];
+  var ListTodo = createLucideIcon("list-todo", __iconNode18);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/loader-circle.js
-  var __iconNode15 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-  var LoaderCircle = createLucideIcon("loader-circle", __iconNode15);
+  var __iconNode19 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+  var LoaderCircle = createLucideIcon("loader-circle", __iconNode19);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square-plus.js
-  var __iconNode16 = [
+  var __iconNode20 = [
     [
       "path",
       {
@@ -266,10 +294,10 @@
     ["path", { d: "M12 8v6", key: "1ib9pf" }],
     ["path", { d: "M9 11h6", key: "1fldmi" }]
   ];
-  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode16);
+  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode20);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square.js
-  var __iconNode17 = [
+  var __iconNode21 = [
     [
       "path",
       {
@@ -278,18 +306,18 @@
       }
     ]
   ];
-  var MessageSquare = createLucideIcon("message-square", __iconNode17);
+  var MessageSquare = createLucideIcon("message-square", __iconNode21);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/music.js
-  var __iconNode18 = [
+  var __iconNode22 = [
     ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
     ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
     ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
   ];
-  var Music = createLucideIcon("music", __iconNode18);
+  var Music = createLucideIcon("music", __iconNode22);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/palette.js
-  var __iconNode19 = [
+  var __iconNode23 = [
     [
       "path",
       {
@@ -302,33 +330,33 @@
     ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
     ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
   ];
-  var Palette = createLucideIcon("palette", __iconNode19);
+  var Palette = createLucideIcon("palette", __iconNode23);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-close.js
-  var __iconNode20 = [
+  var __iconNode24 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m16 15-3-3 3-3", key: "14y99z" }]
   ];
-  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode20);
+  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode24);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-open.js
-  var __iconNode21 = [
+  var __iconNode25 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m14 9 3 3-3 3", key: "8010ee" }]
   ];
-  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode21);
+  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode25);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left.js
-  var __iconNode22 = [
+  var __iconNode26 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }]
   ];
-  var PanelLeft = createLucideIcon("panel-left", __iconNode22);
+  var PanelLeft = createLucideIcon("panel-left", __iconNode26);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/paperclip.js
-  var __iconNode23 = [
+  var __iconNode27 = [
     [
       "path",
       {
@@ -337,10 +365,10 @@
       }
     ]
   ];
-  var Paperclip = createLucideIcon("paperclip", __iconNode23);
+  var Paperclip = createLucideIcon("paperclip", __iconNode27);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/pencil.js
-  var __iconNode24 = [
+  var __iconNode28 = [
     [
       "path",
       {
@@ -350,26 +378,26 @@
     ],
     ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
   ];
-  var Pencil = createLucideIcon("pencil", __iconNode24);
+  var Pencil = createLucideIcon("pencil", __iconNode28);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/refresh-cw.js
-  var __iconNode25 = [
+  var __iconNode29 = [
     ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
     ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
     ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
     ["path", { d: "M8 16H3v5", key: "1cv678" }]
   ];
-  var RefreshCw = createLucideIcon("refresh-cw", __iconNode25);
+  var RefreshCw = createLucideIcon("refresh-cw", __iconNode29);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/rotate-ccw.js
-  var __iconNode26 = [
+  var __iconNode30 = [
     ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
     ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
   ];
-  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode26);
+  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode30);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/send-horizontal.js
-  var __iconNode27 = [
+  var __iconNode31 = [
     [
       "path",
       {
@@ -379,10 +407,10 @@
     ],
     ["path", { d: "M6 12h16", key: "s4cdu5" }]
   ];
-  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode27);
+  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode31);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/shield-alert.js
-  var __iconNode28 = [
+  var __iconNode32 = [
     [
       "path",
       {
@@ -393,10 +421,10 @@
     ["path", { d: "M12 8v4", key: "1got3b" }],
     ["path", { d: "M12 16h.01", key: "1drbdi" }]
   ];
-  var ShieldAlert = createLucideIcon("shield-alert", __iconNode28);
+  var ShieldAlert = createLucideIcon("shield-alert", __iconNode32);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/sparkles.js
-  var __iconNode29 = [
+  var __iconNode33 = [
     [
       "path",
       {
@@ -408,16 +436,16 @@
     ["path", { d: "M22 4h-4", key: "gwowj6" }],
     ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
   ];
-  var Sparkles = createLucideIcon("sparkles", __iconNode29);
+  var Sparkles = createLucideIcon("sparkles", __iconNode33);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/square.js
-  var __iconNode30 = [
+  var __iconNode34 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
   ];
-  var Square = createLucideIcon("square", __iconNode30);
+  var Square = createLucideIcon("square", __iconNode34);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/star.js
-  var __iconNode31 = [
+  var __iconNode35 = [
     [
       "path",
       {
@@ -426,35 +454,35 @@
       }
     ]
   ];
-  var Star = createLucideIcon("star", __iconNode31);
+  var Star = createLucideIcon("star", __iconNode35);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/terminal.js
-  var __iconNode32 = [
+  var __iconNode36 = [
     ["path", { d: "M12 19h8", key: "baeox8" }],
     ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
   ];
-  var Terminal = createLucideIcon("terminal", __iconNode32);
+  var Terminal = createLucideIcon("terminal", __iconNode36);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/timer.js
-  var __iconNode33 = [
+  var __iconNode37 = [
     ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
     ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
     ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
   ];
-  var Timer = createLucideIcon("timer", __iconNode33);
+  var Timer = createLucideIcon("timer", __iconNode37);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/trash-2.js
-  var __iconNode34 = [
+  var __iconNode38 = [
     ["path", { d: "M10 11v6", key: "nco0om" }],
     ["path", { d: "M14 11v6", key: "outv1u" }],
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
     ["path", { d: "M3 6h18", key: "d0wm0j" }],
     ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
   ];
-  var Trash2 = createLucideIcon("trash-2", __iconNode34);
+  var Trash2 = createLucideIcon("trash-2", __iconNode38);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/wrench.js
-  var __iconNode35 = [
+  var __iconNode39 = [
     [
       "path",
       {
@@ -463,14 +491,14 @@
       }
     ]
   ];
-  var Wrench = createLucideIcon("wrench", __iconNode35);
+  var Wrench = createLucideIcon("wrench", __iconNode39);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/x.js
-  var __iconNode36 = [
+  var __iconNode40 = [
     ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
     ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
   ];
-  var X = createLucideIcon("x", __iconNode36);
+  var X = createLucideIcon("x", __iconNode40);
 
   // src/sdk.ts
   function sdk() {
@@ -3842,6 +3870,82 @@ ${t.sessions.confirmDeleteMessage}`
     ] }) });
   }
 
+  // src/chat/TodoPanel.tsx
+  var STATUS_ORDER = ["in_progress", "pending", "completed", "cancelled"];
+  function StatusIcon({ status }) {
+    switch (status) {
+      case "in_progress":
+        return /* @__PURE__ */ jsx(LoaderCircle, { className: "h-3.5 w-3.5 shrink-0 animate-spin text-amber-400" });
+      case "completed":
+        return /* @__PURE__ */ jsx(CircleCheck, { className: "h-3.5 w-3.5 shrink-0 text-emerald-400" });
+      case "cancelled":
+        return /* @__PURE__ */ jsx(CircleSlash, { className: "h-3.5 w-3.5 shrink-0 text-text-tertiary" });
+      default:
+        return /* @__PURE__ */ jsx(Circle, { className: "h-3.5 w-3.5 shrink-0 text-text-tertiary" });
+    }
+  }
+  function TodoPanel({ todos }) {
+    const [open, setOpen] = useState(false);
+    if (todos.length === 0) return null;
+    const inProgress = todos.filter((t) => t.status === "in_progress");
+    const pending = todos.filter((t) => t.status === "pending").length;
+    const done = todos.filter((t) => t.status === "completed" || t.status === "cancelled").length;
+    const sorted = [...todos].sort(
+      (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)
+    );
+    return /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: cn(
+          "shrink-0 rounded-xl border border-current/10",
+          "bg-muted/40 text-xs"
+        ),
+        children: [
+          /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setOpen((v) => !v),
+              "aria-expanded": open,
+              className: cn(
+                "flex w-full cursor-pointer items-center gap-1.5 px-2.5 py-1.5",
+                "text-text-tertiary hover:text-text-secondary transition-colors"
+              ),
+              children: [
+                open ? /* @__PURE__ */ jsx(ChevronDown, { className: "h-3 w-3 shrink-0" }) : /* @__PURE__ */ jsx(ChevronRight, { className: "h-3 w-3 shrink-0" }),
+                /* @__PURE__ */ jsx(ListTodo, { className: "h-3.5 w-3.5 shrink-0" }),
+                /* @__PURE__ */ jsx("span", { className: "font-medium text-text-secondary", children: "\u4EFB\u52A1" }),
+                /* @__PURE__ */ jsxs("span", { className: "text-text-tertiary", children: [
+                  inProgress.length > 0 && `${inProgress.length} \u8FDB\u884C\u4E2D \xB7 `,
+                  pending,
+                  " \u5F85\u529E \xB7 ",
+                  done,
+                  " \u5B8C\u6210"
+                ] })
+              ]
+            }
+          ),
+          open && /* @__PURE__ */ jsx("ul", { className: "max-h-40 space-y-1 overflow-y-auto border-t border-current/10 px-2.5 py-2", children: sorted.map((t) => /* @__PURE__ */ jsxs("li", { className: "flex items-start gap-1.5", children: [
+            /* @__PURE__ */ jsx(StatusIcon, { status: t.status }),
+            /* @__PURE__ */ jsx(
+              "span",
+              {
+                className: cn(
+                  "min-w-0 flex-1 break-words leading-snug",
+                  t.status === "completed" && "text-text-tertiary line-through",
+                  t.status === "cancelled" && "text-text-tertiary line-through opacity-70",
+                  t.status === "in_progress" && "text-foreground",
+                  t.status === "pending" && "text-text-secondary"
+                ),
+                children: t.content
+              }
+            )
+          ] }, t.id)) })
+        ]
+      }
+    );
+  }
+
   // ../../../apps/shared/src/json-rpc-gateway.ts
   var ANY = "*";
   var DEFAULT_REQUEST_TIMEOUT_MS = 12e4;
@@ -4193,6 +4297,34 @@ ${t.sessions.confirmDeleteMessage}`
       return raw;
     }
   }
+  function parseTodoList(raw) {
+    let data = raw;
+    if (typeof raw === "string") {
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+    if (!data || typeof data !== "object") return null;
+    const todos = data.todos;
+    if (!Array.isArray(todos)) return null;
+    return todos.filter((t) => !!t && typeof t === "object").map((t) => ({
+      id: String(t.id ?? ""),
+      content: String(t.content ?? ""),
+      status: String(t.status ?? "pending")
+    }));
+  }
+  function latestTodosFromHistory(messages) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role === "tool" && m.tool_name === "todo") {
+        const todos = parseTodoList(m.content);
+        if (todos) return todos;
+      }
+    }
+    return null;
+  }
   function stringifyToolResult(result) {
     if (result == null) return void 0;
     if (typeof result === "string") return result;
@@ -4293,6 +4425,7 @@ ${t.sessions.confirmDeleteMessage}`
     slashBusy: false,
     pendingPrompt: null,
     promptBusy: false,
+    todos: [],
     messages: []
   };
   var BubbleChatStore = class _BubbleChatStore {
@@ -4321,8 +4454,29 @@ ${t.sessions.confirmDeleteMessage}`
       return () => this.listeners.delete(fn);
     };
     getSnapshot = () => this.state;
+    /** Watchdog: while generating, any silence longer than this surfaces a
+     *  status hint instead of looking like the turn vanished (429 storms,
+     *  dead turns with no terminal event — seen in production). */
+    watchdogTimer = null;
+    static WATCHDOG_MS = 45e3;
+    armWatchdog() {
+      if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
+      this.watchdogTimer = setTimeout(() => {
+        this.watchdogTimer = null;
+        if (!this.state.generating) return;
+        this.emit({
+          statusText: "\u7B49\u5F85\u54CD\u5E94\u65F6\u95F4\u8F83\u957F\u2014\u2014\u53EF\u80FD\u88AB\u9650\u6D41\u6216\u56DE\u5408\u5F02\u5E38\uFF0C\u53EF\u70B9\u6D88\u606F\u7684\u91CD\u8BD5"
+        });
+      }, _BubbleChatStore.WATCHDOG_MS);
+    }
+    disarmWatchdog() {
+      if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
+      this.watchdogTimer = null;
+    }
     emit(partial) {
       this.state = { ...this.state, ...partial };
+      if (partial.generating === true) this.armWatchdog();
+      if (partial.generating === false) this.disarmWatchdog();
       for (const fn of this.listeners) {
         try {
           fn();
@@ -4395,6 +4549,7 @@ ${t.sessions.confirmDeleteMessage}`
         statusText: null,
         pendingPrompt: null,
         promptBusy: false,
+        todos: [],
         messages: []
       });
       this.maybeStartSession();
@@ -4421,6 +4576,7 @@ ${t.sessions.confirmDeleteMessage}`
         statusText: null,
         pendingPrompt: null,
         promptBusy: false,
+        todos: [],
         messages: []
       });
       if (spec.resume) {
@@ -4439,6 +4595,9 @@ ${t.sessions.confirmDeleteMessage}`
             messages: mergeToolCards(
               hist.messages.flatMap(historyToChatMessages)
             ),
+            // Hydrate the todo panel from the latest todo tool row (stored
+            // results carry the full list as JSON).
+            todos: latestTodosFromHistory(hist.messages) ?? [],
             // A session resumed mid-turn keeps its busy indicator.
             generating: resumed.running === true,
             sessionReady: true
@@ -4473,6 +4632,7 @@ ${t.sessions.confirmDeleteMessage}`
     /* ---------------------------------------------------------------- */
     handleEvent(ev) {
       if (ev.session_id !== this.liveSid) return;
+      if (this.state.generating) this.armWatchdog();
       const payload = ev.payload ?? {};
       switch (ev.type) {
         case "message.start": {
@@ -4566,6 +4726,11 @@ ${t.sessions.confirmDeleteMessage}`
         }
         case "tool.complete": {
           const toolId = typeof payload.tool_id === "string" ? payload.tool_id : "";
+          const name = typeof payload.name === "string" ? payload.name : "";
+          if (name === "todo") {
+            const todos = parseTodoList(payload.todos ?? payload.result);
+            if (todos) this.emit({ todos });
+          }
           const mid = this.toolCards.get(toolId);
           if (mid) {
             const resultText = stringifyToolResult(payload.result);
@@ -5045,6 +5210,7 @@ ${body}` : body);
             /* @__PURE__ */ jsx("span", { className: "inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-tertiary" }),
             /* @__PURE__ */ jsx("span", { className: "truncate", children: state.statusText })
           ] }),
+          state.todos.length > 0 && /* @__PURE__ */ jsx(TodoPanel, { todos: state.todos }),
           state.pendingPrompt && /* @__PURE__ */ jsx(
             PendingPromptCard,
             {
@@ -5096,7 +5262,10 @@ lucide-react/dist/esm/icons/check.js:
 lucide-react/dist/esm/icons/chevron-down.js:
 lucide-react/dist/esm/icons/chevron-right.js:
 lucide-react/dist/esm/icons/circle-alert.js:
+lucide-react/dist/esm/icons/circle-check.js:
 lucide-react/dist/esm/icons/circle-question-mark.js:
+lucide-react/dist/esm/icons/circle-slash.js:
+lucide-react/dist/esm/icons/circle.js:
 lucide-react/dist/esm/icons/copy.js:
 lucide-react/dist/esm/icons/file-text.js:
 lucide-react/dist/esm/icons/file.js:
@@ -5105,6 +5274,7 @@ lucide-react/dist/esm/icons/image-off.js:
 lucide-react/dist/esm/icons/image-plus.js:
 lucide-react/dist/esm/icons/image.js:
 lucide-react/dist/esm/icons/list-checks.js:
+lucide-react/dist/esm/icons/list-todo.js:
 lucide-react/dist/esm/icons/loader-circle.js:
 lucide-react/dist/esm/icons/message-square-plus.js:
 lucide-react/dist/esm/icons/message-square.js:

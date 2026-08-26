@@ -44,6 +44,14 @@ export interface ChatMessage {
  *  - `approval.request` → `approval.respond {session_id, choice}`
  *    (choice ∈ once|session|always|deny).
  */
+/** One item of the agent's per-session todo list (tools/todo_tool.py). */
+export interface TodoItem {
+  id: string;
+  content: string;
+  /** pending | in_progress | completed | cancelled */
+  status: string;
+}
+
 export type PendingPrompt =
   | {
       kind: "clarify";

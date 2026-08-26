@@ -380,6 +380,11 @@
   margin-block-start: calc(calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 0.5) * var(--tw-space-y-reverse));
   margin-block-end: calc(calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 0.5) * calc(1 - var(--tw-space-y-reverse)));
 }
+.hermes-bubble-chat :where(.space-y-1 > :not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * calc(1 - var(--tw-space-y-reverse)));
+}
 .hermes-bubble-chat :where(.space-y-2 > :not(:last-child)) {
   --tw-space-y-reverse: 0;
   margin-block-start: calc(calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 2) * var(--tw-space-y-reverse));
@@ -785,6 +790,10 @@
   --tw-leading: var(--leading-relaxed, 1.625);
   line-height: var(--leading-relaxed, 1.625);
 }
+.hermes-bubble-chat .leading-snug {
+  --tw-leading: var(--leading-snug, 1.375);
+  line-height: var(--leading-snug, 1.375);
+}
 .hermes-bubble-chat .font-bold {
   --tw-font-weight: var(--font-weight-bold, 700);
   font-weight: var(--font-weight-bold, 700);
@@ -805,17 +814,26 @@
   --tw-tracking: var(--tracking-wider, 0.05em);
   letter-spacing: var(--tracking-wider, 0.05em);
 }
+.hermes-bubble-chat .break-words {
+  overflow-wrap: break-word;
+}
 .hermes-bubble-chat .wrap-break-word {
   overflow-wrap: break-word;
 }
 .hermes-bubble-chat .whitespace-pre-wrap {
   white-space: pre-wrap;
 }
+.hermes-bubble-chat .text-amber-400 {
+  color: var(--color-amber-400, oklch(82.8% 0.189 84.429));
+}
 .hermes-bubble-chat .text-amber-500 {
   color: var(--color-amber-500, oklch(76.9% 0.188 70.08));
 }
 .hermes-bubble-chat .text-destructive {
   color: var(--destructive, #fb2c36);
+}
+.hermes-bubble-chat .text-emerald-400 {
+  color: var(--color-emerald-400, oklch(76.5% 0.177 163.223));
 }
 .hermes-bubble-chat .text-foreground {
   color: var(--midground);
@@ -887,6 +905,9 @@
   --tw-numeric-spacing: tabular-nums;
   font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
 }
+.hermes-bubble-chat .line-through {
+  text-decoration-line: line-through;
+}
 .hermes-bubble-chat .underline {
   text-decoration-line: underline;
 }
@@ -907,6 +928,9 @@
 }
 .hermes-bubble-chat .opacity-60 {
   opacity: 60%;
+}
+.hermes-bubble-chat .opacity-70 {
+  opacity: 70%;
 }
 .hermes-bubble-chat .shadow-2xl {
   --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));

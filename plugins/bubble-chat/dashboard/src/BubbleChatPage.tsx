@@ -30,6 +30,7 @@ import {
 import { Composer } from "./chat/Composer";
 import { MessageList } from "./chat/MessageList";
 import { PendingPromptCard } from "./chat/PendingPromptCard";
+import { TodoPanel } from "./chat/TodoPanel";
 import type { ChatMessage } from "./chat/types";
 import { setResumeParam, useLocationSearch } from "./router";
 import { Button, cn } from "./sdk";
@@ -283,6 +284,8 @@ export default function BubbleChatPage() {
             <span className="truncate">{state.statusText}</span>
           </div>
         )}
+
+        {state.todos.length > 0 && <TodoPanel todos={state.todos} />}
 
         {state.pendingPrompt && (
           <PendingPromptCard
