@@ -12862,12 +12862,18 @@ def cmd_insights(args):
 
 
 def cmd_skills(args):
+    action = getattr(args, "skills_action", None)
     # Route 'config' action to skills_config module
-    if getattr(args, "skills_action", None) == "config":
+    if action == "config":
         _require_tty("skills config")
         from hermes_cli.skills_config import skills_command as skills_config_command
 
         skills_config_command(args)
+    elif action == "pool":
+        # Non-interactive by design — no TTY required, exit code matters.
+        from hermes_cli.skills_pool import pool_command
+
+        sys.exit(pool_command(args))
     else:
         from hermes_cli.skills_hub import skills_command
 

@@ -133,7 +133,25 @@ def _skills_scan_signature(dirs_to_scan, disabled) -> tuple:
         except OSError:
             pass
         sig.append((str(d), m))
-    return (tuple(sig), frozenset(disabled), platform)
+    return (tuple(sig), frozenset(disabled), platform, _whitelist_fingerprint())
+
+
+def _whitelist_fingerprint():
+    """(exists, mtime_ns, size) of the active home's skills.whitelist, or None.
+
+    Rides the skills-list scan signature so editing the whitelist file
+    invalidates the cached scan; None when the file is absent (legacy
+    disabled-only semantics).
+    """
+    try:
+        from hermes_constants import get_hermes_home
+
+        st = (get_hermes_home() / "skills.whitelist").stat()
+        return (True, st.st_mtime_ns, st.st_size)
+    except OSError:
+        return None
+    except Exception:
+        return None
 
 
 # All skills live in ~/.hermes/skills/ (seeded from bundled skills/ on install).
@@ -567,10 +585,11 @@ def _get_category_from_path(skill_path: Path) -> Optional[str]:
     Also works for external skill dirs configured via skills.external_dirs.
     """
     # Try the active profile skills dir first (respects monkeypatching in tests),
-    # then fall back to external dirs from config.
+    # then the shared default-home pool (named profiles), then external dirs.
     dirs_to_check = [_skills_dir()]
     try:
-        from agent.skill_utils import get_external_skills_dirs
+        from agent.skill_utils import get_external_skills_dirs, get_shared_skills_dirs
+        dirs_to_check.extend(get_shared_skills_dirs())
         dirs_to_check.extend(get_external_skills_dirs())
     except Exception:
         pass
@@ -681,13 +700,22 @@ def _find_all_skills(*, skip_disabled: bool = False) -> List[Dict[str, Any]]:
     signature changes (dir/category mtimes or the disabled-set) and expires
     after a short TTL to bound staleness from in-place SKILL.md edits.
     """
-    from agent.skill_utils import get_external_skills_dirs, iter_skill_index_files
+    from agent.skill_utils import (
+        get_external_skills_dirs,
+        get_shared_skills_dirs,
+        get_skill_whitelist,
+        iter_skill_index_files,
+    )
 
     cache_key = _SKILLS_CACHE_KEY_DISABLED if skip_disabled else _SKILLS_CACHE_KEY_FILTERED
 
     # Load disabled set once (not per-skill). Part of the cache signature:
     # disabling a skill is a config change with no filesystem mtime bump.
     disabled = set() if skip_disabled else _get_disabled_skill_names()
+    # Whitelist-first: when <home>/skills.whitelist exists it is the
+    # authoritative membership for the enabled set (disabled bypassed) —
+    # same semantics as the prompt index. None → legacy disabled behavior.
+    whitelist = None if skip_disabled else get_skill_whitelist()
 
     # Collect directories to scan — same resolution as the scan loop below
     # (_skills_dir() resolves the LIVE profile HERMES_HOME; the module-level
@@ -696,6 +724,7 @@ def _find_all_skills(*, skip_disabled: bool = False) -> List[Dict[str, Any]]:
     active_skills_dir = _skills_dir()
     if active_skills_dir.exists():
         dirs_to_scan.append(active_skills_dir)
+    dirs_to_scan.extend(get_shared_skills_dirs())
     dirs_to_scan.extend(get_external_skills_dirs())
 
     signature = _skills_scan_signature(dirs_to_scan, disabled)
@@ -737,7 +766,10 @@ def _find_all_skills(*, skip_disabled: bool = False) -> List[Dict[str, Any]]:
                 name = frontmatter.get("name", skill_dir.name)[:MAX_NAME_LENGTH]
                 if name in seen_names:
                     continue
-                if name in disabled:
+                if whitelist is not None:
+                    if name not in whitelist and skill_dir.name not in whitelist:
+                        continue
+                elif name in disabled:
                     continue
 
                 description = frontmatter.get("description", "")
@@ -1063,7 +1095,7 @@ def skill_view(
             if bare:
                 local_category_name = f"{namespace}/{bare}"
 
-        from agent.skill_utils import get_external_skills_dirs
+        from agent.skill_utils import get_external_skills_dirs, get_shared_skills_dirs
 
         # The categorized fall-through form (namespace/bare) joins onto each
         # search dir too; re-validate it since `bare` is not namespace-checked.
@@ -1084,6 +1116,7 @@ def skill_view(
         active_skills_dir = _skills_dir()
         if active_skills_dir.exists():
             all_dirs.append(active_skills_dir)
+        all_dirs.extend(get_shared_skills_dirs())
         all_dirs.extend(get_external_skills_dirs())
 
         if not all_dirs:
@@ -1106,10 +1139,10 @@ def skill_view(
         # loaded the other) so we surface it loudly instead of guessing.
         from agent.skill_utils import iter_skill_index_files
 
-        candidates: List[Tuple[Optional[Path], Path]] = []  # (skill_dir, skill_md)
+        candidates: List[Tuple[Optional[Path], Path, int]] = []  # (skill_dir, skill_md, dir_index)
         seen_md: set = set()
 
-        def _record(sd: Optional[Path], smd: Path) -> None:
+        def _record(sd: Optional[Path], smd: Path, dir_index: int) -> None:
             try:
                 key = smd.resolve()
             except Exception:
@@ -1117,9 +1150,9 @@ def skill_view(
             if key in seen_md:
                 return
             seen_md.add(key)
-            candidates.append((sd, smd))
+            candidates.append((sd, smd, dir_index))
 
-        for search_dir in all_dirs:
+        for dir_index, search_dir in enumerate(all_dirs):
             # Strategy 1: direct path (e.g., "mlops/axolotl" or bare "axolotl"
             # at the top of the dir).
             direct_path = search_dir / name
@@ -1128,11 +1161,11 @@ def skill_view(
                 and direct_path.is_dir()
                 and (direct_path / "SKILL.md").exists()
             ):
-                _record(direct_path, direct_path / "SKILL.md")
+                _record(direct_path, direct_path / "SKILL.md", dir_index)
             elif direct_path.with_suffix(".md").exists() and not _is_skill_support_path(
                 direct_path.with_suffix(".md")
             ):
-                _record(None, direct_path.with_suffix(".md"))
+                _record(None, direct_path.with_suffix(".md"), dir_index)
 
             # Strategy 1b: categorized form for plugin namespace fall-through
             # (e.g., a "myplugin:explore" name with no plugin registered also
@@ -1144,13 +1177,13 @@ def skill_view(
                     and categorized_path.is_dir()
                     and (categorized_path / "SKILL.md").exists()
                 ):
-                    _record(categorized_path, categorized_path / "SKILL.md")
+                    _record(categorized_path, categorized_path / "SKILL.md", dir_index)
                 elif categorized_path.with_suffix(
                     ".md"
                 ).exists() and not _is_skill_support_path(
                     categorized_path.with_suffix(".md")
                 ):
-                    _record(None, categorized_path.with_suffix(".md"))
+                    _record(None, categorized_path.with_suffix(".md"), dir_index)
 
             # Strategy 2: recursive by directory name (catches nested skills
             # like "foundations/runtime/explore-codebase" called by bare name),
@@ -1159,7 +1192,7 @@ def skill_view(
             # when the on-disk directory is a shorter category/alias.
             for found_skill_md in iter_skill_index_files(search_dir, "SKILL.md"):
                 if found_skill_md.parent.name == name:
-                    _record(found_skill_md.parent, found_skill_md)
+                    _record(found_skill_md.parent, found_skill_md, dir_index)
                     continue
                 try:
                     fm_content = found_skill_md.read_text(encoding="utf-8")
@@ -1167,7 +1200,7 @@ def skill_view(
                 except Exception:
                     fm = {}
                 if fm.get("name") == name:
-                    _record(found_skill_md.parent, found_skill_md)
+                    _record(found_skill_md.parent, found_skill_md, dir_index)
 
             # Strategy 3: legacy flat <name>.md files anywhere under the dir.
             # Exclude skill support docs: references/templates/assets/scripts
@@ -1177,10 +1210,33 @@ def skill_view(
                 if found_md.name != "SKILL.md" and not _is_skill_support_path(
                     found_md
                 ):
-                    _record(None, found_md)
+                    _record(None, found_md, dir_index)
 
         if len(candidates) > 1:
-            paths = [str(smd) for _, smd in candidates]
+            # Tiered precedence — the same scan order the prompt index and
+            # skills_list apply: local > shared default-home pool >
+            # external_dirs.  The shared pool is a by-reference fallback, so
+            # a higher tier shadows it BY DESIGN (that is what lets a profile
+            # override a global skill by name), and it shadows external_dirs.
+            # The historical refusal below is preserved only for the original
+            # silent-shadowing bug class: a LOCAL copy colliding with an
+            # EXTERNAL_DIRS copy.
+            from agent.skill_utils import is_shared_skills_path
+
+            def _tier_of(idx: int, smd: Path) -> str:
+                if is_shared_skills_path(smd):
+                    return "shared"
+                return "local" if idx == 0 else "external"
+
+            tiers = {_tier_of(idx, smd) for _, smd, idx in candidates}
+            if "shared" in tiers and not ("local" in tiers and "external" in tiers):
+                best_index = min(idx for _, _, idx in candidates)
+                best = [c for c in candidates if c[2] == best_index]
+                if len(best) == 1:
+                    candidates = best
+
+        if len(candidates) > 1:
+            paths = [str(smd) for _, smd, _idx in candidates]
             logging.getLogger(__name__).warning(
                 "Skill name collision for '%s': %d candidates — %s",
                 name, len(candidates), "; ".join(paths),
@@ -1204,7 +1260,7 @@ def skill_view(
             )
 
         if candidates:
-            skill_dir, skill_md = candidates[0]
+            skill_dir, skill_md, _dir_index = candidates[0]
 
         if not skill_md or not skill_md.exists():
             available = [s["name"] for s in _sort_skills(_find_all_skills())[:20]]

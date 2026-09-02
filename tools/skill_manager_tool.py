@@ -790,6 +790,34 @@ def _atomic_write_text(file_path: Path, content: str, encoding: str = "utf-8") -
 # Core actions
 # =============================================================================
 
+def _shared_pool_mutation_guard(skill_dir: Path) -> Optional[Dict[str, Any]]:
+    """Refuse skill_manage mutations that land in the shared default-home pool.
+
+    Named profiles scan the default home's ``skills/`` as a read-only,
+    by-reference fallback pool (``agent.skill_utils.get_shared_skills_dirs``).
+    Editing or deleting one of those skills from a profile session would
+    silently mutate every other profile's pool — the same bug class the
+    cross-profile write guard covers.  Returns an error dict to refuse,
+    ``None`` when the target is not in the shared pool.
+    """
+    try:
+        from agent.skill_utils import is_shared_skills_path
+
+        if not is_shared_skills_path(skill_dir):
+            return None
+    except Exception:
+        return None
+    return {
+        "success": False,
+        "error": (
+            f"'{skill_dir}' lives in the shared default-profile skills pool, "
+            "which is read-only from a named profile. Switch to the default "
+            "profile to modify it, or create a same-named local override in "
+            "this profile instead."
+        ),
+    }
+
+
 def _create_skill(name: str, content: str, category: str = None) -> Dict[str, Any]:
     """Create a new user skill with SKILL.md content."""
     # Validate name
@@ -810,13 +838,18 @@ def _create_skill(name: str, content: str, category: str = None) -> Dict[str, An
     if err:
         return {"success": False, "error": err}
 
-    # Check for name collisions across all directories
+    # Check for name collisions across all directories. A match in the shared
+    # default-home pool does NOT block creation — creating a same-named local
+    # skill is exactly how a profile overrides a global one.
     existing = _find_skill(name)
     if existing:
-        return {
-            "success": False,
-            "error": f"A skill named '{name}' already exists at {existing['path']}."
-        }
+        from agent.skill_utils import is_shared_skills_path
+
+        if not is_shared_skills_path(existing["path"]):
+            return {
+                "success": False,
+                "error": f"A skill named '{name}' already exists at {existing['path']}."
+            }
 
     # Create the skill directory
     skill_dir = _resolve_skill_dir(name, category)
@@ -871,6 +904,9 @@ def _edit_skill(name: str, content: str) -> Dict[str, Any]:
     existing = _find_skill(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
+    shared_guard = _shared_pool_mutation_guard(existing["path"])
+    if shared_guard:
+        return shared_guard
     guard = _background_review_write_guard(name, existing["path"], "edit")
     if guard:
         return guard
@@ -933,6 +969,9 @@ def _patch_skill(
         return {"success": False, "error": _skill_not_found_error(name)}
 
     skill_dir = existing["path"]
+    shared_guard = _shared_pool_mutation_guard(skill_dir)
+    if shared_guard:
+        return shared_guard
     guard = _background_review_write_guard(name, skill_dir, "patch")
     if guard:
         return guard
@@ -1039,6 +1078,9 @@ def _delete_skill(name: str, absorbed_into: Optional[str] = None) -> Dict[str, A
     existing = _find_skill(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
+    shared_guard = _shared_pool_mutation_guard(existing["path"])
+    if shared_guard:
+        return shared_guard
     guard = _background_review_write_guard(name, existing["path"], "delete")
     if guard:
         return guard
@@ -1156,6 +1198,9 @@ def _write_file(name: str, file_path: str, file_content: str) -> Dict[str, Any]:
     existing = _find_skill(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name, " Create it first with action='create'.")}
+    shared_guard = _shared_pool_mutation_guard(existing["path"])
+    if shared_guard:
+        return shared_guard
     guard = _background_review_write_guard(name, existing["path"], "write_file")
     if guard:
         return guard
@@ -1202,6 +1247,9 @@ def _remove_file(name: str, file_path: str) -> Dict[str, Any]:
         return {"success": False, "error": _skill_not_found_error(name)}
 
     skill_dir = existing["path"]
+    shared_guard = _shared_pool_mutation_guard(skill_dir)
+    if shared_guard:
+        return shared_guard
     guard = _background_review_write_guard(name, skill_dir, "remove_file")
     if guard:
         return guard

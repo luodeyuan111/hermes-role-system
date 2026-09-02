@@ -312,4 +312,24 @@ def build_skills_parser(subparsers, *, cmd_skills: Callable) -> None:
         "config",
         help="Interactive skill configuration — enable/disable individual skills",
     )
+
+    skills_pool = skills_subparsers.add_parser(
+        "pool",
+        help="Declarative three-tier skill pools (common / library / role)",
+        description=(
+            "Manage the skill pools declared under skills.pools in config.yaml. "
+            "'show' prints the three tiers (common, library, per-profile role "
+            "pools, unclassified); 'check' diffs declaration vs disk and exits "
+            "non-zero on problems; 'apply' syncs skills.disabled so local "
+            "skills outside pools.common are hidden from the prompt index "
+            "(backs up config.yaml first). Non-interactive."
+        ),
+    )
+    skills_pool.add_argument(
+        "pool_action",
+        nargs="?",
+        default="show",
+        choices=["show", "check", "apply"],
+        help="Pool operation (default: show)",
+    )
     skills_parser.set_defaults(func=cmd_skills)

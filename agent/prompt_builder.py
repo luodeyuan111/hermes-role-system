@@ -24,6 +24,8 @@ from agent.skill_utils import (
     extract_skill_description,
     get_all_skills_dirs,
     get_disabled_skill_names,
+    get_library_skills_dirs,
+    get_skill_whitelist,
     iter_skill_index_files,
     parse_frontmatter,
     skill_matches_environment,
@@ -1491,6 +1493,9 @@ def build_skills_system_prompt(
     scanned alongside the local ``~/.hermes/skills/`` directory.  External dirs
     are read-only — they appear in the index but new skills are always created
     in the local dir.  Local skills take precedence when names collide.
+    Library-pool dirs (``skills.pools.library_dirs``) are the exception: they
+    resolve for explicit loads but are skipped here so big libraries stay out
+    of the index (see ``hermes skills pool``).
 
     ``compact_categories`` (e.g. from the coding posture — see
     agent/coding_context.py) demotes whole categories to a names-only line in
@@ -1500,6 +1505,10 @@ def build_skills_system_prompt(
     """
     skills_dir = get_skills_dir()
     external_dirs = get_all_skills_dirs()[1:]  # skip local (index 0)
+    # Library-pool dirs (skills.pools.library_dirs) are scannable — explicit
+    # skill_view()/cron loads resolve them — but stay out of the index.
+    # That's the whole point of the library tier (see `hermes skills pool`).
+    library_dirs = frozenset(get_library_skills_dirs())
 
     if not skills_dir.exists() and not external_dirs:
         return ""
@@ -1509,6 +1518,12 @@ def build_skills_system_prompt(
     # produce distinct cache entries (gateway serves multiple platforms).
     _platform_hint = _current_session_platform_hint()
     disabled = get_disabled_skill_names(_platform_hint or None)
+    # Whitelist-first: when <home>/skills.whitelist exists it is the
+    # authoritative index membership (disabled is bypassed).  The sorted
+    # name set rides the cache key so editing the file invalidates the LRU
+    # entry, and two profiles can never share an entry (skills_dir already
+    # differs).
+    whitelist = get_skill_whitelist()
     cache_key = (
         str(skills_dir),
         tuple(str(d) for d in external_dirs),
@@ -1516,13 +1531,32 @@ def build_skills_system_prompt(
         tuple(sorted(str(ts) for ts in (available_toolsets or set()))),
         _platform_hint,
         tuple(sorted(disabled)),
+        tuple(sorted(str(d) for d in library_dirs)),
         tuple(sorted(compact_categories or ())),
+        tuple(sorted(whitelist)) if whitelist is not None else None,
     )
     with _SKILLS_PROMPT_CACHE_LOCK:
         cached = _SKILLS_PROMPT_CACHE.get(cache_key)
         if cached is not None:
             _SKILLS_PROMPT_CACHE.move_to_end(cache_key)
             return cached
+
+    def _index_allowed(frontmatter_name: str, skill_name: str) -> bool:
+        """Whitelist-first index membership.
+
+        Whitelist present → only listed names pass (frontmatter name or
+        directory name), and the disabled list is bypassed entirely — the
+        whitelist is authoritative, so a listed skill shows even when also
+        disabled.  Whitelist absent → legacy disabled-list behavior,
+        byte-for-byte unchanged.
+        """
+        if whitelist is not None:
+            return frontmatter_name in whitelist or skill_name in whitelist
+        return not (frontmatter_name in disabled or skill_name in disabled)
+
+    # Names encountered during scans (pre-filter) — for the whitelist
+    # not-found hint below.
+    _scanned_names: set[str] = set()
 
     # ── Layer 2: disk snapshot ────────────────────────────────────────
     snapshot = _load_skills_snapshot(skills_dir)
@@ -1539,9 +1573,11 @@ def build_skills_system_prompt(
             category = entry.get("category") or "general"
             frontmatter_name = entry.get("frontmatter_name") or skill_name
             platforms = entry.get("platforms") or []
+            _scanned_names.add(frontmatter_name)
+            _scanned_names.add(skill_name)
             if not skill_matches_platform_list(platforms):
                 continue
-            if frontmatter_name in disabled or skill_name in disabled:
+            if not _index_allowed(frontmatter_name, skill_name):
                 continue
             if not _skill_should_show(
                 entry.get("conditions") or {},
@@ -1566,7 +1602,9 @@ def build_skills_system_prompt(
             if not is_compatible:
                 continue
             skill_name = entry["skill_name"]
-            if entry["frontmatter_name"] in disabled or skill_name in disabled:
+            _scanned_names.add(entry["frontmatter_name"])
+            _scanned_names.add(skill_name)
+            if not _index_allowed(entry["frontmatter_name"], skill_name):
                 continue
             if not _skill_should_show(
                 extract_skill_conditions(frontmatter),
@@ -1611,6 +1649,15 @@ def build_skills_system_prompt(
     for ext_dir in external_dirs:
         if not ext_dir.exists():
             continue
+        if ext_dir in library_dirs and whitelist is None:
+            # Library pool: explicit-load only, never in the prompt index.
+            # Whitelist mode is the exception: the whitelist is authoritative
+            # ("this role wants THESE skills"), so the dir is scanned like any
+            # other and membership is decided per-skill by _index_allowed
+            # below — listed library skills are promoted into the index,
+            # unlisted ones stay hidden by the same check.  Blacklist mode
+            # keeps the whole dir hidden, unchanged.
+            continue
         for skill_file in iter_skill_index_files(ext_dir, "SKILL.md"):
             try:
                 is_compatible, frontmatter, desc = _parse_skill_file(skill_file)
@@ -1619,9 +1666,11 @@ def build_skills_system_prompt(
                 entry = _build_snapshot_entry(skill_file, ext_dir, frontmatter, desc)
                 skill_name = entry["skill_name"]
                 frontmatter_name = entry["frontmatter_name"]
+                _scanned_names.add(frontmatter_name)
+                _scanned_names.add(skill_name)
                 if frontmatter_name in seen_skill_names:
                     continue
-                if frontmatter_name in disabled or skill_name in disabled:
+                if not _index_allowed(frontmatter_name, skill_name):
                     continue
                 if not _skill_should_show(
                     extract_skill_conditions(frontmatter),
@@ -1649,6 +1698,16 @@ def build_skills_system_prompt(
                 category_descriptions.setdefault(cat, str(cat_desc).strip().strip("'\""))
             except Exception as e:
                 logger.debug("Could not read external skill description %s: %s", desc_file, e)
+
+    if whitelist is not None:
+        _missing = sorted(n for n in whitelist if n not in _scanned_names)
+        if _missing:
+            logger.info(
+                "skills.whitelist: %d name(s) not found in any visible skills "
+                "dir: %s",
+                len(_missing),
+                ", ".join(_missing),
+            )
 
     # Posture-driven category demotion (e.g. non-coding skills while pairing
     # on code). Demoted categories stay in the index as a single names-only
@@ -1847,12 +1906,19 @@ def _truncate_content(
     return head + marker + tail
 
 
-def load_soul_md(context_length: Optional[int] = None) -> Optional[str]:
+def load_soul_md(
+    context_length: Optional[int] = None,
+    hermes_home: Optional[Path] = None,
+) -> Optional[str]:
     """Load SOUL.md from HERMES_HOME and return its content, or None.
 
     Used as the agent identity (slot #1 in the system prompt).  When this
     returns content, ``build_context_files_prompt`` should be called with
     ``skip_soul=True`` so SOUL.md isn't injected twice.
+
+    ``hermes_home`` overrides which home dir to read from — used by
+    ``build_system_prompt_parts`` to load the shared root SOUL.md for named
+    profiles.  Defaults to the active HERMES_HOME.
     """
     try:
         from hermes_cli.config import ensure_hermes_home
@@ -1860,7 +1926,7 @@ def load_soul_md(context_length: Optional[int] = None) -> Optional[str]:
     except Exception as e:
         logger.debug("Could not ensure HERMES_HOME before loading SOUL.md: %s", e)
 
-    soul_path = get_hermes_home() / "SOUL.md"
+    soul_path = (hermes_home or get_hermes_home()) / "SOUL.md"
     if not soul_path.exists():
         return None
     try:

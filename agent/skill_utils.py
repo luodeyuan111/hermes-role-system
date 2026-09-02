@@ -400,6 +400,42 @@ def _normalize_string_set(values) -> Set[str]:
     return {str(v).strip() for v in values if str(v).strip()}
 
 
+def get_skill_whitelist() -> Optional[Set[str]]:
+    """Read the skills whitelist for the active home, or None when absent.
+
+    ``<HERMES_HOME>/skills.whitelist`` is a plain-text file: one skill name
+    per line (frontmatter ``name:`` or directory name — either matches),
+    blank lines and ``#`` comments ignored, malformed lines (anything with
+    whitespace or path separators after stripping) silently skipped.  It is
+    deliberately a plain file with no write protection so the agent can
+    maintain it in-conversation.
+
+    Returns the name set when the file exists (an EMPTY set for an
+    exists-but-empty file — the whitelist is authoritative and shows
+    nothing), ``None`` when the file does not exist (callers keep the
+    legacy disabled-list behavior).  Override-aware via ``get_hermes_home``.
+    """
+    try:
+        from hermes_constants import get_hermes_home
+
+        path = get_hermes_home() / "skills.whitelist"
+        if not path.is_file():
+            return None
+        names: Set[str] = set()
+        for raw_line in path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if any(ch.isspace() for ch in line) or "/" in line or "\\" in line:
+                logger.debug("skills.whitelist: skipping malformed line %r", raw_line)
+                continue
+            names.add(line)
+        return names
+    except Exception as e:
+        logger.debug("Could not read skills.whitelist: %s", e)
+        return None
+
+
 # ── External skills directories ──────────────────────────────────────────
 
 # (config_path_str, mtime_ns) -> resolved external dirs list.  Keyed by
@@ -417,8 +453,149 @@ def _external_dirs_cache_clear() -> None:
     _raw_config_cache_clear()
 
 
+def get_shared_skills_dirs() -> List[Path]:
+    """Shared global skills pool for NAMED profiles.
+
+    Returns the default home's ``skills/`` directory (``~/.hermes/skills/``)
+    when the active profile is a named profile — the by-reference global pool
+    that lets profiles drop their full private copies of the skill library.
+    It scans AFTER the profile's own local skills dir (local wins on name
+    conflicts) and BEFORE ``skills.external_dirs``.
+
+    Returns ``[]`` for the default profile and for custom HERMES_HOME layouts
+    not under ``<root>/profiles/`` (the self-reference guard), and when the
+    shared dir is missing or duplicates the local skills dir.
+    """
+    try:
+        from agent.file_safety import _resolve_active_profile_name
+
+        if _resolve_active_profile_name() == "default":
+            return []
+        from hermes_cli.profiles import get_profile_dir
+
+        shared = (get_profile_dir("default") / "skills").resolve()
+    except Exception:
+        return []
+    try:
+        if shared == get_skills_dir().resolve():
+            return []
+    except Exception:
+        pass
+    return [shared] if shared.is_dir() else []
+
+
+def is_shared_skills_path(path: Path) -> bool:
+    """True when ``path`` lives inside the shared default-home skills pool.
+
+    Used to give shared-pool skills their read-only, shadowable semantics:
+    the prompt index and skill_view let a higher-priority dir win over them,
+    and skill_manage refuses to mutate them from a named profile.
+    """
+    try:
+        resolved = Path(path).resolve()
+    except Exception:
+        resolved = Path(path)
+    for shared in get_shared_skills_dirs():
+        try:
+            resolved.relative_to(shared)
+            return True
+        except ValueError:
+            continue
+    return False
+
+
+def _resolve_skill_dir_entries(
+    raw_dirs, *, existing_only: bool = True
+) -> List[Path]:
+    """Expand, resolve, and dedupe a list of skill-directory config entries.
+
+    Shared by ``skills.external_dirs`` and ``skills.pools.library_dirs`` so
+    both honor the same rules: ``~``/``${VAR}`` expansion, relative paths
+    resolved against HERMES_HOME (not cwd), duplicates and the local
+    ``~/.hermes/skills/`` dir silently skipped.  With ``existing_only``
+    (default) only directories that exist are returned.
+    """
+    if isinstance(raw_dirs, str):
+        raw_dirs = [raw_dirs]
+    if not isinstance(raw_dirs, list):
+        return []
+
+    from hermes_constants import get_hermes_home
+
+    hermes_home = get_hermes_home()
+    local_skills = get_skills_dir().resolve()
+    # Entries pointing at the shared default-home pool are skipped too — for
+    # named profiles that dir is auto-included by get_all_skills_dirs, so
+    # declaring it again in external_dirs/library_dirs would scan it twice.
+    skip_roots = {local_skills}
+    try:
+        skip_roots.update(get_shared_skills_dirs())
+    except Exception:
+        pass
+    seen: Set[Path] = set()
+    result: List[Path] = []
+
+    for entry in raw_dirs:
+        entry = str(entry).strip()
+        if not entry:
+            continue
+        # Expand ~ and environment variables
+        expanded = os.path.expanduser(os.path.expandvars(entry))
+        p = Path(expanded)
+        # Resolve relative paths against HERMES_HOME, not cwd
+        if not p.is_absolute():
+            p = (hermes_home / p).resolve()
+        else:
+            p = p.resolve()
+        if p in skip_roots:
+            continue
+        if p in seen:
+            continue
+        if existing_only and not p.is_dir():
+            logger.debug("Skills dir does not exist, skipping: %s", p)
+            continue
+        seen.add(p)
+        result.append(p)
+    return result
+
+
+def get_library_skills_dirs(*, existing_only: bool = True) -> List[Path]:
+    """Read ``skills.pools.library_dirs`` from config.yaml.
+
+    Library dirs are skill roots that are merged into the external-dirs
+    scan (so ``skill_view(name)`` / ``--skills`` / cron ``skills:`` resolve
+    them) but are hidden from the system-prompt skill index by
+    ``build_skills_system_prompt`` — the "big library" tier of the
+    declarative skill pools managed by ``hermes skills pool``.
+
+    Resolution rules match ``get_external_skills_dirs``.  Pass
+    ``existing_only=False`` to get declared dirs even when missing (used by
+    ``hermes skills pool check`` to flag them).
+    """
+    parsed = _load_raw_config()
+    if not parsed:
+        return []
+
+    skills_cfg = parsed.get("skills")
+    if not isinstance(skills_cfg, dict):
+        return []
+
+    pools = skills_cfg.get("pools")
+    if not isinstance(pools, dict):
+        return []
+
+    return _resolve_skill_dir_entries(
+        pools.get("library_dirs"), existing_only=existing_only
+    )
+
+
 def get_external_skills_dirs() -> List[Path]:
     """Read ``skills.external_dirs`` from config.yaml and return validated paths.
+
+    ``skills.pools.library_dirs`` entries are merged in (union, deduped) —
+    library skills stay explicit-loadable everywhere external skills are,
+    and are hidden from the prompt index separately (see
+    ``build_skills_system_prompt``).
 
     Each entry is expanded (``~`` and ``${VAR}``) and resolved to an absolute
     path.  Only directories that actually exist are returned.  Duplicates and
@@ -447,53 +624,17 @@ def get_external_skills_dirs() -> List[Path]:
             # Return a copy so callers can't mutate the cached list.
             return list(cached)
 
+    result: List[Path] = []
     parsed = _load_raw_config()
-    if not parsed:
-        return []
-
-    skills_cfg = parsed.get("skills")
-    if not isinstance(skills_cfg, dict):
-        return []
-
-    raw_dirs = skills_cfg.get("external_dirs")
-    if not raw_dirs:
-        result: List[Path] = []
-        if cache_key is not None:
-            _EXTERNAL_DIRS_CACHE[cache_key] = list(result)
-        return result
-    if isinstance(raw_dirs, str):
-        raw_dirs = [raw_dirs]
-    if not isinstance(raw_dirs, list):
-        return []
-
-    from hermes_constants import get_hermes_home
-
-    hermes_home = get_hermes_home()
-    local_skills = get_skills_dir().resolve()
-    seen: Set[Path] = set()
-    result = []
-
-    for entry in raw_dirs:
-        entry = str(entry).strip()
-        if not entry:
-            continue
-        # Expand ~ and environment variables
-        expanded = os.path.expanduser(os.path.expandvars(entry))
-        p = Path(expanded)
-        # Resolve relative paths against HERMES_HOME, not cwd
-        if not p.is_absolute():
-            p = (hermes_home / p).resolve()
-        else:
-            p = p.resolve()
-        if p == local_skills:
-            continue
-        if p in seen:
-            continue
-        if p.is_dir():
-            seen.add(p)
-            result.append(p)
-        else:
-            logger.debug("External skills dir does not exist, skipping: %s", p)
+    if parsed:
+        skills_cfg = parsed.get("skills")
+        if isinstance(skills_cfg, dict):
+            result = _resolve_skill_dir_entries(skills_cfg.get("external_dirs"))
+            seen = set(result)
+            for p in get_library_skills_dirs():
+                if p not in seen:
+                    seen.add(p)
+                    result.append(p)
 
     if cache_key is not None:
         _EXTERNAL_DIRS_CACHE[cache_key] = list(result)
@@ -501,12 +642,17 @@ def get_external_skills_dirs() -> List[Path]:
 
 
 def get_all_skills_dirs() -> List[Path]:
-    """Return all skill directories: local ``~/.hermes/skills/`` first, then external.
+    """Return all skill directories in scan order (first match wins).
 
-    The local dir is always first (and always included even if it doesn't exist
-    yet — callers handle that).  External dirs follow in config order.
+    Order: the local ``~/.hermes/skills/`` of the active home first (always
+    included even if it doesn't exist yet — callers handle that), then the
+    shared default-home pool for named profiles (by reference, see
+    ``get_shared_skills_dirs``), then ``skills.external_dirs`` in config
+    order.  Entries dedupe at the source: ``_resolve_skill_dir_entries``
+    skips anything resolving to the local or shared dir.
     """
     dirs = [get_skills_dir()]
+    dirs.extend(get_shared_skills_dirs())
     dirs.extend(get_external_skills_dirs())
     return dirs
 
