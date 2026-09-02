@@ -38,8 +38,8 @@ model:
 skills:
   pools:
     library_dirs:
-    - /home/velya/.hermes/hermes-agent/skills
-    - /home/velya/.hermes/hermes-agent/optional-skills
+    - ~/.hermes/hermes-agent/skills
+    - ~/.hermes/hermes-agent/optional-skills
 ```
 
 ### ROLE.md
