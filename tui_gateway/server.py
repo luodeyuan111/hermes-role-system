@@ -1040,6 +1040,22 @@ def _profile_scoped(handler):
     return wrapper
 
 
+def _bind_session_home(session: dict | None):
+    """Bind a session's profile HERMES_HOME override; return the reset token.
+
+    Sessions bound to a non-launch profile (app-global remote mode) must run
+    EVERY in-process rebuild that resolves config/skills/prompts against
+    HERMES_HOME under the same ContextVar override the turn path installs
+    (``_run_prompt_submit``) — otherwise the rebuild reads the LAUNCH
+    profile, and a system prompt built + persisted that way is replayed
+    verbatim on every later turn (``_restore_or_build_system_prompt``
+    reuses the stored row).  Returns None for launch-profile sessions,
+    where no override is needed; callers then skip the reset.
+    """
+    home = (session or {}).get("profile_home")
+    return set_hermes_home_override(home) if home else None
+
+
 # Placeholder ``terminal.cwd`` values that don't name a real directory — the
 # gateway resolves these to the home dir at runtime, so they must NOT be treated
 # as an explicit workspace (mirrors gateway/run.py's config bridge).
@@ -2434,12 +2450,19 @@ def _persist_live_session_system_prompt(session: dict | None) -> None:
     if db is None or not hasattr(db, "update_system_prompt"):
         return
 
+    # Build + persist under the session's profile scope — without this the
+    # rebuilt prompt resolves against the LAUNCH home (wrong skills/ROLE/
+    # profile hint) and is then replayed verbatim every turn.
+    home_token = _bind_session_home(session)
     try:
         prompt = agent._build_system_prompt(None)
         agent._cached_system_prompt = prompt
         db.update_system_prompt(getattr(agent, "session_id", None) or session_key, prompt)
     except Exception:
         logger.debug("failed to persist live session system prompt", exc_info=True)
+    finally:
+        if home_token is not None:
+            reset_hermes_home_override(home_token)
 
 
 def _append_model_switch_marker(session: dict | None, *, model: str, provider: str) -> None:
@@ -4359,6 +4382,10 @@ def _preview_restart_callbacks(parent: str, task_id: str) -> dict:
 
 def _reset_session_agent(sid: str, session: dict) -> dict:
     tokens = _set_session_context(session["session_key"])
+    # The rebuild resolves config/model/skills against HERMES_HOME — bind the
+    # session's profile, or a profile session's /new rebuilds the agent from
+    # the LAUNCH profile.
+    home_token = _bind_session_home(session)
     try:
         # Preserve this session's chosen model AND reasoning across /new so a
         # reset doesn't silently revert to global config (or to a model
@@ -4378,6 +4405,8 @@ def _reset_session_agent(sid: str, session: dict) -> dict:
             **reset_kw,
         )
     finally:
+        if home_token is not None:
+            reset_hermes_home_override(home_token)
         _clear_session_context(tokens)
     session["agent"] = new_agent
     session["config_model_seen"] = _config_model_target()
@@ -7948,13 +7977,20 @@ def _(rid, params: dict) -> dict:
             )
 
         try:
-            removed, usage = _compress_session_history(
-                session,
-                focus_topic,
-                approx_tokens=before_tokens,
-                before_messages=before_messages,
-                history_version=history_version,
-            )
+            # Compression rebuilds + persists the system prompt against
+            # HERMES_HOME — bind the session's profile scope first.
+            home_token = _bind_session_home(session)
+            try:
+                removed, usage = _compress_session_history(
+                    session,
+                    focus_topic,
+                    approx_tokens=before_tokens,
+                    before_messages=before_messages,
+                    history_version=history_version,
+                )
+            finally:
+                if home_token is not None:
+                    reset_hermes_home_override(home_token)
             with session["history_lock"]:
                 messages = list(session.get("history", []))
             after_count = len(messages)
@@ -12433,13 +12469,20 @@ def _(rid, params: dict) -> dict:
                 if before_count
                 else 0
             )
-            removed, usage = _compress_session_history(
-                session,
-                arg.strip() or None,
-                approx_tokens=before_tokens,
-                before_messages=before_messages,
-                history_version=history_version,
-            )
+            # Compression rebuilds + persists the system prompt against
+            # HERMES_HOME — bind the session's profile scope first.
+            home_token = _bind_session_home(session)
+            try:
+                removed, usage = _compress_session_history(
+                    session,
+                    arg.strip() or None,
+                    approx_tokens=before_tokens,
+                    before_messages=before_messages,
+                    history_version=history_version,
+                )
+            finally:
+                if home_token is not None:
+                    reset_hermes_home_override(home_token)
             with session["history_lock"]:
                 after_messages = list(session.get("history", []))
             after_count = len(after_messages)
@@ -13181,6 +13224,11 @@ def _mirror_slash_side_effects(sid: str, session: dict, command: str) -> str:
     if name in _MUTATES_WHILE_RUNNING and session.get("running"):
         return f"session busy — /interrupt the current turn before running /{name}"
 
+    # These side effects read config and rebuild/persist prompts against
+    # HERMES_HOME — bind the session's profile, or a profile session's
+    # /model /compress /prompt resolves against the LAUNCH profile and the
+    # persisted prompt is wrong for the rest of the session.
+    home_token = _bind_session_home(session)
     try:
         if name == "model" and arg and agent:
             result = _apply_model_switch(sid, session, arg)
@@ -13252,6 +13300,9 @@ def _mirror_slash_side_effects(sid: str, session: dict, command: str) -> str:
             process_registry.kill_all()
     except Exception as e:
         return f"live session sync failed: {e}"
+    finally:
+        if home_token is not None:
+            reset_hermes_home_override(home_token)
     return ""
 
 

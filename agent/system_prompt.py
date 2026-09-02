@@ -185,7 +185,27 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
     # cwd project instructions disabled.
     _soul_loaded = False
     if agent.load_soul_identity or not agent.skip_context_files:
-        _soul_content = _r.load_soul_md(_ctx_len)
+        _soul_content = None
+        # Universal identity base: named profiles share the ROOT SOUL.md
+        # (~/.hermes/SOUL.md) so persona edits propagate to every profile;
+        # a profile's own seeded SOUL.md copy is only a fallback when the
+        # root has none.  Default profile behavior is unchanged — its home
+        # IS the root.  Per-profile differentiation rides the ROLE.md layer
+        # appended later in this tier.
+        try:
+            from agent.file_safety import _resolve_active_profile_name
+            _soul_profile = _resolve_active_profile_name()
+        except Exception:
+            _soul_profile = "default"
+        if _soul_profile != "default":
+            try:
+                from hermes_cli.profiles import get_profile_dir
+                _soul_content = _r.load_soul_md(
+                    _ctx_len, hermes_home=get_profile_dir("default"))
+            except Exception:
+                _soul_content = None
+        if not _soul_content:
+            _soul_content = _r.load_soul_md(_ctx_len)
         if _soul_content:
             stable_parts.append(_soul_content)
             _soul_loaded = True
@@ -413,6 +433,32 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
             f"refuse such writes by default; pass cross_profile=True only "
             f"after explicit direction."
         )
+
+    # Role layer — <profile_home>/ROLE.md defines this profile's role.
+    # Read once here (prompt build time = once per session), so the block
+    # rides the stable cached prefix and stays byte-stable across turns.
+    # An absent/empty file adds nothing. Truncated with the same head/tail
+    # approach as context files (20K chars).
+    try:
+        from hermes_cli.profiles import get_profile_dir
+        _role_path = get_profile_dir(active_profile) / "ROLE.md"
+        if _role_path.is_file():
+            _role_content = _role_path.read_text(encoding="utf-8").strip()
+            if _role_content:
+                from agent.prompt_builder import CONTEXT_FILE_MAX_CHARS, _truncate_content
+                _role_content = _truncate_content(
+                    _role_content,
+                    "ROLE.md",
+                    max_chars=CONTEXT_FILE_MAX_CHARS,
+                    read_path=str(_role_path),
+                )
+                stable_parts.append(
+                    "Active role (from this profile's ROLE.md — treat as part "
+                    "of your identity for this session):\n\n" + _role_content
+                )
+    except Exception:
+        # ROLE.md loading must never block prompt build.
+        pass
 
     platform_key = (agent.platform or "").lower().strip()
     # Resolve the built-in/plugin default hint for this platform, then apply

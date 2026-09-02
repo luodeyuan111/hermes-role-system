@@ -1269,7 +1269,7 @@ def run_conversation(
                         # provider client.  New consumers should read the
                         # sanitised view from ``request["body"]["messages"]``.
                         _request_payload = agent._api_request_payload_for_hook(api_kwargs)
-                        _invoke_hook(
+                        _hook_results = _invoke_hook(
                             "pre_api_request",
                             task_id=effective_task_id,
                             turn_id=turn_id,
@@ -1295,6 +1295,65 @@ def run_conversation(
                             middleware_trace=list(_llm_middleware_trace),
                             request=_request_payload,
                         )
+                        # Consume rewrite directives — first valid dict wins,
+                        # mirroring pre_gateway_dispatch consumption in
+                        # gateway/run.py.  The rewrite is spliced into
+                        # ``api_kwargs`` (what the send path below actually
+                        # consumes), never into ``api_messages`` — so it is
+                        # per-call, never persisted to conversation history,
+                        # and the retry loop re-applies it on each rebuild.
+                        for _result in _hook_results:
+                            if not isinstance(_result, dict):
+                                continue
+                            _replacement = _result.get("messages")
+                            if isinstance(_replacement, list):
+                                if isinstance(api_kwargs.get("messages"), list):
+                                    api_kwargs["messages"] = _replacement
+                                elif isinstance(api_kwargs.get("input"), list):
+                                    api_kwargs["input"] = _replacement
+                                else:
+                                    api_kwargs["messages"] = _replacement
+                                break
+                            _append_system = _result.get("append_system")
+                            if isinstance(_append_system, str) and _append_system:
+                                _msg_key = (
+                                    "messages"
+                                    if isinstance(api_kwargs.get("messages"), list)
+                                    else "input"
+                                    if isinstance(api_kwargs.get("input"), list)
+                                    else "messages"
+                                )
+                                # Copy the outer list and the system dict
+                                # being mutated — ``api_kwargs["messages"]``
+                                # may be the same list object as
+                                # ``api_messages`` and its dicts are shared,
+                                # so in-place mutation would leak the
+                                # ephemeral text into conversation history.
+                                # Same per-call-only semantics as
+                                # ``ephemeral_system_prompt`` above.
+                                _outgoing = list(api_kwargs.get(_msg_key) or [])
+                                _sys_idx = next(
+                                    (
+                                        _i
+                                        for _i in range(len(_outgoing) - 1, -1, -1)
+                                        if isinstance(_outgoing[_i], dict)
+                                        and _outgoing[_i].get("role") == "system"
+                                        and isinstance(_outgoing[_i].get("content"), str)
+                                    ),
+                                    None,
+                                )
+                                if _sys_idx is None:
+                                    _outgoing.insert(
+                                        0, {"role": "system", "content": _append_system}
+                                    )
+                                else:
+                                    _sys_msg = dict(_outgoing[_sys_idx])
+                                    _sys_msg["content"] = (
+                                        _sys_msg["content"] + "\n\n" + _append_system
+                                    ).strip()
+                                    _outgoing[_sys_idx] = _sys_msg
+                                api_kwargs[_msg_key] = _outgoing
+                                break
                 except Exception:
                     pass
 

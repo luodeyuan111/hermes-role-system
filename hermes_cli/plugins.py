@@ -154,6 +154,23 @@ VALID_HOOKS: Set[str] = {
     # verification-stop nudge; this hook is for user/plugin policy and is
     # bounded by agent.max_verify_nudges.
     "pre_verify",
+    # Pre-API-request hook. Fired once per outgoing provider call in the
+    # agent loop, after LLM request middleware and before the request is
+    # sent. Callbacks may REWRITE the outgoing request by returning a dict —
+    # first valid dict result wins:
+    #   {"messages": [...]}      -> replace the outgoing request messages
+    #                               (spliced into whichever payload key the
+    #                               call uses: "messages", or "input" for
+    #                               responses-style mode)
+    #   {"append_system": "..."} -> append the string to the content of the
+    #                               LAST system-role message in the outgoing
+    #                               messages, for this API call only (a system
+    #                               message is prepended when none exists).
+    #                               Never touches the cached system prompt or
+    #                               persisted history.
+    #   None / anything else     -> no-op
+    # The rewrite is per-call: it applies to the outgoing payload only and is
+    # never persisted to conversation history.
     "pre_api_request",
     "post_api_request",
     "api_request_error",
