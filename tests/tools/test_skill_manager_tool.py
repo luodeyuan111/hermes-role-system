@@ -1348,3 +1348,88 @@ class TestCuratorConsolidationDeleteGuard:
             assert allowed["success"] is True, allowed
 
         _reset_background_review_read_marks()
+
+
+# ---------------------------------------------------------------------------
+# Shared default-home pool: read-only from named profiles
+# ---------------------------------------------------------------------------
+
+
+@contextmanager
+def _local_and_shared(tmp_path):
+    """Local skills dir + shared default-home pool, with the directory seams
+    patched: _find_skill searches [local, shared], and the shared pool is
+    registered so the mutation guard recognizes it."""
+    local = tmp_path / "local"
+    shared = tmp_path / "shared"
+    local.mkdir()
+    shared.mkdir()
+    with patch("tools.skill_manager_tool.SKILLS_DIR", local), \
+         patch("agent.skill_utils.get_all_skills_dirs", return_value=[local, shared]), \
+         patch("agent.skill_utils.get_shared_skills_dirs", return_value=[shared.resolve()]):
+        yield local, shared
+
+
+def _write_skill(skills_dir: Path, name: str, body: str = "body") -> Path:
+    skill_dir = skills_dir / name
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "SKILL.md").write_text(
+        f"---\nname: {name}\ndescription: {name} desc\n---\n\n{body}\n"
+    )
+    return skill_dir
+
+
+class TestSharedPoolMutationGuard:
+    """Mutations targeting the shared default-home pool are refused from a
+    named profile; creating a same-named LOCAL override stays allowed."""
+
+    def test_delete_refused_on_shared_pool(self, tmp_path):
+        with _local_and_shared(tmp_path) as (_local, shared):
+            _write_skill(shared, "global-skill")
+            result = _delete_skill("global-skill")
+            assert result["success"] is False
+            assert "shared default-profile skills pool" in result["error"]
+            assert (shared / "global-skill" / "SKILL.md").exists()
+
+    def test_edit_refused_on_shared_pool(self, tmp_path):
+        with _local_and_shared(tmp_path) as (_local, shared):
+            _write_skill(shared, "global-skill")
+            result = _edit_skill("global-skill", VALID_SKILL_CONTENT)
+            assert result["success"] is False
+            assert "shared default-profile skills pool" in result["error"]
+
+    def test_patch_refused_on_shared_pool(self, tmp_path):
+        with _local_and_shared(tmp_path) as (_local, shared):
+            _write_skill(shared, "global-skill")
+            result = _patch_skill("global-skill", "body", "changed")
+            assert result["success"] is False
+            assert "shared default-profile skills pool" in result["error"]
+
+    def test_write_file_refused_on_shared_pool(self, tmp_path):
+        with _local_and_shared(tmp_path) as (_local, shared):
+            _write_skill(shared, "global-skill")
+            result = _write_file("global-skill", "references/x.md", "data")
+            assert result["success"] is False
+            assert "shared default-profile skills pool" in result["error"]
+
+    def test_remove_file_refused_on_shared_pool(self, tmp_path):
+        with _local_and_shared(tmp_path) as (_local, shared):
+            _write_skill(shared, "global-skill")
+            result = _remove_file("global-skill", "references/x.md")
+            assert result["success"] is False
+            assert "shared default-profile skills pool" in result["error"]
+
+    def test_local_skill_mutation_unaffected(self, tmp_path):
+        with _local_and_shared(tmp_path) as (local, _shared):
+            _write_skill(local, "local-skill", body="before")
+            result = _edit_skill("local-skill", VALID_SKILL_CONTENT)
+            assert result["success"] is True, result
+
+    def test_create_local_override_of_shared_name_allowed(self, tmp_path):
+        with _local_and_shared(tmp_path) as (local, shared):
+            _write_skill(shared, "shared-name")
+            result = _create_skill("shared-name", VALID_SKILL_CONTENT)
+            assert result["success"] is True, result
+            assert (local / "shared-name" / "SKILL.md").exists()
+            # The shared original is untouched.
+            assert (shared / "shared-name" / "SKILL.md").exists()

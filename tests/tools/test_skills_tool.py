@@ -1370,3 +1370,189 @@ class TestSkillViewCollisionDetection:
         result = json.loads(raw)
         assert result["success"] is True
         assert "LOCAL BODY" in result["content"]
+
+
+class TestSkillViewSharedPool:
+    """skill_view across the shared default-home skills pool (named profiles).
+
+    Scan order is local > shared > external_dirs. The shared pool is a
+    by-reference fallback: a higher-priority dir shadows it by design (that
+    is how a profile overrides a global skill by name), and it shadows
+    external_dirs. The historical LOCAL-vs-EXTERNAL collision refusal is
+    unchanged.
+    """
+
+    def _patch_dirs(self, local_dir, shared_dirs, external_dirs):
+        return (
+            patch("tools.skills_tool.SKILLS_DIR", local_dir),
+            patch(
+                "agent.skill_utils.get_shared_skills_dirs",
+                return_value=[Path(d).resolve() for d in shared_dirs],
+            ),
+            patch(
+                "agent.skill_utils.get_external_skills_dirs",
+                return_value=list(external_dirs),
+            ),
+        )
+
+    def test_shared_pool_skill_loads(self, tmp_path):
+        local_dir = tmp_path / "local"
+        shared_dir = tmp_path / "shared"
+        local_dir.mkdir()
+        shared_dir.mkdir()
+        _make_skill(shared_dir, "global-skill", body="GLOBAL BODY")
+
+        p1, p2, p3 = self._patch_dirs(local_dir, [shared_dir], [])
+        with p1, p2, p3:
+            raw = skill_view("global-skill")
+
+        result = json.loads(raw)
+        assert result["success"] is True
+        assert "GLOBAL BODY" in result["content"]
+
+    def test_local_shadows_shared_pool(self, tmp_path):
+        local_dir = tmp_path / "local"
+        shared_dir = tmp_path / "shared"
+        local_dir.mkdir()
+        shared_dir.mkdir()
+        _make_skill(local_dir, "shared-name", body="LOCAL VERSION")
+        _make_skill(shared_dir, "shared-name", body="GLOBAL VERSION")
+
+        p1, p2, p3 = self._patch_dirs(local_dir, [shared_dir], [])
+        with p1, p2, p3:
+            raw = skill_view("shared-name")
+
+        result = json.loads(raw)
+        assert result["success"] is True
+        assert "LOCAL VERSION" in result["content"]
+        assert "GLOBAL VERSION" not in result["content"]
+
+    def test_shared_pool_shadows_external(self, tmp_path):
+        local_dir = tmp_path / "local"
+        shared_dir = tmp_path / "shared"
+        external_dir = tmp_path / "external"
+        local_dir.mkdir()
+        shared_dir.mkdir()
+        external_dir.mkdir()
+        _make_skill(shared_dir, "shared-name", body="GLOBAL VERSION")
+        _make_skill(external_dir, "shared-name", body="EXTERNAL VERSION")
+
+        p1, p2, p3 = self._patch_dirs(local_dir, [shared_dir], [external_dir])
+        with p1, p2, p3:
+            raw = skill_view("shared-name")
+
+        result = json.loads(raw)
+        assert result["success"] is True
+        assert "GLOBAL VERSION" in result["content"]
+        assert "EXTERNAL VERSION" not in result["content"]
+
+    def test_local_vs_external_still_refuses_with_shared_pool(self, tmp_path):
+        """The historical silent-shadowing guard is unchanged: a LOCAL copy
+        colliding with an EXTERNAL_DIRS copy still refuses, even when the
+        shared pool is configured."""
+        local_dir = tmp_path / "local"
+        shared_dir = tmp_path / "shared"
+        external_dir = tmp_path / "external"
+        local_dir.mkdir()
+        shared_dir.mkdir()
+        external_dir.mkdir()
+        _make_skill(local_dir, "shared-name", body="LOCAL VERSION")
+        _make_skill(external_dir, "shared-name", body="EXTERNAL VERSION")
+
+        p1, p2, p3 = self._patch_dirs(local_dir, [shared_dir], [external_dir])
+        with p1, p2, p3:
+            raw = skill_view("shared-name")
+
+        result = json.loads(raw)
+        assert result["success"] is False
+        assert "Ambiguous skill name 'shared-name'" in result["error"]
+
+
+class TestSkillsWhitelist:
+    """Whitelist-first semantics for skills_list, and explicit-load exemption.
+
+    ``skill_view`` (and --skills / cron explicit loads) must keep loading
+    skills that are NOT in the whitelist — the whitelist only governs the
+    index/enabled set, same as the disabled list's semantics.
+    """
+
+    def _patch_dirs(self, local_dir, whitelist, external_dirs=()):
+        return (
+            patch("tools.skills_tool.SKILLS_DIR", local_dir),
+            patch(
+                "agent.skill_utils.get_skill_whitelist",
+                return_value=whitelist,
+            ),
+            patch(
+                "agent.skill_utils.get_shared_skills_dirs",
+                return_value=[],
+            ),
+            patch(
+                "agent.skill_utils.get_external_skills_dirs",
+                return_value=list(external_dirs),
+            ),
+        )
+
+    def test_skill_view_loads_non_whitelisted_skill(self, tmp_path):
+        local_dir = tmp_path / "local"
+        local_dir.mkdir()
+        _make_skill(local_dir, "not-listed", body="NOT LISTED BODY")
+        _make_skill(local_dir, "listed", body="LISTED BODY")
+
+        p1, p2, p3, p4 = self._patch_dirs(local_dir, {"listed"})
+        with p1, p2, p3, p4:
+            raw = skill_view("not-listed")
+
+        result = json.loads(raw)
+        assert result["success"] is True
+        assert "NOT LISTED BODY" in result["content"]
+
+    def test_skills_list_honors_whitelist(self, tmp_path):
+        local_dir = tmp_path / "local"
+        local_dir.mkdir()
+        _make_skill(local_dir, "listed", body="LISTED BODY")
+        _make_skill(local_dir, "not-listed", body="NOT LISTED BODY")
+
+        import tools.skills_tool as st
+
+        p1, p2, p3, p4 = self._patch_dirs(local_dir, {"listed"})
+        with p1, p2, p3, p4:
+            st._SKILLS_CACHE.clear()
+            listed = [s["name"] for s in st._find_all_skills()]
+
+        assert listed == ["listed"]
+
+    def test_skills_list_whitelist_matches_dir_name(self, tmp_path):
+        local_dir = tmp_path / "local"
+        local_dir.mkdir()
+        _make_skill(local_dir, "dir-name", body="DIR BODY")
+
+        import tools.skills_tool as st
+
+        # The whitelist names the DIRECTORY; the skill's frontmatter name
+        # differs — directory-name match still admits it.
+        p1, p2, p3, p4 = self._patch_dirs(local_dir, {"dir-name"})
+        with p1, p2, p3, p4:
+            st._SKILLS_CACHE.clear()
+            listed = [s["name"] for s in st._find_all_skills()]
+
+        assert listed == ["dir-name"]
+
+    def test_skills_list_whitelist_overrides_disabled(self, tmp_path):
+        local_dir = tmp_path / "local"
+        local_dir.mkdir()
+        _make_skill(local_dir, "listed", body="LISTED BODY")
+
+        import tools.skills_tool as st
+
+        p1, p2, p3, p4 = self._patch_dirs(local_dir, {"listed"})
+        with p1, p2, p3, p4, patch(
+            "tools.skills_tool._get_disabled_skill_names",
+            return_value={"listed"},
+        ):
+            st._SKILLS_CACHE.clear()
+            listed = [s["name"] for s in st._find_all_skills()]
+
+        # Whitelist is authoritative — a listed skill shows even when also
+        # present in the disabled set.
+        assert listed == ["listed"]

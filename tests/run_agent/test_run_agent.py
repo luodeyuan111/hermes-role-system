@@ -4325,6 +4325,102 @@ class TestRunConversation:
         assert hook_checks == {"pre_api_request": 1, "post_api_request": 1}
         assert payload_counts == {"request": 0, "response": 0}
 
+    def test_pre_api_request_messages_result_replaces_outgoing_messages(self, agent):
+        self._setup_agent(agent)
+        agent.client.chat.completions.create.return_value = _mock_response(
+            content="Done", finish_reason="stop"
+        )
+        replacement = [
+            {"role": "system", "content": "REWRITTEN SYSTEM"},
+            {"role": "user", "content": "REWRITTEN USER"},
+        ]
+
+        def _fake_invoke(name, **kwargs):
+            if name == "pre_api_request":
+                return [{"messages": replacement}]
+            return []
+
+        with (
+            patch(
+                "hermes_cli.plugins.has_hook",
+                side_effect=lambda name: name == "pre_api_request",
+            ),
+            patch("hermes_cli.plugins.invoke_hook", side_effect=_fake_invoke),
+            patch.object(agent, "_persist_session"),
+            patch.object(agent, "_save_trajectory"),
+            patch.object(agent, "_cleanup_task_resources"),
+        ):
+            result = agent.run_conversation("hello")
+
+        assert result["final_response"] == "Done"
+        sent = agent.client.chat.completions.create.call_args.kwargs["messages"]
+        assert sent == replacement
+
+    def test_pre_api_request_append_system_extends_outgoing_system_only(self, agent):
+        self._setup_agent(agent)
+        agent.client.chat.completions.create.return_value = _mock_response(
+            content="Done", finish_reason="stop"
+        )
+
+        def _fake_invoke(name, **kwargs):
+            if name == "pre_api_request":
+                return [{"append_system": "EXTRA ROLE LINE"}]
+            return []
+
+        with (
+            patch(
+                "hermes_cli.plugins.has_hook",
+                side_effect=lambda name: name == "pre_api_request",
+            ),
+            patch("hermes_cli.plugins.invoke_hook", side_effect=_fake_invoke),
+            patch.object(agent, "_persist_session"),
+            patch.object(agent, "_save_trajectory"),
+            patch.object(agent, "_cleanup_task_resources"),
+        ):
+            result = agent.run_conversation("hello")
+
+        assert result["final_response"] == "Done"
+        sent = agent.client.chat.completions.create.call_args.kwargs["messages"]
+        assert sent[0]["role"] == "system"
+        assert "You are helpful." in sent[0]["content"]
+        assert sent[0]["content"].endswith("EXTRA ROLE LINE")
+        # Per-call rewrite only: the cached prompt and the persisted
+        # conversation history must not carry the appended text.
+        assert agent._cached_system_prompt == "You are helpful."
+        assert all(
+            "EXTRA ROLE LINE" not in str(m.get("content", ""))
+            for m in result["messages"]
+        )
+
+    def test_pre_api_request_non_dict_results_are_noop(self, agent):
+        self._setup_agent(agent)
+        agent.client.chat.completions.create.return_value = _mock_response(
+            content="Done", finish_reason="stop"
+        )
+
+        def _fake_invoke(name, **kwargs):
+            if name == "pre_api_request":
+                return ["garbage", 42, {"unrelated": True}]
+            return []
+
+        with (
+            patch(
+                "hermes_cli.plugins.has_hook",
+                side_effect=lambda name: name == "pre_api_request",
+            ),
+            patch("hermes_cli.plugins.invoke_hook", side_effect=_fake_invoke),
+            patch.object(agent, "_persist_session"),
+            patch.object(agent, "_save_trajectory"),
+            patch.object(agent, "_cleanup_task_resources"),
+        ):
+            result = agent.run_conversation("hello")
+
+        assert result["final_response"] == "Done"
+        sent = agent.client.chat.completions.create.call_args.kwargs["messages"]
+        assert sent[0] == {"role": "system", "content": "You are helpful."}
+        assert sent[-1]["role"] == "user"
+        assert "hello" in str(sent[-1]["content"])
+
     def test_content_with_tool_calls_stays_silent_for_non_cli_quiet_mode(self, agent):
         self._setup_agent(agent)
         agent.platform = None

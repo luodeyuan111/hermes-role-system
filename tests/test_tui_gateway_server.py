@@ -1311,6 +1311,218 @@ def test_session_cwd_set_profile_session_updates_profile_db(monkeypatch, tmp_pat
     assert "launch_update" not in captured
 
 
+# ── Profile scope binding for in-process rebuilds ────────────────────
+# Sessions bound to a non-launch profile (app-global remote mode) rely on the
+# HERMES_HOME ContextVar override for EVERY in-process rebuild that resolves
+# config/skills/prompts against HERMES_HOME. The turn path binds it; these
+# tests pin the remaining rebuild sites (prompt persist, slash side effects,
+# /new agent rebuild, compression) so they can't regress to building against
+# the LAUNCH home — a persisted prompt built that way is replayed verbatim on
+# every later turn.
+
+
+def _scope_layout(tmp_path):
+    root = tmp_path / "root"
+    profile_home = root / "profiles" / "writer"
+    profile_home.mkdir(parents=True)
+    return root, profile_home
+
+
+def test_persist_live_session_system_prompt_binds_profile_scope(monkeypatch, tmp_path):
+    root, profile_home = _scope_layout(tmp_path)
+    monkeypatch.setenv("HERMES_HOME", str(root))
+    from hermes_constants import get_hermes_home
+
+    captured = {}
+
+    class _Agent:
+        session_id = None  # fall back to the session key, like a fresh agent
+        _cached_system_prompt = None
+        _session_db = None
+
+        def _build_system_prompt(self, _system_message):
+            captured["home_at_build"] = str(get_hermes_home())
+            return "BUILT_PROMPT"
+
+    class _DB:
+        def update_system_prompt(self, session_id, prompt):
+            captured["persisted"] = (session_id, prompt)
+
+    monkeypatch.setattr(server, "_get_db", lambda: _DB())
+
+    session = {"session_key": "sk", "profile_home": str(profile_home), "agent": _Agent()}
+    server._persist_live_session_system_prompt(session)
+    assert captured["home_at_build"] == str(profile_home)
+    assert captured["persisted"] == ("sk", "BUILT_PROMPT")
+
+    # Launch-profile session: no override — builds against the env home.
+    launch_session = {"session_key": "sk2", "profile_home": None, "agent": _Agent()}
+    server._persist_live_session_system_prompt(launch_session)
+    assert captured["home_at_build"] == str(root)
+    assert captured["persisted"] == ("sk2", "BUILT_PROMPT")
+
+
+def test_mirror_slash_side_effects_binds_profile_scope(monkeypatch, tmp_path):
+    root, profile_home = _scope_layout(tmp_path)
+    monkeypatch.setenv("HERMES_HOME", str(root))
+    from hermes_constants import get_hermes_home
+
+    captured = {}
+
+    def _fake_load_cfg():
+        captured["home_at_cfg_read"] = str(get_hermes_home())
+        return {}
+
+    monkeypatch.setattr(server, "_load_cfg", _fake_load_cfg)
+    agent = types.SimpleNamespace(ephemeral_system_prompt=None, _cached_system_prompt="x")
+    session = {
+        "session_key": "sk",
+        "profile_home": str(profile_home),
+        "agent": agent,
+        "running": False,
+    }
+    assert server._mirror_slash_side_effects("sid", session, "/prompt") == ""
+    assert captured["home_at_cfg_read"] == str(profile_home)
+    assert agent._cached_system_prompt is None
+
+
+def test_reset_session_agent_binds_profile_scope(monkeypatch, tmp_path):
+    root, profile_home = _scope_layout(tmp_path)
+    monkeypatch.setenv("HERMES_HOME", str(root))
+    from hermes_constants import get_hermes_home
+
+    captured = {}
+
+    def _fake_make_agent(*_args, **_kwargs):
+        captured["home_at_build"] = str(get_hermes_home())
+        return types.SimpleNamespace(model="test/model", reasoning_config=None)
+
+    monkeypatch.setattr(server, "_make_agent", _fake_make_agent)
+    monkeypatch.setattr(server, "_set_session_context", lambda *_a: [])
+    monkeypatch.setattr(server, "_clear_session_context", lambda *_a: None)
+    monkeypatch.setattr(server, "_config_model_target", lambda: (None, None))
+    monkeypatch.setattr(server, "_load_show_reasoning", lambda: False)
+    monkeypatch.setattr(server, "_load_tool_progress_mode", lambda: "all")
+    monkeypatch.setattr(server, "_session_info", lambda *_a, **_k: {})
+    monkeypatch.setattr(server, "_emit", lambda *_a, **_k: None)
+    monkeypatch.setattr(server, "_restart_slash_worker", lambda *_a: None)
+    monkeypatch.setattr(server, "_session_source", lambda *_a: "dashboard")
+
+    session = _session(
+        agent=types.SimpleNamespace(reasoning_config=None),
+        profile_home=str(profile_home),
+    )
+    server._reset_session_agent("sid", session)
+    assert captured["home_at_build"] == str(profile_home)
+
+
+def test_session_compress_binds_profile_scope(monkeypatch, tmp_path):
+    root, profile_home = _scope_layout(tmp_path)
+    monkeypatch.setenv("HERMES_HOME", str(root))
+    from hermes_constants import get_hermes_home
+
+    captured = {}
+
+    def _fake_compress(_session, _focus, **_kw):
+        captured["home_at_compress"] = str(get_hermes_home())
+        return 0, {}
+
+    monkeypatch.setattr(server, "_compress_session_history", _fake_compress)
+    monkeypatch.setattr(server, "_start_agent_build", lambda *_a, **_k: None)
+    monkeypatch.setattr(server, "_wait_agent", lambda *_a, **_k: None)
+    monkeypatch.setattr(server, "_sync_session_key_after_compress", lambda *_a, **_k: None)
+    monkeypatch.setattr(server, "_session_info", lambda *_a, **_k: {})
+    monkeypatch.setattr(server, "_emit", lambda *_a, **_k: None)
+    monkeypatch.setattr(server, "_status_update", lambda *_a, **_k: None)
+
+    agent = types.SimpleNamespace(
+        session_id="session-key", _cached_system_prompt="", tools=None
+    )
+    server._sessions["sid"] = _session(
+        agent=agent, profile_home=str(profile_home), running=False
+    )
+    try:
+        resp = server.handle_request(
+            {
+                "id": "1",
+                "method": "session.compress",
+                "params": {"session_id": "sid"},
+            }
+        )
+        assert resp.get("result"), f"got error: {resp.get('error')}"
+        assert captured["home_at_compress"] == str(profile_home)
+    finally:
+        server._sessions.pop("sid", None)
+
+
+def test_prompt_submit_binds_profile_scope_for_turn(monkeypatch, tmp_path):
+    """The first turn of a profile session must build its system prompt under
+    the profile's HERMES_HOME override (dashboard in-process path)."""
+    root, profile_home = _scope_layout(tmp_path)
+    monkeypatch.setenv("HERMES_HOME", str(root))
+    from hermes_constants import get_hermes_home, get_skills_dir
+    from agent.file_safety import _resolve_active_profile_name
+
+    captured = {}
+
+    class _Agent:
+        model = "test/model"
+        provider = "custom"
+        base_url = ""
+        api_key = ""
+        session_id = None
+        thinking_callback = None
+        verbose_logging = False
+
+        def clear_interrupt(self):
+            pass
+
+        def run_conversation(
+            self, prompt, conversation_history=None, stream_callback=None, **_kw
+        ):
+            captured["hermes_home"] = str(get_hermes_home())
+            captured["profile_name"] = _resolve_active_profile_name()
+            captured["skills_dir"] = str(get_skills_dir())
+            return {
+                "final_response": "ok",
+                "messages": [{"role": "assistant", "content": "ok"}],
+            }
+
+    class _ImmediateThread:
+        def __init__(self, target=None, daemon=None, name=None, **_kw):
+            self._target = target
+
+        def start(self):
+            if self._target:
+                self._target()
+
+    server._sessions["sid"] = _session(
+        agent=_Agent(), profile_home=str(profile_home), source="dashboard"
+    )
+    try:
+        monkeypatch.setattr(server.threading, "Thread", _ImmediateThread)
+        monkeypatch.setattr(server, "_get_usage", lambda _a: {})
+        monkeypatch.setattr(server, "render_message", lambda _t, _c: "")
+        monkeypatch.setattr(server, "_emit", lambda *_a, **_k: None)
+        monkeypatch.setattr(server, "_start_agent_build", lambda *_a, **_k: None)
+        monkeypatch.setattr(server, "_ensure_session_db_row", lambda *_a, **_k: None)
+        monkeypatch.setattr(server, "_persist_branch_seed", lambda *_a, **_k: None)
+
+        resp = server.handle_request(
+            {
+                "id": "1",
+                "method": "prompt.submit",
+                "params": {"session_id": "sid", "text": "hello"},
+            }
+        )
+        assert resp.get("result"), f"got error: {resp.get('error')}"
+        assert captured["hermes_home"] == str(profile_home)
+        assert captured["profile_name"] == "writer"
+        assert captured["skills_dir"] == str(profile_home / "skills")
+    finally:
+        server._sessions.pop("sid", None)
+
+
 def test_stored_session_runtime_overrides_skips_bare_billing_provider():
     """A bare billing bucket ("custom"/"auto"/"openrouter") must not be restored as the
     provider identity on resume. A custom endpoint that never used `/model` persists only

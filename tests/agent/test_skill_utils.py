@@ -386,3 +386,52 @@ class TestNormalizeSkillLookupName:
         monkeypatch.setattr("agent.skill_utils.get_skills_dir", lambda: tmp_path / "skills")
         outside = str(tmp_path / "outside" / "skill")
         assert normalize_skill_lookup_name(outside) == outside
+
+
+class TestGetSkillWhitelist:
+    """<home>/skills.whitelist parsing: absent -> None, tolerant parsing."""
+
+    def test_absent_file_returns_none(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        from agent.skill_utils import get_skill_whitelist
+        assert get_skill_whitelist() is None
+
+    def test_parses_names_skipping_comments_and_blanks(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        (tmp_path / "skills.whitelist").write_text(
+            "# header comment\n\nalpha\n  beta  \n   # indented comment\ngamma\n"
+        )
+        from agent.skill_utils import get_skill_whitelist
+        assert get_skill_whitelist() == {"alpha", "beta", "gamma"}
+
+    def test_malformed_lines_skipped_without_crashing(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        (tmp_path / "skills.whitelist").write_text(
+            "good-name\nhas space\npath/with-slash\nwin\\slash\ntab\tname\n\n"
+        )
+        from agent.skill_utils import get_skill_whitelist
+        assert get_skill_whitelist() == {"good-name"}
+
+    def test_empty_file_is_authoritative_empty_set(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        (tmp_path / "skills.whitelist").write_text("# only comments\n\n")
+        from agent.skill_utils import get_skill_whitelist
+        assert get_skill_whitelist() == set()
+
+    def test_override_scopes_to_profile_home(self, tmp_path, monkeypatch):
+        root = tmp_path / "root"
+        prof = root / "profiles" / "writer"
+        prof.mkdir(parents=True)
+        (prof / "skills.whitelist").write_text("profile-only\n")
+        monkeypatch.setenv("HERMES_HOME", str(root))
+        from hermes_constants import (
+            reset_hermes_home_override,
+            set_hermes_home_override,
+        )
+        from agent.skill_utils import get_skill_whitelist
+        assert get_skill_whitelist() is None  # launch home has no file
+        token = set_hermes_home_override(str(prof))
+        try:
+            assert get_skill_whitelist() == {"profile-only"}
+        finally:
+            reset_hermes_home_override(token)

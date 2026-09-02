@@ -80,17 +80,33 @@ def http_server(tmp_path, monkeypatch):
     (tmp_path / ".hermes").mkdir()
 
     # Force the constants/image cache helpers to re-read HERMES_HOME.
+    # Restore the ORIGINAL module objects at teardown: popping without
+    # restoring orphans every module that did ``from hermes_constants import
+    # ...`` earlier (they keep closing over the popped module's namespace —
+    # including its HERMES_HOME-override ContextVar), so overrides set on the
+    # freshly re-imported module never reach them in later tests.
     import sys
-    for mod in list(sys.modules):
-        if mod.startswith("hermes_constants") or mod.startswith("agent.image_gen_provider"):
-            sys.modules.pop(mod, None)
+    _purged_prefixes = ("hermes_constants", "agent.image_gen_provider")
+    saved_modules = {
+        mod: sys.modules[mod]
+        for mod in list(sys.modules)
+        if mod.startswith(_purged_prefixes)
+    }
+    for mod in saved_modules:
+        sys.modules.pop(mod, None)
 
     httpd = socketserver.TCPServer(("127.0.0.1", 0), _TinyImageHandler)
     port = httpd.server_address[1]
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
-    yield f"http://127.0.0.1:{port}", httpd
-    httpd.shutdown()
+    try:
+        yield f"http://127.0.0.1:{port}", httpd
+    finally:
+        httpd.shutdown()
+        for mod in list(sys.modules):
+            if mod.startswith(_purged_prefixes):
+                sys.modules.pop(mod, None)
+        sys.modules.update(saved_modules)
 
 
 class TestSaveUrlImage:
