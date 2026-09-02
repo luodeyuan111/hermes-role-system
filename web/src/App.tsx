@@ -628,7 +628,12 @@ export default function App() {
               </Button>
             </div>
 
-            <ProfileSwitcher collapsed={isDesktopCollapsed} />
+            {/* The /chat surface (bubble-chat) has its own in-page role
+                sidebar, so the global management-profile switcher is
+                hidden there to avoid two competing role entries. */}
+            {!isChatRoute && (
+              <ProfileSwitcher collapsed={isDesktopCollapsed} />
+            )}
 
             <nav
               className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-2"

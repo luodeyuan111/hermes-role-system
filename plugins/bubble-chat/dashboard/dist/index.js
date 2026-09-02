@@ -129,61 +129,79 @@
   ];
   var ArrowDown = createLucideIcon("arrow-down", __iconNode);
 
+  // ../../../node_modules/lucide-react/dist/esm/icons/arrow-left.js
+  var __iconNode2 = [
+    ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+    ["path", { d: "M19 12H5", key: "x3x0zl" }]
+  ];
+  var ArrowLeft = createLucideIcon("arrow-left", __iconNode2);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/bot.js
+  var __iconNode3 = [
+    ["path", { d: "M12 8V4H8", key: "hb8ula" }],
+    ["rect", { width: "16", height: "12", x: "4", y: "8", rx: "2", key: "enze0r" }],
+    ["path", { d: "M2 14h2", key: "vft8re" }],
+    ["path", { d: "M20 14h2", key: "4cs60a" }],
+    ["path", { d: "M15 13v2", key: "1xurst" }],
+    ["path", { d: "M9 13v2", key: "rq6x2g" }]
+  ];
+  var Bot = createLucideIcon("bot", __iconNode3);
+
   // ../../../node_modules/lucide-react/dist/esm/icons/check.js
-  var __iconNode2 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-  var Check = createLucideIcon("check", __iconNode2);
+  var __iconNode4 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+  var Check = createLucideIcon("check", __iconNode4);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/chevron-down.js
-  var __iconNode3 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-  var ChevronDown = createLucideIcon("chevron-down", __iconNode3);
+  var __iconNode5 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+  var ChevronDown = createLucideIcon("chevron-down", __iconNode5);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/chevron-right.js
-  var __iconNode4 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-  var ChevronRight = createLucideIcon("chevron-right", __iconNode4);
+  var __iconNode6 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+  var ChevronRight = createLucideIcon("chevron-right", __iconNode6);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/circle-alert.js
-  var __iconNode5 = [
+  var __iconNode7 = [
     ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
     ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
     ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
   ];
-  var CircleAlert = createLucideIcon("circle-alert", __iconNode5);
+  var CircleAlert = createLucideIcon("circle-alert", __iconNode7);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/circle-check.js
-  var __iconNode6 = [
+  var __iconNode8 = [
     ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
     ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
   ];
-  var CircleCheck = createLucideIcon("circle-check", __iconNode6);
+  var CircleCheck = createLucideIcon("circle-check", __iconNode8);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/circle-question-mark.js
-  var __iconNode7 = [
+  var __iconNode9 = [
     ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
     ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
     ["path", { d: "M12 17h.01", key: "p32p05" }]
   ];
-  var CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode7);
+  var CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode9);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/circle-slash.js
-  var __iconNode8 = [
+  var __iconNode10 = [
     ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
     ["line", { x1: "9", x2: "15", y1: "15", y2: "9", key: "1dfufj" }]
   ];
-  var CircleSlash = createLucideIcon("circle-slash", __iconNode8);
+  var CircleSlash = createLucideIcon("circle-slash", __iconNode10);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/circle.js
-  var __iconNode9 = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-  var Circle = createLucideIcon("circle", __iconNode9);
+  var __iconNode11 = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+  var Circle = createLucideIcon("circle", __iconNode11);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/copy.js
-  var __iconNode10 = [
+  var __iconNode12 = [
     ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
     ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
   ];
-  var Copy = createLucideIcon("copy", __iconNode10);
+  var Copy = createLucideIcon("copy", __iconNode12);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/file-text.js
-  var __iconNode11 = [
+  var __iconNode13 = [
     [
       "path",
       {
@@ -196,10 +214,10 @@
     ["path", { d: "M16 13H8", key: "t4e002" }],
     ["path", { d: "M16 17H8", key: "z1uh3a" }]
   ];
-  var FileText = createLucideIcon("file-text", __iconNode11);
+  var FileText = createLucideIcon("file-text", __iconNode13);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/file.js
-  var __iconNode12 = [
+  var __iconNode14 = [
     [
       "path",
       {
@@ -209,10 +227,10 @@
     ],
     ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }]
   ];
-  var File2 = createLucideIcon("file", __iconNode12);
+  var File2 = createLucideIcon("file", __iconNode14);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/folder.js
-  var __iconNode13 = [
+  var __iconNode15 = [
     [
       "path",
       {
@@ -221,10 +239,10 @@
       }
     ]
   ];
-  var Folder = createLucideIcon("folder", __iconNode13);
+  var Folder = createLucideIcon("folder", __iconNode15);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-off.js
-  var __iconNode14 = [
+  var __iconNode16 = [
     ["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "a6p6uj" }],
     ["path", { d: "M10.41 10.41a2 2 0 1 1-2.83-2.83", key: "1bzlo9" }],
     ["line", { x1: "13.5", x2: "6", y1: "13.5", y2: "21", key: "1q0aeu" }],
@@ -238,52 +256,52 @@
     ],
     ["path", { d: "M21 15V5a2 2 0 0 0-2-2H9", key: "43el77" }]
   ];
-  var ImageOff = createLucideIcon("image-off", __iconNode14);
+  var ImageOff = createLucideIcon("image-off", __iconNode16);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-plus.js
-  var __iconNode15 = [
+  var __iconNode17 = [
     ["path", { d: "M16 5h6", key: "1vod17" }],
     ["path", { d: "M19 2v6", key: "4bpg5p" }],
     ["path", { d: "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5", key: "1ue2ih" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }]
   ];
-  var ImagePlus = createLucideIcon("image-plus", __iconNode15);
+  var ImagePlus = createLucideIcon("image-plus", __iconNode17);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image.js
-  var __iconNode16 = [
+  var __iconNode18 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
   ];
-  var Image = createLucideIcon("image", __iconNode16);
+  var Image = createLucideIcon("image", __iconNode18);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/list-checks.js
-  var __iconNode17 = [
+  var __iconNode19 = [
     ["path", { d: "M13 5h8", key: "a7qcls" }],
     ["path", { d: "M13 12h8", key: "h98zly" }],
     ["path", { d: "M13 19h8", key: "c3s6r1" }],
     ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
     ["path", { d: "m3 7 2 2 4-4", key: "1obspn" }]
   ];
-  var ListChecks = createLucideIcon("list-checks", __iconNode17);
+  var ListChecks = createLucideIcon("list-checks", __iconNode19);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/list-todo.js
-  var __iconNode18 = [
+  var __iconNode20 = [
     ["path", { d: "M13 5h8", key: "a7qcls" }],
     ["path", { d: "M13 12h8", key: "h98zly" }],
     ["path", { d: "M13 19h8", key: "c3s6r1" }],
     ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
     ["rect", { x: "3", y: "4", width: "6", height: "6", rx: "1", key: "cif1o7" }]
   ];
-  var ListTodo = createLucideIcon("list-todo", __iconNode18);
+  var ListTodo = createLucideIcon("list-todo", __iconNode20);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/loader-circle.js
-  var __iconNode19 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-  var LoaderCircle = createLucideIcon("loader-circle", __iconNode19);
+  var __iconNode21 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+  var LoaderCircle = createLucideIcon("loader-circle", __iconNode21);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square-plus.js
-  var __iconNode20 = [
+  var __iconNode22 = [
     [
       "path",
       {
@@ -294,10 +312,10 @@
     ["path", { d: "M12 8v6", key: "1ib9pf" }],
     ["path", { d: "M9 11h6", key: "1fldmi" }]
   ];
-  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode20);
+  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode22);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square.js
-  var __iconNode21 = [
+  var __iconNode23 = [
     [
       "path",
       {
@@ -306,18 +324,18 @@
       }
     ]
   ];
-  var MessageSquare = createLucideIcon("message-square", __iconNode21);
+  var MessageSquare = createLucideIcon("message-square", __iconNode23);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/music.js
-  var __iconNode22 = [
+  var __iconNode24 = [
     ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
     ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
     ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
   ];
-  var Music = createLucideIcon("music", __iconNode22);
+  var Music = createLucideIcon("music", __iconNode24);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/palette.js
-  var __iconNode23 = [
+  var __iconNode25 = [
     [
       "path",
       {
@@ -330,33 +348,33 @@
     ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
     ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
   ];
-  var Palette = createLucideIcon("palette", __iconNode23);
+  var Palette = createLucideIcon("palette", __iconNode25);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-close.js
-  var __iconNode24 = [
+  var __iconNode26 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m16 15-3-3 3-3", key: "14y99z" }]
   ];
-  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode24);
+  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode26);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-open.js
-  var __iconNode25 = [
+  var __iconNode27 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m14 9 3 3-3 3", key: "8010ee" }]
   ];
-  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode25);
+  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode27);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left.js
-  var __iconNode26 = [
+  var __iconNode28 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }]
   ];
-  var PanelLeft = createLucideIcon("panel-left", __iconNode26);
+  var PanelLeft = createLucideIcon("panel-left", __iconNode28);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/paperclip.js
-  var __iconNode27 = [
+  var __iconNode29 = [
     [
       "path",
       {
@@ -365,10 +383,10 @@
       }
     ]
   ];
-  var Paperclip = createLucideIcon("paperclip", __iconNode27);
+  var Paperclip = createLucideIcon("paperclip", __iconNode29);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/pencil.js
-  var __iconNode28 = [
+  var __iconNode30 = [
     [
       "path",
       {
@@ -378,26 +396,33 @@
     ],
     ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
   ];
-  var Pencil = createLucideIcon("pencil", __iconNode28);
+  var Pencil = createLucideIcon("pencil", __iconNode30);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/plus.js
+  var __iconNode31 = [
+    ["path", { d: "M5 12h14", key: "1ays0h" }],
+    ["path", { d: "M12 5v14", key: "s699le" }]
+  ];
+  var Plus = createLucideIcon("plus", __iconNode31);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/refresh-cw.js
-  var __iconNode29 = [
+  var __iconNode32 = [
     ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
     ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
     ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
     ["path", { d: "M8 16H3v5", key: "1cv678" }]
   ];
-  var RefreshCw = createLucideIcon("refresh-cw", __iconNode29);
+  var RefreshCw = createLucideIcon("refresh-cw", __iconNode32);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/rotate-ccw.js
-  var __iconNode30 = [
+  var __iconNode33 = [
     ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
     ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
   ];
-  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode30);
+  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode33);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/send-horizontal.js
-  var __iconNode31 = [
+  var __iconNode34 = [
     [
       "path",
       {
@@ -407,10 +432,10 @@
     ],
     ["path", { d: "M6 12h16", key: "s4cdu5" }]
   ];
-  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode31);
+  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode34);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/shield-alert.js
-  var __iconNode32 = [
+  var __iconNode35 = [
     [
       "path",
       {
@@ -421,10 +446,10 @@
     ["path", { d: "M12 8v4", key: "1got3b" }],
     ["path", { d: "M12 16h.01", key: "1drbdi" }]
   ];
-  var ShieldAlert = createLucideIcon("shield-alert", __iconNode32);
+  var ShieldAlert = createLucideIcon("shield-alert", __iconNode35);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/sparkles.js
-  var __iconNode33 = [
+  var __iconNode36 = [
     [
       "path",
       {
@@ -436,16 +461,16 @@
     ["path", { d: "M22 4h-4", key: "gwowj6" }],
     ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
   ];
-  var Sparkles = createLucideIcon("sparkles", __iconNode33);
+  var Sparkles = createLucideIcon("sparkles", __iconNode36);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/square.js
-  var __iconNode34 = [
+  var __iconNode37 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
   ];
-  var Square = createLucideIcon("square", __iconNode34);
+  var Square = createLucideIcon("square", __iconNode37);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/star.js
-  var __iconNode35 = [
+  var __iconNode38 = [
     [
       "path",
       {
@@ -454,35 +479,35 @@
       }
     ]
   ];
-  var Star = createLucideIcon("star", __iconNode35);
+  var Star = createLucideIcon("star", __iconNode38);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/terminal.js
-  var __iconNode36 = [
+  var __iconNode39 = [
     ["path", { d: "M12 19h8", key: "baeox8" }],
     ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
   ];
-  var Terminal = createLucideIcon("terminal", __iconNode36);
+  var Terminal = createLucideIcon("terminal", __iconNode39);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/timer.js
-  var __iconNode37 = [
+  var __iconNode40 = [
     ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
     ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
     ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
   ];
-  var Timer = createLucideIcon("timer", __iconNode37);
+  var Timer = createLucideIcon("timer", __iconNode40);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/trash-2.js
-  var __iconNode38 = [
+  var __iconNode41 = [
     ["path", { d: "M10 11v6", key: "nco0om" }],
     ["path", { d: "M14 11v6", key: "outv1u" }],
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
     ["path", { d: "M3 6h18", key: "d0wm0j" }],
     ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
   ];
-  var Trash2 = createLucideIcon("trash-2", __iconNode38);
+  var Trash2 = createLucideIcon("trash-2", __iconNode41);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/wrench.js
-  var __iconNode39 = [
+  var __iconNode42 = [
     [
       "path",
       {
@@ -491,14 +516,14 @@
       }
     ]
   ];
-  var Wrench = createLucideIcon("wrench", __iconNode39);
+  var Wrench = createLucideIcon("wrench", __iconNode42);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/x.js
-  var __iconNode40 = [
+  var __iconNode43 = [
     ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
     ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
   ];
-  var X = createLucideIcon("x", __iconNode40);
+  var X = createLucideIcon("x", __iconNode43);
 
   // src/sdk.ts
   function sdk() {
@@ -522,721 +547,6 @@
     const withLead = raw.startsWith("/") ? raw : `/${raw}`;
     return withLead.replace(/\/+$/, "");
   })();
-
-  // src/shims/jsx-runtime.ts
-  var React2 = window.__HERMES_PLUGIN_SDK__?.React;
-  var Fragment2 = React2.Fragment;
-  function jsx(type, props, key) {
-    return key === void 0 || key === null ? React2.createElement(type, props) : React2.createElement(type, { ...props, key });
-  }
-  var jsxs = jsx;
-
-  // src/shared/ListItem.tsx
-  var ListItem = forwardRef(
-    function ListItem2({ active = false, children, className, type = "button", ...props }, ref) {
-      return /* @__PURE__ */ jsx(
-        "button",
-        {
-          className: cn(
-            "group relative flex w-full items-center gap-2 px-3 py-2 text-left",
-            "font-courier text-sm transition-colors cursor-pointer",
-            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground/30",
-            "disabled:cursor-not-allowed disabled:text-text-disabled",
-            active ? "bg-midground/10 text-midground" : "text-text-secondary hover:text-midground hover:bg-midground/5",
-            className
-          ),
-          "data-active": active || void 0,
-          ref,
-          type,
-          ...props,
-          children
-        }
-      );
-    }
-  );
-
-  // src/shared/Spinner.tsx
-  var BRAILLE_FRAMES = ["\u280B", "\u2819", "\u2839", "\u2838", "\u283C", "\u2834", "\u2826", "\u2827", "\u2807", "\u280F"];
-  var INTERVAL_MS = 80;
-  function Spinner({
-    className,
-    ...props
-  }) {
-    const [frame, setFrame] = useState(0);
-    useEffect(() => {
-      const id = setInterval(
-        () => setFrame((f) => (f + 1) % BRAILLE_FRAMES.length),
-        INTERVAL_MS
-      );
-      return () => clearInterval(id);
-    }, []);
-    return /* @__PURE__ */ jsx(
-      "span",
-      {
-        "aria-hidden": props["aria-label"] ? void 0 : true,
-        "aria-label": props["aria-label"],
-        className: cn(
-          "font-mono inline-block leading-none tabular-nums",
-          className
-        ),
-        children: BRAILLE_FRAMES[frame]
-      }
-    );
-  }
-
-  // src/router.ts
-  function subscribeToLocation(onChange) {
-    window.addEventListener("popstate", onChange);
-    return () => window.removeEventListener("popstate", onChange);
-  }
-  function useLocationSearch() {
-    const search = useSyncExternalStore(
-      subscribeToLocation,
-      () => window.location.search,
-      () => ""
-    );
-    return useMemo(() => new URLSearchParams(search), [search]);
-  }
-  function setResumeParam(id) {
-    const next = new URLSearchParams(window.location.search);
-    if (id) next.set("resume", id);
-    else next.delete("resume");
-    const qs = next.toString();
-    const url = `${HERMES_BASE_PATH}/chat${qs ? `?${qs}` : ""}`;
-    window.history.pushState(null, "", url);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }
-
-  // src/ChatSessionList.tsx
-  var SESSION_LIMIT = 30;
-  var FAVORITES_KEY_PREFIX = "hermes.bubblechat.favorites.";
-  function readFavorites(scope) {
-    try {
-      const raw = localStorage.getItem(FAVORITES_KEY_PREFIX + scope);
-      const arr = raw ? JSON.parse(raw) : [];
-      return new Set(
-        Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : []
-      );
-    } catch {
-      return /* @__PURE__ */ new Set();
-    }
-  }
-  function writeFavorites(scope, favs) {
-    try {
-      localStorage.setItem(FAVORITES_KEY_PREFIX + scope, JSON.stringify([...favs]));
-    } catch {
-    }
-  }
-  function rowLabel(session, untitled) {
-    const title = session.title?.trim();
-    if (title && title !== "Untitled") return title;
-    const preview = session.preview?.trim();
-    if (preview) return preview;
-    return untitled;
-  }
-  var SOURCE_BADGES = {
-    pet: "\u{1F43E}",
-    tui: "\u2328\uFE0F",
-    qqbot: "\u{1F427}",
-    cron: "\u23F0"
-  };
-  function sourceBadge(source) {
-    if (!source || source === "dashboard") return null;
-    return SOURCE_BADGES[source] ?? null;
-  }
-  function ChatSessionListImpl({
-    activeSessionId,
-    profile,
-    className,
-    onPicked,
-    onNewChat,
-    manageable = false,
-    onSessionDeleted,
-    onCollapse
-  }) {
-    const { t } = useI18n();
-    const [sessions, setSessions] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [reloadNonce, setReloadNonce] = useState(0);
-    const [query, setQuery] = useState("");
-    const [searchResults, setSearchResults] = useState(null);
-    const [searching, setSearching] = useState(false);
-    const [renamingId, setRenamingId] = useState(null);
-    const [renameValue, setRenameValue] = useState("");
-    const [renameSaving, setRenameSaving] = useState(false);
-    const [actionError, setActionError] = useState(null);
-    const [selectMode, setSelectMode] = useState(false);
-    const [selected, setSelected] = useState(/* @__PURE__ */ new Set());
-    const [bulkBusy, setBulkBusy] = useState(false);
-    const [showCron, setShowCron] = useState(false);
-    const scopeKey = profile ?? "";
-    const [favorites, setFavorites] = useState(
-      () => manageable ? readFavorites(scopeKey) : /* @__PURE__ */ new Set()
-    );
-    useEffect(() => {
-      setFavorites(manageable ? readFavorites(scopeKey) : /* @__PURE__ */ new Set());
-    }, [manageable, scopeKey]);
-    const toggleFavorite = useCallback(
-      (id) => {
-        setFavorites((prev) => {
-          const next = new Set(prev);
-          if (next.has(id)) next.delete(id);
-          else next.add(id);
-          writeFavorites(scopeKey, next);
-          return next;
-        });
-      },
-      [scopeKey]
-    );
-    const unstarMany = useCallback(
-      (ids) => {
-        setFavorites((prev) => {
-          const next = new Set(prev);
-          let changed = false;
-          for (const id of ids) {
-            if (next.delete(id)) changed = true;
-          }
-          if (changed) writeFavorites(scopeKey, next);
-          return changed ? next : prev;
-        });
-      },
-      [scopeKey]
-    );
-    const reqRef = useRef(0);
-    const load = useCallback(() => {
-      const myReq = ++reqRef.current;
-      setLoading(true);
-      setError(null);
-      api.getSessions(
-        SESSION_LIMIT,
-        0,
-        scopeKey,
-        "recent",
-        manageable ? showCron ? { source: "cron" } : { excludeSources: "cron" } : void 0
-      ).then((res) => {
-        if (reqRef.current !== myReq) return;
-        setSessions(res.sessions);
-      }).catch((e) => {
-        if (reqRef.current !== myReq) return;
-        setError(e.message || "failed to load sessions");
-      }).finally(() => {
-        if (reqRef.current === myReq) setLoading(false);
-      });
-    }, [scopeKey, manageable, showCron]);
-    useEffect(() => {
-      load();
-    }, [load, reloadNonce]);
-    const reload = useCallback(() => setReloadNonce((n) => n + 1), []);
-    const searchReqRef = useRef(0);
-    useEffect(() => {
-      if (!manageable) return;
-      const q = query.trim();
-      if (!q) {
-        setSearchResults(null);
-        setSearching(false);
-        return;
-      }
-      setSearching(true);
-      const myReq = ++searchReqRef.current;
-      const timer = setTimeout(() => {
-        api.searchSessions(q, scopeKey).then((res) => {
-          if (searchReqRef.current === myReq) setSearchResults(res.results);
-        }).catch(() => {
-          if (searchReqRef.current === myReq) setSearchResults([]);
-        }).finally(() => {
-          if (searchReqRef.current === myReq) setSearching(false);
-        });
-      }, 300);
-      return () => clearTimeout(timer);
-    }, [query, manageable, scopeKey]);
-    const submitRename = useCallback(
-      async (s) => {
-        const value = renameValue.trim();
-        setRenamingId(null);
-        if (!value || value === (s.title ?? "").trim()) return;
-        setRenameSaving(true);
-        setActionError(null);
-        try {
-          await api.renameSession(s.id, value, scopeKey);
-          setSessions(
-            (prev) => prev?.map((it) => it.id === s.id ? { ...it, title: value } : it) ?? prev
-          );
-        } catch (e) {
-          setActionError(e instanceof Error ? e.message : "\u91CD\u547D\u540D\u5931\u8D25");
-        } finally {
-          setRenameSaving(false);
-        }
-      },
-      [renameValue, scopeKey]
-    );
-    const removeSession = useCallback(
-      async (s) => {
-        const label = rowLabel(s, t.sessions.untitledSession);
-        if (!window.confirm(
-          `${t.sessions.confirmDeleteTitle}
-${label}
-${t.sessions.confirmDeleteMessage}`
-        )) {
-          return;
-        }
-        setActionError(null);
-        try {
-          await api.deleteSession(s.id, scopeKey);
-          setSessions((prev) => prev?.filter((it) => it.id !== s.id) ?? prev);
-          unstarMany([s.id]);
-          onSessionDeleted?.(s.id);
-        } catch (e) {
-          setActionError(
-            e instanceof Error ? e.message : t.sessions.failedToDelete
-          );
-        }
-      },
-      [onSessionDeleted, scopeKey, t, unstarMany]
-    );
-    const exitSelectMode = useCallback(() => {
-      setSelectMode(false);
-      setSelected(/* @__PURE__ */ new Set());
-    }, []);
-    const toggleSelect = useCallback((id) => {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      });
-    }, []);
-    const allSelected = sessions != null && sessions.length > 0 && sessions.every((s) => selected.has(s.id));
-    const toggleAll = useCallback(() => {
-      setSelected((prev) => {
-        const list = sessions ?? [];
-        if (list.length > 0 && list.every((s) => prev.has(s.id))) return /* @__PURE__ */ new Set();
-        return new Set(list.map((s) => s.id));
-      });
-    }, [sessions]);
-    const bulkDelete = useCallback(async () => {
-      const ids = [...selected];
-      if (ids.length === 0 || bulkBusy) return;
-      if (!window.confirm(
-        `\u786E\u5B9A\u5220\u9664\u9009\u4E2D\u7684 ${ids.length} \u4E2A\u4F1A\u8BDD\uFF1F
-\u6B64\u64CD\u4F5C\u4E0D\u53EF\u6062\u590D\u3002`
-      )) {
-        return;
-      }
-      setBulkBusy(true);
-      setActionError(null);
-      try {
-        await api.bulkDeleteSessions(ids, scopeKey);
-        setSessions(
-          (prev) => prev?.filter((it) => !selected.has(it.id)) ?? prev
-        );
-        unstarMany(ids);
-        ids.forEach((id) => onSessionDeleted?.(id));
-        exitSelectMode();
-        reload();
-      } catch (e) {
-        setActionError(e instanceof Error ? e.message : "\u6279\u91CF\u5220\u9664\u5931\u8D25");
-      } finally {
-        setBulkBusy(false);
-      }
-    }, [selected, bulkBusy, scopeKey, onSessionDeleted, exitSelectMode, reload, unstarMany]);
-    const pick = useCallback(
-      (id) => {
-        onPicked?.();
-        if (id === activeSessionId) return;
-        setResumeParam(id);
-      },
-      [activeSessionId, onPicked]
-    );
-    const startNew = useCallback(() => {
-      onPicked?.();
-      if (onNewChat) {
-        onNewChat();
-        return;
-      }
-      setResumeParam(null);
-    }, [onNewChat, onPicked]);
-    const sortedSessions = useMemo(() => {
-      if (!sessions) return sessions;
-      return [...sessions].sort(
-        (a, b) => Number(favorites.has(b.id)) - Number(favorites.has(a.id))
-      );
-    }, [sessions, favorites]);
-    const visibleSearchResults = useMemo(() => {
-      if (!manageable || !searchResults) return searchResults;
-      return searchResults.filter(
-        (r) => showCron ? r.source === "cron" : r.source !== "cron"
-      );
-    }, [manageable, searchResults, showCron]);
-    const content = useMemo(() => {
-      if (manageable && query.trim()) {
-        if (searching && visibleSearchResults === null) {
-          return /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-2 px-2 py-6 text-xs text-text-secondary", children: [
-            /* @__PURE__ */ jsx(Spinner, {}),
-            " ",
-            t.common.loading
-          ] });
-        }
-        if (!visibleSearchResults || visibleSearchResults.length === 0) {
-          return /* @__PURE__ */ jsx("div", { className: "px-2 py-6 text-center text-xs text-text-secondary", children: t.sessions.noMatch });
-        }
-        return /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-0.5", children: visibleSearchResults.map((r, i) => /* @__PURE__ */ jsxs(
-          ListItem,
-          {
-            onClick: () => pick(r.session_id),
-            "aria-current": r.session_id === activeSessionId ? "true" : void 0,
-            className: cn(
-              "flex-col items-start gap-0.5 rounded px-2 py-1.5",
-              "normal-case tracking-normal",
-              r.session_id === activeSessionId ? "bg-primary/10 text-foreground border-l-2 border-primary" : "text-text-secondary hover:bg-midground/5 hover:text-foreground"
-            ),
-            children: [
-              /* @__PURE__ */ jsx("span", { className: "w-full truncate text-sm font-medium", children: r.snippet.replace(/\s+/g, " ").trim() || r.session_id }),
-              /* @__PURE__ */ jsxs("span", { className: "flex w-full items-center gap-1.5 text-[0.6875rem] text-text-tertiary", children: [
-                r.session_started != null && /* @__PURE__ */ jsx("span", { children: timeAgo(r.session_started) }),
-                r.source && /* @__PURE__ */ jsxs(Fragment2, { children: [
-                  /* @__PURE__ */ jsx("span", { "aria-hidden": true, children: "\xB7" }),
-                  /* @__PURE__ */ jsx("span", { className: "truncate", children: r.source })
-                ] })
-              ] })
-            ]
-          },
-          `${r.session_id}-${i}`
-        )) });
-      }
-      if (loading && sessions === null) {
-        return /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-2 px-2 py-6 text-xs text-text-secondary", children: [
-          /* @__PURE__ */ jsx(Spinner, {}),
-          " ",
-          t.common.loading
-        ] });
-      }
-      if (error) {
-        return /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-start gap-2 px-2 py-4 text-xs", children: [
-          /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-2 text-destructive", children: [
-            /* @__PURE__ */ jsx(CircleAlert, { className: "mt-0.5 h-3.5 w-3.5 shrink-0" }),
-            /* @__PURE__ */ jsx("span", { className: "wrap-break-word", children: error })
-          ] }),
-          /* @__PURE__ */ jsx(Button, { size: "sm", outlined: true, onClick: reload, prefix: /* @__PURE__ */ jsx(RefreshCw, {}), children: t.common.retry })
-        ] });
-      }
-      if (!sessions || sessions.length === 0) {
-        return /* @__PURE__ */ jsx("div", { className: "px-2 py-6 text-center text-xs text-text-secondary", children: t.sessions.noSessions });
-      }
-      return /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-0.5", children: (sortedSessions ?? []).map((s) => {
-        const isActive = s.id === activeSessionId;
-        const isFav = favorites.has(s.id);
-        return /* @__PURE__ */ jsxs(
-          ListItem,
-          {
-            onClick: () => selectMode ? toggleSelect(s.id) : pick(s.id),
-            "aria-current": isActive ? "true" : void 0,
-            className: cn(
-              "group flex-col items-start gap-0.5 rounded px-2 py-1.5",
-              "normal-case tracking-normal",
-              isActive ? "bg-primary/10 text-foreground border-l-2 border-primary" : "text-text-secondary hover:bg-midground/5 hover:text-foreground"
-            ),
-            children: [
-              manageable && renamingId === s.id ? /* @__PURE__ */ jsx(
-                "input",
-                {
-                  autoFocus: true,
-                  value: renameValue,
-                  disabled: renameSaving,
-                  "aria-label": "\u91CD\u547D\u540D",
-                  onClick: (e) => e.stopPropagation(),
-                  onChange: (e) => setRenameValue(e.target.value),
-                  onKeyDown: (e) => {
-                    e.stopPropagation();
-                    if (e.key === "Enter") void submitRename(s);
-                    if (e.key === "Escape") setRenamingId(null);
-                  },
-                  onBlur: () => setRenamingId(null),
-                  className: "w-full rounded border border-current/20 bg-background-base px-1.5 py-0.5 text-sm focus:outline-none"
-                }
-              ) : /* @__PURE__ */ jsxs("span", { className: "flex w-full items-center gap-1.5", children: [
-                manageable && selectMode && /* @__PURE__ */ jsx(
-                  "input",
-                  {
-                    type: "checkbox",
-                    checked: selected.has(s.id),
-                    onChange: () => toggleSelect(s.id),
-                    onClick: (e) => e.stopPropagation(),
-                    "aria-label": `\u9009\u62E9 ${rowLabel(s, t.sessions.untitledSession)}`,
-                    className: "h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
-                  }
-                ),
-                /* @__PURE__ */ jsxs("span", { className: "min-w-0 flex-1 truncate text-sm font-medium", children: [
-                  manageable && isFav && /* @__PURE__ */ jsx(
-                    Star,
-                    {
-                      "aria-hidden": true,
-                      className: "mr-1 inline h-3 w-3 fill-warning align-[-0.1em] text-warning"
-                    }
-                  ),
-                  sourceBadge(s.source) && /* @__PURE__ */ jsx("span", { className: "mr-1", title: `\u6765\u6E90\uFF1A${s.source}`, children: sourceBadge(s.source) }),
-                  rowLabel(s, t.sessions.untitledSession)
-                ] }),
-                manageable && !selectMode && /* @__PURE__ */ jsxs(
-                  "span",
-                  {
-                    className: cn(
-                      "flex shrink-0 items-center gap-0.5",
-                      "opacity-0 transition-opacity group-hover:opacity-100",
-                      "focus-within:opacity-100"
-                    ),
-                    children: [
-                      /* @__PURE__ */ jsx(
-                        "button",
-                        {
-                          type: "button",
-                          "aria-label": isFav ? "\u53D6\u6D88\u6536\u85CF" : "\u6536\u85CF",
-                          title: isFav ? "\u53D6\u6D88\u6536\u85CF" : "\u6536\u85CF",
-                          className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-warning",
-                          onClick: (e) => {
-                            e.stopPropagation();
-                            toggleFavorite(s.id);
-                          },
-                          children: /* @__PURE__ */ jsx(
-                            Star,
-                            {
-                              className: cn(
-                                "h-3.5 w-3.5",
-                                isFav && "fill-warning text-warning"
-                              )
-                            }
-                          )
-                        }
-                      ),
-                      /* @__PURE__ */ jsx(
-                        "button",
-                        {
-                          type: "button",
-                          "aria-label": "\u91CD\u547D\u540D",
-                          title: "\u91CD\u547D\u540D",
-                          className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-foreground",
-                          onClick: (e) => {
-                            e.stopPropagation();
-                            setRenameValue(s.title?.trim() || "");
-                            setRenamingId(s.id);
-                          },
-                          children: /* @__PURE__ */ jsx(Pencil, { className: "h-3.5 w-3.5" })
-                        }
-                      ),
-                      /* @__PURE__ */ jsx(
-                        "button",
-                        {
-                          type: "button",
-                          "aria-label": t.common.delete,
-                          title: t.common.delete,
-                          className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-destructive/10 hover:text-destructive",
-                          onClick: (e) => {
-                            e.stopPropagation();
-                            void removeSession(s);
-                          },
-                          children: /* @__PURE__ */ jsx(Trash2, { className: "h-3.5 w-3.5" })
-                        }
-                      )
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxs("span", { className: "flex w-full items-center gap-1.5 text-[0.6875rem] text-text-tertiary", children: [
-                /* @__PURE__ */ jsx("span", { children: timeAgo(s.last_active) }),
-                s.message_count > 0 && /* @__PURE__ */ jsxs(Fragment2, { children: [
-                  /* @__PURE__ */ jsx("span", { "aria-hidden": true, children: "\xB7" }),
-                  /* @__PURE__ */ jsxs("span", { children: [
-                    s.message_count,
-                    " msgs"
-                  ] })
-                ] }),
-                s.source && s.source !== "cli" && /* @__PURE__ */ jsxs(Fragment2, { children: [
-                  /* @__PURE__ */ jsx("span", { "aria-hidden": true, children: "\xB7" }),
-                  /* @__PURE__ */ jsx("span", { className: "truncate", children: s.source })
-                ] })
-              ] })
-            ]
-          },
-          s.id
-        );
-      }) });
-    }, [
-      activeSessionId,
-      error,
-      favorites,
-      loading,
-      manageable,
-      pick,
-      query,
-      reload,
-      renameSaving,
-      renameValue,
-      renamingId,
-      removeSession,
-      searchResults,
-      searching,
-      selectMode,
-      selected,
-      sessions,
-      sortedSessions,
-      submitRename,
-      t,
-      toggleFavorite,
-      toggleSelect,
-      visibleSearchResults
-    ]);
-    return /* @__PURE__ */ jsxs(
-      "aside",
-      {
-        className: cn(
-          "flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden",
-          className
-        ),
-        children: [
-          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 px-2 pb-2", children: [
-            /* @__PURE__ */ jsx("span", { className: "text-display text-xs tracking-wider text-text-tertiary", children: t.sessions.title }),
-            /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-0.5", children: [
-              manageable && !selectMode && sessions != null && sessions.length > 0 && /* @__PURE__ */ jsx(
-                Button,
-                {
-                  ghost: true,
-                  size: "icon",
-                  onClick: () => setSelectMode(true),
-                  "aria-label": "\u591A\u9009",
-                  title: "\u591A\u9009",
-                  className: "text-text-secondary hover:text-foreground",
-                  children: /* @__PURE__ */ jsx(ListChecks, {})
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                Button,
-                {
-                  ghost: true,
-                  size: "icon",
-                  onClick: reload,
-                  "aria-label": t.common.refresh,
-                  title: t.common.refresh,
-                  className: "text-text-secondary hover:text-foreground",
-                  children: /* @__PURE__ */ jsx(RefreshCw, { className: cn(loading && "animate-spin") })
-                }
-              ),
-              onCollapse && /* @__PURE__ */ jsx(
-                Button,
-                {
-                  ghost: true,
-                  size: "icon",
-                  onClick: onCollapse,
-                  "aria-label": "\u6298\u53E0\u4F1A\u8BDD\u5217\u8868",
-                  title: "\u6298\u53E0\u4F1A\u8BDD\u5217\u8868",
-                  className: "text-text-secondary hover:text-foreground",
-                  children: /* @__PURE__ */ jsx(PanelLeftClose, {})
-                }
-              )
-            ] })
-          ] }),
-          /* @__PURE__ */ jsx(
-            Button,
-            {
-              outlined: true,
-              size: "sm",
-              onClick: startNew,
-              prefix: /* @__PURE__ */ jsx(MessageSquarePlus, {}),
-              className: "mx-2 mb-2 justify-center",
-              children: t.sessions.newChat
-            }
-          ),
-          manageable && /* @__PURE__ */ jsx(
-            "div",
-            {
-              role: "tablist",
-              "aria-label": "\u4F1A\u8BDD\u7C7B\u578B",
-              className: "mx-2 mb-2 flex rounded-lg border border-current/15 text-xs",
-              children: [
-                { key: false, label: "\u5BF9\u8BDD", icon: MessageSquare },
-                { key: true, label: "\u5B9A\u65F6", icon: Timer }
-              ].map(({ key, label, icon: Icon2 }) => /* @__PURE__ */ jsxs(
-                "button",
-                {
-                  type: "button",
-                  role: "tab",
-                  "aria-selected": showCron === key,
-                  onClick: () => {
-                    if (showCron === key) return;
-                    exitSelectMode();
-                    setShowCron(key);
-                  },
-                  className: cn(
-                    "flex flex-1 cursor-pointer items-center justify-center gap-1 py-1.5",
-                    "first:rounded-l-[0.45rem] last:rounded-r-[0.45rem]",
-                    showCron === key ? "bg-primary/10 text-foreground" : "text-text-secondary hover:bg-midground/5 hover:text-foreground"
-                  ),
-                  children: [
-                    /* @__PURE__ */ jsx(Icon2, { className: "h-3.5 w-3.5" }),
-                    label
-                  ]
-                },
-                label
-              ))
-            }
-          ),
-          manageable && /* @__PURE__ */ jsx("div", { className: "px-2 pb-2", children: /* @__PURE__ */ jsx(
-            "input",
-            {
-              value: query,
-              onChange: (e) => setQuery(e.target.value),
-              placeholder: t.sessions.searchPlaceholder,
-              "aria-label": t.common.search,
-              className: cn(
-                "w-full rounded-lg border border-current/15 bg-background-base",
-                "px-2.5 py-1.5 text-sm placeholder:text-text-tertiary",
-                "focus:border-current/30 focus:outline-none"
-              )
-            }
-          ) }),
-          manageable && selectMode && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1.5 px-2 pb-2 text-xs", children: [
-            /* @__PURE__ */ jsxs("label", { className: "flex cursor-pointer items-center gap-1 text-text-secondary hover:text-foreground", children: [
-              /* @__PURE__ */ jsx(
-                "input",
-                {
-                  type: "checkbox",
-                  checked: allSelected,
-                  onChange: toggleAll,
-                  "aria-label": "\u5168\u9009",
-                  className: "h-3.5 w-3.5 cursor-pointer accent-primary"
-                }
-              ),
-              "\u5168\u9009"
-            ] }),
-            /* @__PURE__ */ jsx(
-              "button",
-              {
-                type: "button",
-                disabled: selected.size === 0 || bulkBusy,
-                onClick: () => void bulkDelete(),
-                className: cn(
-                  "cursor-pointer rounded px-1.5 py-0.5 text-destructive",
-                  "hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
-                ),
-                children: bulkBusy ? "\u5220\u9664\u4E2D\u2026" : `\u5220\u9664\u6240\u9009\uFF08${selected.size}\uFF09`
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              "button",
-              {
-                type: "button",
-                onClick: exitSelectMode,
-                className: "ml-auto cursor-pointer rounded px-1.5 py-0.5 text-text-secondary hover:bg-midground/10 hover:text-foreground",
-                children: "\u53D6\u6D88"
-              }
-            )
-          ] }),
-          actionError && /* @__PURE__ */ jsx("div", { className: "mx-2 mb-2 rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive wrap-break-word", children: actionError }),
-          /* @__PURE__ */ jsx("div", { className: "min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1 pb-1", children: content })
-        ]
-      }
-    );
-  }
-  var ChatSessionList = memo(ChatSessionListImpl);
 
   // src/chat/fileAccess.ts
   function directFileUrl(path) {
@@ -1466,6 +776,14 @@ ${t.sessions.confirmDeleteMessage}`
     }
     return uploaded;
   }
+
+  // src/shims/jsx-runtime.ts
+  var React2 = window.__HERMES_PLUGIN_SDK__?.React;
+  var Fragment2 = React2.Fragment;
+  function jsx(type, props, key) {
+    return key === void 0 || key === null ? React2.createElement(type, props) : React2.createElement(type, { ...props, key });
+  }
+  var jsxs = jsx;
 
   // src/chat/ChatBackground.tsx
   var CHAT_BACKGROUND_KEY = "hermes.bubblechat.background";
@@ -1817,6 +1135,35 @@ ${t.sessions.confirmDeleteMessage}`
         ] })
       ] })
     ] });
+  }
+
+  // src/shared/Spinner.tsx
+  var BRAILLE_FRAMES = ["\u280B", "\u2819", "\u2839", "\u2838", "\u283C", "\u2834", "\u2826", "\u2827", "\u2807", "\u280F"];
+  var INTERVAL_MS = 80;
+  function Spinner({
+    className,
+    ...props
+  }) {
+    const [frame, setFrame] = useState(0);
+    useEffect(() => {
+      const id = setInterval(
+        () => setFrame((f) => (f + 1) % BRAILLE_FRAMES.length),
+        INTERVAL_MS
+      );
+      return () => clearInterval(id);
+    }, []);
+    return /* @__PURE__ */ jsx(
+      "span",
+      {
+        "aria-hidden": props["aria-label"] ? void 0 : true,
+        "aria-label": props["aria-label"],
+        className: cn(
+          "font-mono inline-block leading-none tabular-nums",
+          className
+        ),
+        children: BRAILLE_FRAMES[frame]
+      }
+    );
   }
 
   // src/chat/content.ts
@@ -3946,6 +3293,770 @@ ${t.sessions.confirmDeleteMessage}`
     );
   }
 
+  // src/roles.ts
+  var BASE = `${HERMES_BASE_PATH}/api/plugins/bubble-chat`;
+  var rolesPromise = null;
+  function fetchRoles() {
+    if (!rolesPromise) {
+      rolesPromise = fetchJSON(`${BASE}/roles`).then((list) => Array.isArray(list) ? list : []).catch(() => {
+        rolesPromise = null;
+        return [];
+      });
+    }
+    return rolesPromise;
+  }
+  function invalidateRoles() {
+    rolesPromise = null;
+  }
+  async function createRole(payload) {
+    const role = await fetchJSON(`${BASE}/roles`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    invalidateRoles();
+    return role;
+  }
+  function fetchRolePrompt(name) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/prompt`);
+  }
+  async function writeRolePrompt(name, content) {
+    await fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/prompt`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content })
+    });
+    invalidateRoles();
+  }
+  function fetchRoleMemory(name) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`);
+  }
+  function fetchBaseFiles() {
+    return fetchJSON(`${BASE}/roles/default/base-files`);
+  }
+  function readBaseFile(name) {
+    return fetchJSON(
+      `${BASE}/roles/default/base-file?name=${encodeURIComponent(name)}`
+    );
+  }
+  async function writeBaseFile(name, content) {
+    await fetchJSON(
+      `${BASE}/roles/default/base-file?name=${encodeURIComponent(name)}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content })
+      }
+    );
+  }
+  async function writeRoleMemory(name, content) {
+    await fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content })
+    });
+  }
+  function fetchRoleSkills(name) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/skills`);
+  }
+  function writeRoleSkills(name, text) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/skills`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+  }
+  async function lookupSessionProfile(sessionId) {
+    try {
+      const res = await fetchJSON(
+        `${BASE}/roles/lookup?session_id=${encodeURIComponent(sessionId)}`
+      );
+      return res?.profile ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  // src/router.ts
+  function subscribeToLocation(onChange) {
+    window.addEventListener("popstate", onChange);
+    return () => window.removeEventListener("popstate", onChange);
+  }
+  function useLocationSearch() {
+    const search = useSyncExternalStore(
+      subscribeToLocation,
+      () => window.location.search,
+      () => ""
+    );
+    return useMemo(() => new URLSearchParams(search), [search]);
+  }
+  function setResumeParam(id) {
+    const next = new URLSearchParams(window.location.search);
+    if (id) next.set("resume", id);
+    else next.delete("resume");
+    const qs = next.toString();
+    const url = `${HERMES_BASE_PATH}/chat${qs ? `?${qs}` : ""}`;
+    window.history.pushState(null, "", url);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
+
+  // src/shared/ListItem.tsx
+  var ListItem = forwardRef(
+    function ListItem2({ active = false, children, className, type = "button", ...props }, ref) {
+      return /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: cn(
+            "group relative flex w-full items-center gap-2 px-3 py-2 text-left",
+            "font-courier text-sm transition-colors cursor-pointer",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground/30",
+            "disabled:cursor-not-allowed disabled:text-text-disabled",
+            active ? "bg-midground/10 text-midground" : "text-text-secondary hover:text-midground hover:bg-midground/5",
+            className
+          ),
+          "data-active": active || void 0,
+          ref,
+          type,
+          ...props,
+          children
+        }
+      );
+    }
+  );
+
+  // src/ChatSessionList.tsx
+  var SESSION_LIMIT = 30;
+  var FAVORITES_KEY_PREFIX = "hermes.bubblechat.favorites.";
+  function readFavorites(scope) {
+    try {
+      const raw = localStorage.getItem(FAVORITES_KEY_PREFIX + scope);
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set(
+        Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : []
+      );
+    } catch {
+      return /* @__PURE__ */ new Set();
+    }
+  }
+  function writeFavorites(scope, favs) {
+    try {
+      localStorage.setItem(FAVORITES_KEY_PREFIX + scope, JSON.stringify([...favs]));
+    } catch {
+    }
+  }
+  function rowLabel(session, untitled) {
+    const title = session.title?.trim();
+    if (title && title !== "Untitled") return title;
+    const preview = session.preview?.trim();
+    if (preview) return preview;
+    return untitled;
+  }
+  var SOURCE_BADGES = {
+    pet: "\u{1F43E}",
+    tui: "\u2328\uFE0F",
+    qqbot: "\u{1F427}",
+    cron: "\u23F0"
+  };
+  function sourceBadge(source) {
+    if (!source || source === "dashboard") return null;
+    return SOURCE_BADGES[source] ?? null;
+  }
+  function ChatSessionListImpl({
+    activeSessionId,
+    profile,
+    className,
+    onPicked,
+    onPickSession,
+    onNewChat,
+    manageable = false,
+    onSessionDeleted,
+    onCollapse
+  }) {
+    const { t } = useI18n();
+    const [sessions, setSessions] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [reloadNonce, setReloadNonce] = useState(0);
+    const [query, setQuery] = useState("");
+    const [searchResults, setSearchResults] = useState(null);
+    const [searching, setSearching] = useState(false);
+    const [renamingId, setRenamingId] = useState(null);
+    const [renameValue, setRenameValue] = useState("");
+    const [renameSaving, setRenameSaving] = useState(false);
+    const [actionError, setActionError] = useState(null);
+    const [selectMode, setSelectMode] = useState(false);
+    const [selected, setSelected] = useState(/* @__PURE__ */ new Set());
+    const [bulkBusy, setBulkBusy] = useState(false);
+    const [showCron, setShowCron] = useState(false);
+    const scopeKey = profile ?? "";
+    const [favorites, setFavorites] = useState(
+      () => manageable ? readFavorites(scopeKey) : /* @__PURE__ */ new Set()
+    );
+    useEffect(() => {
+      setFavorites(manageable ? readFavorites(scopeKey) : /* @__PURE__ */ new Set());
+    }, [manageable, scopeKey]);
+    const toggleFavorite = useCallback(
+      (id) => {
+        setFavorites((prev) => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          writeFavorites(scopeKey, next);
+          return next;
+        });
+      },
+      [scopeKey]
+    );
+    const unstarMany = useCallback(
+      (ids) => {
+        setFavorites((prev) => {
+          const next = new Set(prev);
+          let changed = false;
+          for (const id of ids) {
+            if (next.delete(id)) changed = true;
+          }
+          if (changed) writeFavorites(scopeKey, next);
+          return changed ? next : prev;
+        });
+      },
+      [scopeKey]
+    );
+    const reqRef = useRef(0);
+    const load = useCallback(() => {
+      const myReq = ++reqRef.current;
+      setLoading(true);
+      setError(null);
+      api.getSessions(
+        SESSION_LIMIT,
+        0,
+        scopeKey,
+        "recent",
+        manageable ? showCron ? { source: "cron" } : { excludeSources: "cron" } : void 0
+      ).then((res) => {
+        if (reqRef.current !== myReq) return;
+        setSessions(res.sessions);
+      }).catch((e) => {
+        if (reqRef.current !== myReq) return;
+        setError(e.message || "failed to load sessions");
+      }).finally(() => {
+        if (reqRef.current === myReq) setLoading(false);
+      });
+    }, [scopeKey, manageable, showCron]);
+    useEffect(() => {
+      load();
+    }, [load, reloadNonce]);
+    const reload = useCallback(() => setReloadNonce((n) => n + 1), []);
+    const searchReqRef = useRef(0);
+    useEffect(() => {
+      if (!manageable) return;
+      const q = query.trim();
+      if (!q) {
+        setSearchResults(null);
+        setSearching(false);
+        return;
+      }
+      setSearching(true);
+      const myReq = ++searchReqRef.current;
+      const timer = setTimeout(() => {
+        api.searchSessions(q, scopeKey).then((res) => {
+          if (searchReqRef.current === myReq) setSearchResults(res.results);
+        }).catch(() => {
+          if (searchReqRef.current === myReq) setSearchResults([]);
+        }).finally(() => {
+          if (searchReqRef.current === myReq) setSearching(false);
+        });
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [query, manageable, scopeKey]);
+    const submitRename = useCallback(
+      async (s) => {
+        const value = renameValue.trim();
+        setRenamingId(null);
+        if (!value || value === (s.title ?? "").trim()) return;
+        setRenameSaving(true);
+        setActionError(null);
+        try {
+          await api.renameSession(s.id, value, scopeKey);
+          setSessions(
+            (prev) => prev?.map((it) => it.id === s.id ? { ...it, title: value } : it) ?? prev
+          );
+        } catch (e) {
+          setActionError(e instanceof Error ? e.message : "\u91CD\u547D\u540D\u5931\u8D25");
+        } finally {
+          setRenameSaving(false);
+        }
+      },
+      [renameValue, scopeKey]
+    );
+    const removeSession = useCallback(
+      async (s) => {
+        const label = rowLabel(s, t.sessions.untitledSession);
+        if (!window.confirm(
+          `${t.sessions.confirmDeleteTitle}
+${label}
+${t.sessions.confirmDeleteMessage}`
+        )) {
+          return;
+        }
+        setActionError(null);
+        try {
+          await api.deleteSession(s.id, scopeKey);
+          setSessions((prev) => prev?.filter((it) => it.id !== s.id) ?? prev);
+          unstarMany([s.id]);
+          onSessionDeleted?.(s.id);
+        } catch (e) {
+          setActionError(
+            e instanceof Error ? e.message : t.sessions.failedToDelete
+          );
+        }
+      },
+      [onSessionDeleted, scopeKey, t, unstarMany]
+    );
+    const exitSelectMode = useCallback(() => {
+      setSelectMode(false);
+      setSelected(/* @__PURE__ */ new Set());
+    }, []);
+    const toggleSelect = useCallback((id) => {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+    }, []);
+    const allSelected = sessions != null && sessions.length > 0 && sessions.every((s) => selected.has(s.id));
+    const toggleAll = useCallback(() => {
+      setSelected((prev) => {
+        const list = sessions ?? [];
+        if (list.length > 0 && list.every((s) => prev.has(s.id))) return /* @__PURE__ */ new Set();
+        return new Set(list.map((s) => s.id));
+      });
+    }, [sessions]);
+    const bulkDelete = useCallback(async () => {
+      const ids = [...selected];
+      if (ids.length === 0 || bulkBusy) return;
+      if (!window.confirm(
+        `\u786E\u5B9A\u5220\u9664\u9009\u4E2D\u7684 ${ids.length} \u4E2A\u4F1A\u8BDD\uFF1F
+\u6B64\u64CD\u4F5C\u4E0D\u53EF\u6062\u590D\u3002`
+      )) {
+        return;
+      }
+      setBulkBusy(true);
+      setActionError(null);
+      try {
+        await api.bulkDeleteSessions(ids, scopeKey);
+        setSessions(
+          (prev) => prev?.filter((it) => !selected.has(it.id)) ?? prev
+        );
+        unstarMany(ids);
+        ids.forEach((id) => onSessionDeleted?.(id));
+        exitSelectMode();
+        reload();
+      } catch (e) {
+        setActionError(e instanceof Error ? e.message : "\u6279\u91CF\u5220\u9664\u5931\u8D25");
+      } finally {
+        setBulkBusy(false);
+      }
+    }, [selected, bulkBusy, scopeKey, onSessionDeleted, exitSelectMode, reload, unstarMany]);
+    const pick = useCallback(
+      (id) => {
+        onPicked?.();
+        if (id === activeSessionId) return;
+        onPickSession?.(id);
+        setResumeParam(id);
+      },
+      [activeSessionId, onPicked, onPickSession]
+    );
+    const startNew = useCallback(() => {
+      onPicked?.();
+      if (onNewChat) {
+        onNewChat();
+        return;
+      }
+      setResumeParam(null);
+    }, [onNewChat, onPicked]);
+    const sortedSessions = useMemo(() => {
+      if (!sessions) return sessions;
+      return [...sessions].sort(
+        (a, b) => Number(favorites.has(b.id)) - Number(favorites.has(a.id))
+      );
+    }, [sessions, favorites]);
+    const visibleSearchResults = useMemo(() => {
+      if (!manageable || !searchResults) return searchResults;
+      return searchResults.filter(
+        (r) => showCron ? r.source === "cron" : r.source !== "cron"
+      );
+    }, [manageable, searchResults, showCron]);
+    const content = useMemo(() => {
+      if (manageable && query.trim()) {
+        if (searching && visibleSearchResults === null) {
+          return /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-2 px-2 py-6 text-xs text-text-secondary", children: [
+            /* @__PURE__ */ jsx(Spinner, {}),
+            " ",
+            t.common.loading
+          ] });
+        }
+        if (!visibleSearchResults || visibleSearchResults.length === 0) {
+          return /* @__PURE__ */ jsx("div", { className: "px-2 py-6 text-center text-xs text-text-secondary", children: t.sessions.noMatch });
+        }
+        return /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-0.5", children: visibleSearchResults.map((r, i) => /* @__PURE__ */ jsxs(
+          ListItem,
+          {
+            onClick: () => pick(r.session_id),
+            "aria-current": r.session_id === activeSessionId ? "true" : void 0,
+            className: cn(
+              "flex-col items-start gap-0.5 rounded px-2 py-1.5",
+              "normal-case tracking-normal",
+              r.session_id === activeSessionId ? "bg-primary/10 text-foreground border-l-2 border-primary" : "text-text-secondary hover:bg-midground/5 hover:text-foreground"
+            ),
+            children: [
+              /* @__PURE__ */ jsx("span", { className: "w-full truncate text-sm font-medium", children: r.snippet.replace(/\s+/g, " ").trim() || r.session_id }),
+              /* @__PURE__ */ jsxs("span", { className: "flex w-full items-center gap-1.5 text-[0.6875rem] text-text-tertiary", children: [
+                r.session_started != null && /* @__PURE__ */ jsx("span", { children: timeAgo(r.session_started) }),
+                r.source && /* @__PURE__ */ jsxs(Fragment2, { children: [
+                  /* @__PURE__ */ jsx("span", { "aria-hidden": true, children: "\xB7" }),
+                  /* @__PURE__ */ jsx("span", { className: "truncate", children: r.source })
+                ] })
+              ] })
+            ]
+          },
+          `${r.session_id}-${i}`
+        )) });
+      }
+      if (loading && sessions === null) {
+        return /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-2 px-2 py-6 text-xs text-text-secondary", children: [
+          /* @__PURE__ */ jsx(Spinner, {}),
+          " ",
+          t.common.loading
+        ] });
+      }
+      if (error) {
+        return /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-start gap-2 px-2 py-4 text-xs", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-2 text-destructive", children: [
+            /* @__PURE__ */ jsx(CircleAlert, { className: "mt-0.5 h-3.5 w-3.5 shrink-0" }),
+            /* @__PURE__ */ jsx("span", { className: "wrap-break-word", children: error })
+          ] }),
+          /* @__PURE__ */ jsx(Button, { size: "sm", outlined: true, onClick: reload, prefix: /* @__PURE__ */ jsx(RefreshCw, {}), children: t.common.retry })
+        ] });
+      }
+      if (!sessions || sessions.length === 0) {
+        return /* @__PURE__ */ jsx("div", { className: "px-2 py-6 text-center text-xs text-text-secondary", children: t.sessions.noSessions });
+      }
+      return /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-0.5", children: (sortedSessions ?? []).map((s) => {
+        const isActive = s.id === activeSessionId;
+        const isFav = favorites.has(s.id);
+        return /* @__PURE__ */ jsxs(
+          ListItem,
+          {
+            onClick: () => selectMode ? toggleSelect(s.id) : pick(s.id),
+            "aria-current": isActive ? "true" : void 0,
+            className: cn(
+              "group flex-col items-start gap-0.5 rounded px-2 py-1.5",
+              "normal-case tracking-normal",
+              isActive ? "bg-primary/10 text-foreground border-l-2 border-primary" : "text-text-secondary hover:bg-midground/5 hover:text-foreground"
+            ),
+            children: [
+              manageable && renamingId === s.id ? /* @__PURE__ */ jsx(
+                "input",
+                {
+                  autoFocus: true,
+                  value: renameValue,
+                  disabled: renameSaving,
+                  "aria-label": "\u91CD\u547D\u540D",
+                  onClick: (e) => e.stopPropagation(),
+                  onChange: (e) => setRenameValue(e.target.value),
+                  onKeyDown: (e) => {
+                    e.stopPropagation();
+                    if (e.key === "Enter") void submitRename(s);
+                    if (e.key === "Escape") setRenamingId(null);
+                  },
+                  onBlur: () => setRenamingId(null),
+                  className: "w-full rounded border border-current/20 bg-background-base px-1.5 py-0.5 text-sm focus:outline-none"
+                }
+              ) : /* @__PURE__ */ jsxs("span", { className: "flex w-full items-center gap-1.5", children: [
+                manageable && selectMode && /* @__PURE__ */ jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: selected.has(s.id),
+                    onChange: () => toggleSelect(s.id),
+                    onClick: (e) => e.stopPropagation(),
+                    "aria-label": `\u9009\u62E9 ${rowLabel(s, t.sessions.untitledSession)}`,
+                    className: "h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
+                  }
+                ),
+                /* @__PURE__ */ jsxs("span", { className: "min-w-0 flex-1 truncate text-sm font-medium", children: [
+                  manageable && isFav && /* @__PURE__ */ jsx(
+                    Star,
+                    {
+                      "aria-hidden": true,
+                      className: "mr-1 inline h-3 w-3 fill-warning align-[-0.1em] text-warning"
+                    }
+                  ),
+                  sourceBadge(s.source) && /* @__PURE__ */ jsx("span", { className: "mr-1", title: `\u6765\u6E90\uFF1A${s.source}`, children: sourceBadge(s.source) }),
+                  rowLabel(s, t.sessions.untitledSession)
+                ] }),
+                manageable && !selectMode && /* @__PURE__ */ jsxs(
+                  "span",
+                  {
+                    className: cn(
+                      "flex shrink-0 items-center gap-0.5",
+                      "opacity-0 transition-opacity group-hover:opacity-100",
+                      "focus-within:opacity-100"
+                    ),
+                    children: [
+                      /* @__PURE__ */ jsx(
+                        "button",
+                        {
+                          type: "button",
+                          "aria-label": isFav ? "\u53D6\u6D88\u6536\u85CF" : "\u6536\u85CF",
+                          title: isFav ? "\u53D6\u6D88\u6536\u85CF" : "\u6536\u85CF",
+                          className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-warning",
+                          onClick: (e) => {
+                            e.stopPropagation();
+                            toggleFavorite(s.id);
+                          },
+                          children: /* @__PURE__ */ jsx(
+                            Star,
+                            {
+                              className: cn(
+                                "h-3.5 w-3.5",
+                                isFav && "fill-warning text-warning"
+                              )
+                            }
+                          )
+                        }
+                      ),
+                      /* @__PURE__ */ jsx(
+                        "button",
+                        {
+                          type: "button",
+                          "aria-label": "\u91CD\u547D\u540D",
+                          title: "\u91CD\u547D\u540D",
+                          className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-midground/10 hover:text-foreground",
+                          onClick: (e) => {
+                            e.stopPropagation();
+                            setRenameValue(s.title?.trim() || "");
+                            setRenamingId(s.id);
+                          },
+                          children: /* @__PURE__ */ jsx(Pencil, { className: "h-3.5 w-3.5" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsx(
+                        "button",
+                        {
+                          type: "button",
+                          "aria-label": t.common.delete,
+                          title: t.common.delete,
+                          className: "cursor-pointer rounded p-1 text-text-tertiary hover:bg-destructive/10 hover:text-destructive",
+                          onClick: (e) => {
+                            e.stopPropagation();
+                            void removeSession(s);
+                          },
+                          children: /* @__PURE__ */ jsx(Trash2, { className: "h-3.5 w-3.5" })
+                        }
+                      )
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxs("span", { className: "flex w-full items-center gap-1.5 text-[0.6875rem] text-text-tertiary", children: [
+                /* @__PURE__ */ jsx("span", { children: timeAgo(s.last_active) }),
+                s.message_count > 0 && /* @__PURE__ */ jsxs(Fragment2, { children: [
+                  /* @__PURE__ */ jsx("span", { "aria-hidden": true, children: "\xB7" }),
+                  /* @__PURE__ */ jsxs("span", { children: [
+                    s.message_count,
+                    " msgs"
+                  ] })
+                ] }),
+                s.source && s.source !== "cli" && /* @__PURE__ */ jsxs(Fragment2, { children: [
+                  /* @__PURE__ */ jsx("span", { "aria-hidden": true, children: "\xB7" }),
+                  /* @__PURE__ */ jsx("span", { className: "truncate", children: s.source })
+                ] })
+              ] })
+            ]
+          },
+          s.id
+        );
+      }) });
+    }, [
+      activeSessionId,
+      error,
+      favorites,
+      loading,
+      manageable,
+      pick,
+      query,
+      reload,
+      renameSaving,
+      renameValue,
+      renamingId,
+      removeSession,
+      searchResults,
+      searching,
+      selectMode,
+      selected,
+      sessions,
+      sortedSessions,
+      submitRename,
+      t,
+      toggleFavorite,
+      toggleSelect,
+      visibleSearchResults
+    ]);
+    return /* @__PURE__ */ jsxs(
+      "aside",
+      {
+        className: cn(
+          "flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden",
+          className
+        ),
+        children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 px-2 pb-2", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-display text-xs tracking-wider text-text-tertiary", children: t.sessions.title }),
+            /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-0.5", children: [
+              manageable && !selectMode && sessions != null && sessions.length > 0 && /* @__PURE__ */ jsx(
+                Button,
+                {
+                  ghost: true,
+                  size: "icon",
+                  onClick: () => setSelectMode(true),
+                  "aria-label": "\u591A\u9009",
+                  title: "\u591A\u9009",
+                  className: "text-text-secondary hover:text-foreground",
+                  children: /* @__PURE__ */ jsx(ListChecks, {})
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                Button,
+                {
+                  ghost: true,
+                  size: "icon",
+                  onClick: reload,
+                  "aria-label": t.common.refresh,
+                  title: t.common.refresh,
+                  className: "text-text-secondary hover:text-foreground",
+                  children: /* @__PURE__ */ jsx(RefreshCw, { className: cn(loading && "animate-spin") })
+                }
+              ),
+              onCollapse && /* @__PURE__ */ jsx(
+                Button,
+                {
+                  ghost: true,
+                  size: "icon",
+                  onClick: onCollapse,
+                  "aria-label": "\u6298\u53E0\u4F1A\u8BDD\u5217\u8868",
+                  title: "\u6298\u53E0\u4F1A\u8BDD\u5217\u8868",
+                  className: "text-text-secondary hover:text-foreground",
+                  children: /* @__PURE__ */ jsx(PanelLeftClose, {})
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              outlined: true,
+              size: "sm",
+              onClick: startNew,
+              prefix: /* @__PURE__ */ jsx(MessageSquarePlus, {}),
+              className: "mx-2 mb-2 justify-center",
+              children: t.sessions.newChat
+            }
+          ),
+          manageable && /* @__PURE__ */ jsx(
+            "div",
+            {
+              role: "tablist",
+              "aria-label": "\u4F1A\u8BDD\u7C7B\u578B",
+              className: "mx-2 mb-2 flex rounded-lg border border-current/15 text-xs",
+              children: [
+                { key: false, label: "\u5BF9\u8BDD", icon: MessageSquare },
+                { key: true, label: "\u5B9A\u65F6", icon: Timer }
+              ].map(({ key, label, icon: Icon2 }) => /* @__PURE__ */ jsxs(
+                "button",
+                {
+                  type: "button",
+                  role: "tab",
+                  "aria-selected": showCron === key,
+                  onClick: () => {
+                    if (showCron === key) return;
+                    exitSelectMode();
+                    setShowCron(key);
+                  },
+                  className: cn(
+                    "flex flex-1 cursor-pointer items-center justify-center gap-1 py-1.5",
+                    "first:rounded-l-[0.45rem] last:rounded-r-[0.45rem]",
+                    showCron === key ? "bg-primary/10 text-foreground" : "text-text-secondary hover:bg-midground/5 hover:text-foreground"
+                  ),
+                  children: [
+                    /* @__PURE__ */ jsx(Icon2, { className: "h-3.5 w-3.5" }),
+                    label
+                  ]
+                },
+                label
+              ))
+            }
+          ),
+          manageable && /* @__PURE__ */ jsx("div", { className: "px-2 pb-2", children: /* @__PURE__ */ jsx(
+            "input",
+            {
+              value: query,
+              onChange: (e) => setQuery(e.target.value),
+              placeholder: t.sessions.searchPlaceholder,
+              "aria-label": t.common.search,
+              className: cn(
+                "w-full rounded-lg border border-current/15 bg-background-base",
+                "px-2.5 py-1.5 text-sm placeholder:text-text-tertiary",
+                "focus:border-current/30 focus:outline-none"
+              )
+            }
+          ) }),
+          manageable && selectMode && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1.5 px-2 pb-2 text-xs", children: [
+            /* @__PURE__ */ jsxs("label", { className: "flex cursor-pointer items-center gap-1 text-text-secondary hover:text-foreground", children: [
+              /* @__PURE__ */ jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: allSelected,
+                  onChange: toggleAll,
+                  "aria-label": "\u5168\u9009",
+                  className: "h-3.5 w-3.5 cursor-pointer accent-primary"
+                }
+              ),
+              "\u5168\u9009"
+            ] }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                disabled: selected.size === 0 || bulkBusy,
+                onClick: () => void bulkDelete(),
+                className: cn(
+                  "cursor-pointer rounded px-1.5 py-0.5 text-destructive",
+                  "hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
+                ),
+                children: bulkBusy ? "\u5220\u9664\u4E2D\u2026" : `\u5220\u9664\u6240\u9009\uFF08${selected.size}\uFF09`
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: exitSelectMode,
+                className: "ml-auto cursor-pointer rounded px-1.5 py-0.5 text-text-secondary hover:bg-midground/10 hover:text-foreground",
+                children: "\u53D6\u6D88"
+              }
+            )
+          ] }),
+          actionError && /* @__PURE__ */ jsx("div", { className: "mx-2 mb-2 rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive wrap-break-word", children: actionError }),
+          /* @__PURE__ */ jsx("div", { className: "min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1 pb-1", children: content })
+        ]
+      }
+    );
+  }
+  var ChatSessionList = memo(ChatSessionListImpl);
+
   // ../../../apps/shared/src/json-rpc-gateway.ts
   var ANY = "*";
   var DEFAULT_REQUEST_TIMEOUT_MS = 12e4;
@@ -4447,6 +4558,65 @@ ${t.sessions.confirmDeleteMessage}`
     /** tool_call_id → rendered tool-card message id. */
     toolCards = /* @__PURE__ */ new Map();
     /* ---------------------------------------------------------------- */
+    /*  Role context (sidebar two-level role UI)                         */
+    /* ---------------------------------------------------------------- */
+    /** Role the NEXT new chat is created under (a profile id; "" = default).
+     *  Staged by the role view's 新建小对话 button, read by the create branch
+     *  of the session lifecycle. Creation-time only — never applied to a
+     *  live/resumed session (prompt caching is sacred). */
+    newChatRole = "";
+    /** Optional per-chat model pick from the role view's dropdown, with the
+     *  provider slug resolved from the model.options payload (sending model
+     *  without its provider makes the gateway resolve the model against the
+     *  profile's DEFAULT provider → "API 没有找到" for foreign model ids). */
+    newChatModel = "";
+    newChatProvider = "";
+    /** Role that owns the session being RESUMED ("" = default/management).
+     *  Set when the user picks a row inside a role view; role sessions live
+     *  in their own profile's state.db, so resume must bind that profile. */
+    resumeRole = "";
+    /** 新建小对话 (role view): stage the creation context and force the
+     *  attach effect to spawn a fresh session. The page clears ?resume. */
+    startNewChatInRole = (role, model = "", provider = "") => {
+      this.newChatRole = role;
+      this.newChatModel = model;
+      this.newChatProvider = provider;
+      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
+    };
+    /** A plain fresh chat keeps the last staged role context (the role view
+     *  the user is standing in) — same as picking 新建小对话 without
+     *  touching the model dropdown. */
+    bumpNewChatNonce = () => {
+      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
+    };
+    /** Session picked inside a role view: bind that role for the resume. */
+    bindResumeRole = (role) => {
+      this.resumeRole = role;
+    };
+    /** model.options RPC for the role view's model dropdown; null when the
+     *  socket isn't open or the call fails (dropdown degrades to 默认 only).
+     *  Cached for the page's lifetime — the catalog is disk-cached server
+     *  side, and a failed fetch is not cached so the next open retries. */
+    modelOptionsPromise = null;
+    getModelOptions = () => {
+      if (!this.modelOptionsPromise) {
+        this.modelOptionsPromise = this.fetchModelOptions().catch(() => {
+          this.modelOptionsPromise = null;
+          return null;
+        });
+      }
+      return this.modelOptionsPromise;
+    };
+    fetchModelOptions = async () => {
+      const gw = this.gw;
+      if (!gw || this.state.connState !== "open") return null;
+      try {
+        return await gw.request("model.options", {});
+      } catch {
+        return null;
+      }
+    };
+    /* ---------------------------------------------------------------- */
     /*  Subscription (useSyncExternalStore contract)                     */
     /* ---------------------------------------------------------------- */
     subscribe = (fn) => {
@@ -4566,7 +4736,6 @@ ${t.sessions.confirmDeleteMessage}`
       if (!gw) return;
       const myReq = ++this.sessionReq;
       const isCurrent = () => this.sessionReq === myReq;
-      const profileParam = spec.profile ? { profile: spec.profile } : {};
       this.liveSid = null;
       this.streamingMsgId = null;
       this.toolCards.clear();
@@ -4580,38 +4749,16 @@ ${t.sessions.confirmDeleteMessage}`
         messages: []
       });
       if (spec.resume) {
-        this.emit({ loadingHistory: true });
-        const resumeId = spec.resume;
-        Promise.all([
-          api.getSessionMessages(resumeId, spec.profile),
-          gw.request("session.resume", {
-            session_id: resumeId,
-            ...profileParam
-          })
-        ]).then(([hist, resumed]) => {
-          if (!isCurrent()) return;
-          this.liveSid = resumed.session_id;
-          this.emit({
-            messages: mergeToolCards(
-              hist.messages.flatMap(historyToChatMessages)
-            ),
-            // Hydrate the todo panel from the latest todo tool row (stored
-            // results carry the full list as JSON).
-            todos: latestTodosFromHistory(hist.messages) ?? [],
-            // A session resumed mid-turn keeps its busy indicator.
-            generating: resumed.running === true,
-            sessionReady: true
-          });
-        }).catch((e) => {
-          if (!isCurrent()) return;
-          this.emit({ error: e.message || "\u4F1A\u8BDD\u6062\u590D\u5931\u8D25" });
-        }).finally(() => {
-          if (isCurrent()) this.emit({ loadingHistory: false });
-        });
+        void this.runResumeLifecycle(gw, spec, spec.resume, isCurrent);
       } else {
+        const createProfile = spec.profile || this.newChatRole;
         gw.request("session.create", {
           source: "dashboard",
-          ...profileParam
+          ...createProfile ? { profile: createProfile } : {},
+          ...this.newChatModel ? {
+            model: this.newChatModel,
+            ...this.newChatProvider ? { provider: this.newChatProvider } : {}
+          } : {}
         }).then((res) => {
           if (!isCurrent()) return;
           this.liveSid = res.session_id;
@@ -4622,11 +4769,58 @@ ${t.sessions.confirmDeleteMessage}`
         });
       }
     }
-    /** 新对话：bump the nonce; the page clears ?resume and the attach effect
-     *  re-runs with a fresh key. */
-    bumpNewChatNonce = () => {
-      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
-    };
+    /** History REST load + live session.resume, binding the owning profile.
+     *  Role sessions live in their own profile's state.db, so a resume that
+     *  binds the wrong profile comes back "session not found" — look up the
+     *  owner via the plugin backend and retry once (also covers a page
+     *  reload, where the in-memory role binding is gone). */
+    async runResumeLifecycle(gw, spec, resumeId, isCurrent) {
+      this.emit({ loadingHistory: true });
+      const attempt = async (profile) => {
+        const [hist, resumed] = await Promise.all([
+          api.getSessionMessages(resumeId, profile),
+          gw.request("session.resume", {
+            session_id: resumeId,
+            ...profile ? { profile } : {}
+          })
+        ]);
+        return { hist, resumed, profile };
+      };
+      try {
+        let result;
+        const firstProfile = this.resumeRole || spec.profile;
+        try {
+          result = await attempt(firstProfile);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (!/session not found/i.test(msg)) throw e;
+          const owner = await lookupSessionProfile(resumeId);
+          const ownerProfile = owner === "default" ? "" : owner ?? "";
+          if (!owner || ownerProfile === firstProfile) throw e;
+          result = await attempt(ownerProfile);
+        }
+        if (!isCurrent()) return;
+        this.resumeRole = result.profile;
+        this.liveSid = result.resumed.session_id;
+        this.emit({
+          messages: mergeToolCards(
+            result.hist.messages.flatMap(historyToChatMessages)
+          ),
+          // Hydrate the todo panel from the latest todo tool row (stored
+          // results carry the full list as JSON).
+          todos: latestTodosFromHistory(result.hist.messages) ?? [],
+          // A session resumed mid-turn keeps its busy indicator.
+          generating: result.resumed.running === true,
+          sessionReady: true
+        });
+      } catch (e) {
+        if (!isCurrent()) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        this.emit({ error: msg || "\u4F1A\u8BDD\u6062\u590D\u5931\u8D25" });
+      } finally {
+        if (isCurrent()) this.emit({ loadingHistory: false });
+      }
+    }
     /* ---------------------------------------------------------------- */
     /*  Gateway event handling                                           */
     /* ---------------------------------------------------------------- */
@@ -5019,6 +5213,721 @@ ${body}` : body);
   };
   var bubbleChatStore = new BubbleChatStore();
 
+  // src/RoleSidebar.tsx
+  var persistedOpenRole = null;
+  var EMPTY_DRAFT = {
+    name: "",
+    display_name: "",
+    description: "",
+    prompt: ""
+  };
+  function RoleListView({
+    roles,
+    loading,
+    error,
+    onReload,
+    onOpen,
+    onCreated,
+    onCollapse
+  }) {
+    const [formOpen, setFormOpen] = useState(false);
+    const [draft, setDraft] = useState(EMPTY_DRAFT);
+    const [saving, setSaving] = useState(false);
+    const [formError, setFormError] = useState(null);
+    const submit = useCallback(async () => {
+      const name = draft.name.trim();
+      if (!name) {
+        setFormError("\u8BF7\u586B\u5199\u89D2\u8272\u6807\u8BC6\uFF08\u5C0F\u5199\u5B57\u6BCD/\u6570\u5B57/-/_)");
+        return;
+      }
+      setSaving(true);
+      setFormError(null);
+      try {
+        const role = await createRole({
+          name,
+          display_name: draft.display_name.trim(),
+          description: draft.description.trim(),
+          prompt: draft.prompt.trim()
+        });
+        setFormOpen(false);
+        setDraft(EMPTY_DRAFT);
+        onCreated(role.name);
+      } catch (e) {
+        setFormError(e instanceof Error ? e.message : "\u521B\u5EFA\u5931\u8D25");
+      } finally {
+        setSaving(false);
+      }
+    }, [draft, onCreated]);
+    const field = "w-full rounded-lg border border-current/15 bg-background-base px-2.5 py-1.5 text-sm placeholder:text-text-tertiary focus:border-current/30 focus:outline-none";
+    return /* @__PURE__ */ jsxs(Fragment2, { children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 px-2 pb-2", children: [
+        /* @__PURE__ */ jsx("span", { className: "text-display text-xs tracking-wider text-text-tertiary", children: "\u89D2\u8272" }),
+        /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-0.5", children: [
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              ghost: true,
+              size: "icon",
+              onClick: onReload,
+              "aria-label": "\u5237\u65B0",
+              title: "\u5237\u65B0",
+              className: "text-text-secondary hover:text-foreground",
+              children: /* @__PURE__ */ jsx(RefreshCw, { className: cn(loading && "animate-spin") })
+            }
+          ),
+          onCollapse && /* @__PURE__ */ jsx(
+            Button,
+            {
+              ghost: true,
+              size: "icon",
+              onClick: onCollapse,
+              "aria-label": "\u6298\u53E0\u4F1A\u8BDD\u5217\u8868",
+              title: "\u6298\u53E0\u4F1A\u8BDD\u5217\u8868",
+              className: "text-text-secondary hover:text-foreground",
+              children: /* @__PURE__ */ jsx(X, {})
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx(
+        Button,
+        {
+          outlined: true,
+          size: "sm",
+          onClick: () => {
+            setFormError(null);
+            setFormOpen((v) => !v);
+          },
+          prefix: /* @__PURE__ */ jsx(Plus, {}),
+          className: "mx-2 mb-2 justify-center",
+          children: "\u65B0\u5EFA\u89D2\u8272"
+        }
+      ),
+      formOpen && /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 flex flex-col gap-1.5 rounded-lg border border-current/10 p-2.5", children: [
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            value: draft.name,
+            onChange: (e) => setDraft({ ...draft, name: e.target.value }),
+            placeholder: "\u6807\u8BC6\uFF08\u5982 writer\uFF0C\u5C0F\u5199\u5B57\u6BCD/\u6570\u5B57/-/_\uFF09",
+            "aria-label": "\u89D2\u8272\u6807\u8BC6",
+            className: field
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            value: draft.display_name,
+            onChange: (e) => setDraft({ ...draft, display_name: e.target.value }),
+            placeholder: "\u663E\u793A\u540D\uFF08\u5982 \u5199\u4F5C\u52A9\u624B\uFF0C\u7559\u7A7A\u7528\u6807\u8BC6\uFF09",
+            "aria-label": "\u663E\u793A\u540D",
+            className: field
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            value: draft.description,
+            onChange: (e) => setDraft({ ...draft, description: e.target.value }),
+            placeholder: "\u4E00\u53E5\u8BDD\u63CF\u8FF0\uFF08\u53EF\u9009\uFF09",
+            "aria-label": "\u63CF\u8FF0",
+            className: field
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "textarea",
+          {
+            value: draft.prompt,
+            onChange: (e) => setDraft({ ...draft, prompt: e.target.value }),
+            placeholder: "\u63D0\u793A\u8BCD\uFF08\u5199\u5165 ROLE.md\uFF0C\u6CE8\u5165\u8BE5\u89D2\u8272\u7684\u7CFB\u7EDF\u63D0\u793A\uFF09",
+            "aria-label": "\u63D0\u793A\u8BCD",
+            rows: 4,
+            className: cn(field, "resize-y")
+          }
+        ),
+        formError && /* @__PURE__ */ jsx("div", { className: "rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: formError }),
+        /* @__PURE__ */ jsxs("div", { className: "flex justify-end gap-1.5", children: [
+          /* @__PURE__ */ jsx(Button, { ghost: true, size: "sm", onClick: () => setFormOpen(false), children: "\u53D6\u6D88" }),
+          /* @__PURE__ */ jsx(Button, { size: "sm", disabled: saving, onClick: () => void submit(), children: saving ? "\u521B\u5EFA\u4E2D\u2026" : "\u521B\u5EFA" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1 pb-1", children: loading && roles === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-2 px-2 py-6 text-xs text-text-secondary", children: [
+        /* @__PURE__ */ jsx(Spinner, {}),
+        " \u52A0\u8F7D\u89D2\u8272\u2026"
+      ] }) : error ? /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-start gap-2 px-2 py-4 text-xs", children: [
+        /* @__PURE__ */ jsx("span", { className: "text-destructive wrap-break-word", children: error }),
+        /* @__PURE__ */ jsx(Button, { size: "sm", outlined: true, onClick: onReload, prefix: /* @__PURE__ */ jsx(RefreshCw, {}), children: "\u91CD\u8BD5" })
+      ] }) : !roles || roles.length === 0 ? /* @__PURE__ */ jsx("div", { className: "px-2 py-6 text-center text-xs text-text-secondary", children: "\u8FD8\u6CA1\u6709\u89D2\u8272" }) : /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-0.5", children: roles.map((r) => /* @__PURE__ */ jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: () => onOpen(r.name),
+          className: cn(
+            "group flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left",
+            "text-text-secondary hover:bg-midground/5 hover:text-foreground"
+          ),
+          children: [
+            /* @__PURE__ */ jsx(Bot, { className: "h-4 w-4 shrink-0 text-text-tertiary group-hover:text-foreground" }),
+            /* @__PURE__ */ jsxs("span", { className: "min-w-0 flex-1", children: [
+              /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5 text-sm font-medium", children: [
+                /* @__PURE__ */ jsx("span", { className: "truncate", children: r.display_name }),
+                r.is_default && /* @__PURE__ */ jsx("span", { className: "shrink-0 rounded bg-primary/10 px-1 py-px text-[0.625rem] text-primary", children: r.is_base ? "\u5E95\u5EA7" : "\u9ED8\u8BA4" })
+              ] }),
+              r.description && /* @__PURE__ */ jsx("span", { className: "block truncate text-[0.6875rem] text-text-tertiary", children: r.description })
+            ] }),
+            r.skill_count > 0 && /* @__PURE__ */ jsxs("span", { className: "shrink-0 rounded bg-midground/10 px-1.5 py-0.5 text-[0.625rem] text-text-tertiary", children: [
+              r.skill_count,
+              " \u6280\u80FD"
+            ] }),
+            /* @__PURE__ */ jsx(ChevronRight, { className: "h-3.5 w-3.5 shrink-0 text-text-tertiary" })
+          ]
+        },
+        r.name
+      )) }) })
+    ] });
+  }
+  function providerForModel(payload, model) {
+    for (const p of payload?.providers ?? []) {
+      if ((p.models ?? []).includes(model)) return p.slug;
+    }
+    return "";
+  }
+  function BaseFilesSection() {
+    const [files, setFiles] = useState(null);
+    const [listError, setListError] = useState(null);
+    const [openName, setOpenName] = useState(null);
+    const [editor, setEditor] = useState(null);
+    const loadList = useCallback(() => {
+      setListError(null);
+      fetchBaseFiles().then(setFiles).catch((e) => setListError(e.message || "\u8BFB\u53D6\u5931\u8D25"));
+    }, []);
+    useEffect(() => {
+      loadList();
+    }, [loadList]);
+    const toggle = useCallback(
+      (name) => {
+        if (openName === name) {
+          setOpenName(null);
+          setEditor(null);
+          return;
+        }
+        setOpenName(name);
+        setEditor({ name, text: "", dirty: false, busy: true, error: null });
+        readBaseFile(name).then(
+          (res) => setEditor({ name, text: res.content, dirty: false, busy: false, error: null })
+        ).catch(
+          (e) => setEditor({
+            name,
+            text: "",
+            dirty: false,
+            busy: false,
+            error: e.message || "\u8BFB\u53D6\u5931\u8D25"
+          })
+        );
+      },
+      [openName]
+    );
+    const save = useCallback(async () => {
+      if (!editor) return;
+      setEditor({ ...editor, busy: true, error: null });
+      try {
+        await writeBaseFile(editor.name, editor.text);
+        setEditor({ ...editor, dirty: false, busy: false, error: null });
+        loadList();
+      } catch (e) {
+        setEditor({
+          ...editor,
+          busy: false,
+          error: e instanceof Error ? e.message : "\u4FDD\u5B58\u5931\u8D25"
+        });
+      }
+    }, [editor, loadList]);
+    return /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pb-1.5", children: [
+        /* @__PURE__ */ jsx("div", { className: "text-xs font-medium", children: "\u5E95\u5EA7\u6587\u4EF6" }),
+        /* @__PURE__ */ jsx("div", { className: "text-[0.625rem] text-text-tertiary", children: "\u8FD9\u4E9B\u6587\u4EF6\u5BF9\u6240\u6709\u89D2\u8272\u751F\u6548" })
+      ] }),
+      listError ? /* @__PURE__ */ jsx("div", { className: "rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: listError }) : !files ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+        /* @__PURE__ */ jsx(Spinner, {}),
+        " \u52A0\u8F7D\u5E95\u5EA7\u6587\u4EF6\u2026"
+      ] }) : /* @__PURE__ */ jsx("div", { className: "flex flex-col", children: files.map((f) => {
+        const open = openName === f.name;
+        return /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => toggle(f.name),
+              "aria-expanded": open,
+              className: "flex w-full cursor-pointer items-center gap-1.5 rounded px-1 py-1 text-xs text-text-secondary hover:text-foreground",
+              children: [
+                /* @__PURE__ */ jsx(
+                  ChevronDown,
+                  {
+                    className: cn(
+                      "h-3 w-3 shrink-0 transition-transform",
+                      !open && "-rotate-90"
+                    )
+                  }
+                ),
+                /* @__PURE__ */ jsx("span", { className: "font-mono", children: f.name }),
+                !f.exists && /* @__PURE__ */ jsx("span", { className: "rounded bg-midground/10 px-1 py-px text-[0.625rem] text-text-tertiary", children: "\u672A\u521B\u5EFA" })
+              ]
+            }
+          ),
+          open && editor && editor.name === f.name && /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-1.5 px-1 pb-1.5", children: [
+            editor.busy && !editor.text ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+              /* @__PURE__ */ jsx(Spinner, {}),
+              " \u8BFB\u53D6\u4E2D\u2026"
+            ] }) : /* @__PURE__ */ jsx(
+              "textarea",
+              {
+                value: editor.text,
+                onChange: (e) => setEditor({ ...editor, text: e.target.value, dirty: true }),
+                "aria-label": `\u7F16\u8F91 ${f.name}`,
+                rows: 8,
+                className: cn(
+                  "w-full resize-y rounded-lg border border-current/15 bg-background-base",
+                  "px-2 py-1.5 font-mono text-xs focus:border-current/30 focus:outline-none"
+                )
+              }
+            ),
+            editor.error && /* @__PURE__ */ jsx("div", { className: "rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: editor.error }),
+            /* @__PURE__ */ jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsx(
+              Button,
+              {
+                size: "sm",
+                disabled: editor.busy || !editor.dirty,
+                onClick: () => void save(),
+                children: editor.busy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+              }
+            ) })
+          ] })
+        ] }, f.name);
+      }) })
+    ] });
+  }
+  function RoleView({
+    role,
+    roles,
+    onBack,
+    onRolesChanged,
+    activeSessionId,
+    onPicked,
+    onSessionDeleted
+  }) {
+    const info = roles?.find((r) => r.name === role);
+    const displayName = info?.display_name ?? role;
+    const isDefault = role === "default";
+    const profileId = isDefault ? "" : role;
+    const [prompt, setPrompt] = useState(null);
+    const [promptBusy, setPromptBusy] = useState(false);
+    const [promptError, setPromptError] = useState(null);
+    const [skills, setSkills] = useState(null);
+    const [skillsText, setSkillsText] = useState(null);
+    const [skillsDirty, setSkillsDirty] = useState(false);
+    const [skillsBusy, setSkillsBusy] = useState(false);
+    const [skillsError, setSkillsError] = useState(null);
+    const [skillsUnmatched, setSkillsUnmatched] = useState([]);
+    const [refOpen, setRefOpen] = useState(false);
+    useEffect(() => {
+      let live = true;
+      setPrompt(null);
+      setPromptError(null);
+      setSkills(null);
+      setSkillsText(null);
+      setSkillsDirty(false);
+      setSkillsError(null);
+      setSkillsUnmatched([]);
+      fetchRolePrompt(role).then((res) => {
+        if (live) setPrompt({ text: res.content, dirty: false });
+      }).catch((e) => {
+        if (live) setPromptError(e.message || "\u8BFB\u53D6\u5931\u8D25");
+      });
+      fetchRoleSkills(role).then((payload) => {
+        if (!live) return;
+        setSkills(payload);
+        setSkillsText(payload.content ?? payload.enabled.join("\n"));
+        setSkillsUnmatched(payload.unmatched ?? []);
+      }).catch((e) => {
+        if (live) setSkillsError(e.message || "\u8BFB\u53D6\u5931\u8D25");
+      });
+      return () => {
+        live = false;
+      };
+    }, [role]);
+    const savePrompt = useCallback(async () => {
+      if (!prompt) return;
+      setPromptBusy(true);
+      setPromptError(null);
+      try {
+        await writeRolePrompt(role, prompt.text);
+        setPrompt({ text: prompt.text, dirty: false });
+        onRolesChanged();
+      } catch (e) {
+        setPromptError(e instanceof Error ? e.message : "\u4FDD\u5B58\u5931\u8D25");
+      } finally {
+        setPromptBusy(false);
+      }
+    }, [prompt, role, onRolesChanged]);
+    const [memory, setMemory] = useState(null);
+    const [memoryBusy, setMemoryBusy] = useState(false);
+    const [memoryError, setMemoryError] = useState(null);
+    useEffect(() => {
+      let live = true;
+      setMemory(null);
+      setMemoryError(null);
+      fetchRoleMemory(role).then((res) => {
+        if (live) setMemory({ text: res.content, dirty: false });
+      }).catch((e) => {
+        if (live) setMemoryError(e.message || "\u8BFB\u53D6\u5931\u8D25");
+      });
+      return () => {
+        live = false;
+      };
+    }, [role]);
+    const saveMemory = useCallback(async () => {
+      if (!memory) return;
+      setMemoryBusy(true);
+      setMemoryError(null);
+      try {
+        await writeRoleMemory(role, memory.text);
+        setMemory({ text: memory.text, dirty: false });
+      } catch (e) {
+        setMemoryError(e instanceof Error ? e.message : "\u4FDD\u5B58\u5931\u8D25");
+      } finally {
+        setMemoryBusy(false);
+      }
+    }, [memory, role]);
+    const saveSkills = useCallback(async () => {
+      if (skillsText === null) return;
+      setSkillsBusy(true);
+      setSkillsError(null);
+      setSkillsUnmatched([]);
+      try {
+        const res = await writeRoleSkills(role, skillsText);
+        setSkills(res);
+        setSkillsText(res.content ?? res.enabled.join("\n"));
+        setSkillsDirty(false);
+        setSkillsUnmatched(res.unmatched ?? []);
+      } catch (e) {
+        setSkillsError(e instanceof Error ? e.message : "\u4FDD\u5B58\u5931\u8D25");
+      } finally {
+        setSkillsBusy(false);
+      }
+    }, [skillsText, role]);
+    const [modelOptions, setModelOptions] = useState(null);
+    const [model, setModel] = useState("");
+    useEffect(() => {
+      let live = true;
+      bubbleChatStore.getModelOptions().then((payload) => {
+        if (live && payload) setModelOptions(payload);
+      });
+      return () => {
+        live = false;
+      };
+    }, []);
+    const modelGroups = useMemo(() => {
+      const groups = [];
+      for (const p of modelOptions?.providers ?? []) {
+        const models = (p.models ?? []).filter((m) => typeof m === "string" && !!m);
+        if (models.length > 0) groups.push({ label: p.name || p.slug, models });
+      }
+      return groups;
+    }, [modelOptions]);
+    const createInRole = useCallback(() => {
+      onPicked?.();
+      const provider = model ? providerForModel(modelOptions, model) : "";
+      setResumeParam(null);
+      bubbleChatStore.startNewChatInRole(profileId, model, provider);
+    }, [onPicked, model, modelOptions, profileId]);
+    const textareaCls = cn(
+      "w-full resize-y rounded-lg border border-current/15 bg-background-base",
+      "px-2 py-1.5 font-mono text-xs focus:border-current/30 focus:outline-none"
+    );
+    return /* @__PURE__ */ jsxs(Fragment2, { children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-1 px-2 pb-2", children: [
+        /* @__PURE__ */ jsx(
+          Button,
+          {
+            ghost: true,
+            size: "icon",
+            onClick: onBack,
+            "aria-label": "\u8FD4\u56DE\u89D2\u8272\u5217\u8868",
+            title: "\u8FD4\u56DE\u89D2\u8272\u5217\u8868",
+            className: "mt-0.5 shrink-0 text-text-secondary hover:text-foreground",
+            children: /* @__PURE__ */ jsx(ArrowLeft, {})
+          }
+        ),
+        /* @__PURE__ */ jsxs("span", { className: "min-w-0 flex-1", children: [
+          /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5 text-sm font-medium", children: [
+            /* @__PURE__ */ jsx("span", { className: "truncate", children: displayName }),
+            isDefault && /* @__PURE__ */ jsx("span", { className: "shrink-0 rounded bg-primary/10 px-1 py-px text-[0.625rem] text-primary", children: "\u5E95\u5EA7" })
+          ] }),
+          info?.description && /* @__PURE__ */ jsx("span", { className: "mt-0.5 block text-[0.6875rem] text-text-tertiary wrap-break-word", children: info.description })
+        ] })
+      ] }),
+      isDefault ? /* @__PURE__ */ jsx(BaseFilesSection, {}) : (
+        /* 提示词（ROLE.md） */
+        /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 pb-1.5", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: "\u63D0\u793A\u8BCD" }),
+            /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsx("span", { className: "text-[0.625rem] text-text-tertiary", children: "ROLE.md" }),
+              /* @__PURE__ */ jsx(
+                Button,
+                {
+                  size: "sm",
+                  disabled: !prompt?.dirty || promptBusy,
+                  onClick: () => void savePrompt(),
+                  children: promptBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+                }
+              )
+            ] })
+          ] }),
+          prompt === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+            /* @__PURE__ */ jsx(Spinner, {}),
+            " \u52A0\u8F7D\u63D0\u793A\u8BCD\u2026"
+          ] }) : /* @__PURE__ */ jsx(
+            "textarea",
+            {
+              value: prompt.text,
+              onChange: (e) => setPrompt({ text: e.target.value, dirty: true }),
+              "aria-label": "\u63D0\u793A\u8BCD\uFF08ROLE.md\uFF09",
+              placeholder: "# \u89D2\u8272\u540D\n\n\u63CF\u8FF0\u4E0E\u63D0\u793A\u8BCD\u2026",
+              rows: 6,
+              className: textareaCls
+            }
+          ),
+          promptError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: promptError })
+        ] })
+      ),
+      /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 pb-1.5", children: [
+          /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: "\u8BB0\u5FC6" }),
+          /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-[0.625rem] text-text-tertiary", children: "MEMORY.md" }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                size: "sm",
+                disabled: !memory?.dirty || memoryBusy,
+                onClick: () => void saveMemory(),
+                children: memoryBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+              }
+            )
+          ] })
+        ] }),
+        memory === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+          /* @__PURE__ */ jsx(Spinner, {}),
+          " \u52A0\u8F7D\u8BB0\u5FC6\u2026"
+        ] }) : /* @__PURE__ */ jsx(
+          "textarea",
+          {
+            value: memory.text,
+            onChange: (e) => setMemory({ text: e.target.value, dirty: true }),
+            "aria-label": "\u8BB0\u5FC6\uFF08MEMORY.md\uFF09",
+            placeholder: "\u8BE5\u89D2\u8272\u7684\u957F\u671F\u8BB0\u5FC6\u2026",
+            rows: 5,
+            className: textareaCls
+          }
+        ),
+        memoryError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: memoryError })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 pb-1.5", children: [
+          /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: "\u6280\u80FD\u5217\u8868" }),
+          /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5", children: [
+            skills && /* @__PURE__ */ jsxs("span", { className: "text-[0.625rem] text-text-tertiary", children: [
+              "\u542F\u7528 ",
+              skills.enabled.length,
+              " \u4E2A\u6280\u80FD",
+              skills.mode === "whitelist" && skills.whitelist_file === false && "\uFF08\u540D\u5355\u6587\u4EF6\u672A\u5EFA\uFF0C\u4FDD\u5B58\u540E\u521B\u5EFA\uFF09"
+            ] }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                size: "sm",
+                disabled: !skillsDirty || skillsBusy,
+                onClick: () => void saveSkills(),
+                children: skillsBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+              }
+            )
+          ] })
+        ] }),
+        skillsText === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+          /* @__PURE__ */ jsx(Spinner, {}),
+          " \u52A0\u8F7D\u6280\u80FD\u2026"
+        ] }) : /* @__PURE__ */ jsx(
+          "textarea",
+          {
+            value: skillsText,
+            onChange: (e) => {
+              setSkillsText(e.target.value);
+              setSkillsDirty(true);
+            },
+            "aria-label": "\u542F\u7528\u7684\u6280\u80FD\u5217\u8868",
+            placeholder: "\u6BCF\u884C\u4E00\u4E2A\u6280\u80FD\u540D\n# \u4E95\u53F7\u5F00\u5934\u4E3A\u6CE8\u91CA",
+            rows: 5,
+            className: textareaCls
+          }
+        ),
+        skillsUnmatched.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-1.5 rounded-lg border border-warning/30 bg-warning/10 px-2 py-1 text-xs text-warning wrap-break-word", children: [
+          "\u672A\u5339\u914D\uFF08\u5DF2\u5FFD\u7565\uFF09\uFF1A",
+          skillsUnmatched.join("\u3001")
+        ] }),
+        skillsError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: skillsError }),
+        skills && skills.available.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-1.5", children: [
+          /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setRefOpen((v) => !v),
+              "aria-expanded": refOpen,
+              className: "flex w-full cursor-pointer items-center gap-1 rounded px-1 py-1 text-[0.6875rem] text-text-tertiary hover:text-foreground",
+              children: [
+                /* @__PURE__ */ jsx(
+                  ChevronDown,
+                  {
+                    className: cn("h-3 w-3 shrink-0 transition-transform", !refOpen && "-rotate-90")
+                  }
+                ),
+                "\u53EF\u7528\u6280\u80FD\u53C2\u8003\uFF08",
+                skills.available.length,
+                "\uFF09"
+              ]
+            }
+          ),
+          refOpen && /* @__PURE__ */ jsx("div", { className: "max-h-40 overflow-y-auto rounded-lg border border-current/10 py-0.5", children: skills.available.map((s) => /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "truncate px-2 py-0.5 text-[0.6875rem] text-text-secondary",
+              title: s.description ? `${s.name} \u2014 ${s.description}` : s.name,
+              children: [
+                s.name,
+                s.source !== "role" && /* @__PURE__ */ jsx("span", { className: "ml-1 rounded bg-midground/10 px-1 py-px text-[0.625rem] text-text-tertiary", children: s.source === "shared" ? "\u5168\u5C40" : "\u5927\u5E93" }),
+                s.description && /* @__PURE__ */ jsxs("span", { className: "text-text-tertiary", children: [
+                  " \u2014 ",
+                  s.description.length > 60 ? `${s.description.slice(0, 60)}\u2026` : s.description
+                ] })
+              ]
+            },
+            `${s.source}:${s.name}`
+          )) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "mx-2 mb-2", children: /* @__PURE__ */ jsxs(
+        "select",
+        {
+          value: model,
+          onChange: (e) => setModel(e.target.value),
+          onFocus: () => {
+            if (!modelOptions) {
+              bubbleChatStore.getModelOptions().then((p) => p && setModelOptions(p));
+            }
+          },
+          "aria-label": "\u65B0\u5BF9\u8BDD\u6A21\u578B",
+          title: "\u65B0\u5BF9\u8BDD\u4F7F\u7528\u7684\u6A21\u578B\uFF08\u9ED8\u8BA4 = \u5F53\u524D\u914D\u7F6E\uFF09",
+          className: cn(
+            "w-full rounded-lg border border-current/15 bg-background-base",
+            "px-2.5 py-1.5 text-xs text-text-secondary focus:border-current/30 focus:outline-none"
+          ),
+          children: [
+            /* @__PURE__ */ jsx("option", { value: "", children: "\u6A21\u578B\uFF1A\u9ED8\u8BA4\uFF08\u5F53\u524D\u914D\u7F6E\uFF09" }),
+            modelGroups.map((g) => /* @__PURE__ */ jsx("optgroup", { label: g.label, children: g.models.map((m) => /* @__PURE__ */ jsx("option", { value: m, children: m }, `${g.label}/${m}`)) }, g.label))
+          ]
+        }
+      ) }),
+      /* @__PURE__ */ jsx(
+        ChatSessionList,
+        {
+          activeSessionId,
+          profile: profileId,
+          onNewChat: createInRole,
+          onPickSession: () => bubbleChatStore.bindResumeRole(profileId),
+          onPicked,
+          manageable: true,
+          onSessionDeleted,
+          className: "min-h-0 flex-1"
+        }
+      )
+    ] });
+  }
+  function RoleSidebarImpl({
+    activeSessionId,
+    className,
+    onPicked,
+    onSessionDeleted,
+    onCollapse
+  }) {
+    const [openRole, setOpenRoleState] = useState(() => persistedOpenRole);
+    const [roles, setRoles] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [reloadNonce, setReloadNonce] = useState(0);
+    const setOpenRole = useCallback((name) => {
+      persistedOpenRole = name;
+      setOpenRoleState(name);
+    }, []);
+    useEffect(() => {
+      let live = true;
+      setLoading(true);
+      setError(null);
+      fetchRoles().then((list) => {
+        if (live) setRoles(list);
+      }).catch(() => {
+        if (live) setError("\u89D2\u8272\u5217\u8868\u52A0\u8F7D\u5931\u8D25");
+      }).finally(() => {
+        if (live) setLoading(false);
+      });
+      return () => {
+        live = false;
+      };
+    }, [reloadNonce]);
+    const reload = useCallback(() => setReloadNonce((n) => n + 1), []);
+    const onCreated = useCallback(
+      (name) => {
+        reload();
+        setOpenRole(name);
+      },
+      [reload, setOpenRole]
+    );
+    const onBack = useCallback(() => setOpenRole(null), [setOpenRole]);
+    return /* @__PURE__ */ jsx(
+      "aside",
+      {
+        className: cn(
+          "flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden",
+          className
+        ),
+        children: openRole === null ? /* @__PURE__ */ jsx(
+          RoleListView,
+          {
+            roles,
+            loading,
+            error,
+            onReload: reload,
+            onOpen: setOpenRole,
+            onCreated,
+            onCollapse
+          }
+        ) : /* @__PURE__ */ jsx(
+          RoleView,
+          {
+            role: openRole,
+            roles,
+            onBack,
+            onRolesChanged: reload,
+            activeSessionId,
+            onPicked,
+            onSessionDeleted
+          }
+        )
+      }
+    );
+  }
+  var RoleSidebar = memo(RoleSidebarImpl);
+
   // src/BubbleChatPage.tsx
   function BubbleChatPage() {
     const searchParams = useLocationSearch();
@@ -5108,12 +6017,9 @@ ${body}` : body);
               "rounded-xl border border-current/10 py-2"
             ),
             children: /* @__PURE__ */ jsx(
-              ChatSessionList,
+              RoleSidebar,
               {
                 activeSessionId: resumeParam,
-                profile: scopedProfile,
-                onNewChat: startNewChat,
-                manageable: true,
                 onSessionDeleted: handleSessionDeleted,
                 onCollapse: toggleSidebar
               }
@@ -5130,13 +6036,10 @@ ${body}` : body);
             }
           ),
           /* @__PURE__ */ jsx("div", { className: "absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-current/10 bg-background-base py-2 shadow-xl", children: /* @__PURE__ */ jsx(
-            ChatSessionList,
+            RoleSidebar,
             {
               activeSessionId: resumeParam,
-              profile: scopedProfile,
-              onNewChat: startNewChat,
               onPicked: closeDrawer,
-              manageable: true,
               onSessionDeleted: handleSessionDeleted
             }
           ) })
@@ -5258,6 +6161,8 @@ lucide-react/dist/esm/shared/src/utils/hasA11yProp.js:
 lucide-react/dist/esm/Icon.js:
 lucide-react/dist/esm/createLucideIcon.js:
 lucide-react/dist/esm/icons/arrow-down.js:
+lucide-react/dist/esm/icons/arrow-left.js:
+lucide-react/dist/esm/icons/bot.js:
 lucide-react/dist/esm/icons/check.js:
 lucide-react/dist/esm/icons/chevron-down.js:
 lucide-react/dist/esm/icons/chevron-right.js:
@@ -5285,6 +6190,7 @@ lucide-react/dist/esm/icons/panel-left-open.js:
 lucide-react/dist/esm/icons/panel-left.js:
 lucide-react/dist/esm/icons/paperclip.js:
 lucide-react/dist/esm/icons/pencil.js:
+lucide-react/dist/esm/icons/plus.js:
 lucide-react/dist/esm/icons/refresh-cw.js:
 lucide-react/dist/esm/icons/rotate-ccw.js:
 lucide-react/dist/esm/icons/send-horizontal.js:

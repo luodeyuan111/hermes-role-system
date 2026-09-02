@@ -110,6 +110,9 @@ export interface SessionInfo {
   last_active: number;
   message_count: number;
   preview: string | null;
+  /** Owning profile — present only when the request was profile-scoped
+   *  (or from the unified /api/profiles/sessions list). */
+  profile?: string | null;
 }
 
 export interface SessionSearchResult {

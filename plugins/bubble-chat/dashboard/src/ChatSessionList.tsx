@@ -67,6 +67,10 @@ interface ChatSessionListProps {
   className?: string;
   /** Optional callback fired after a row is picked (e.g. close mobile sheet). */
   onPicked?: () => void;
+  /** Fired with the session id when a row is picked — the role sidebar uses
+   *  it to bind the owning role for the resume (role sessions live in their
+   *  own profile's state.db). */
+  onPickSession?: (id: string) => void;
   /**
    * Starts a fresh chat. ChatPage supplies its `startFreshDashboardChat`,
    * which clears `?resume` AND bumps the reconnect nonce so a brand-new PTY
@@ -116,6 +120,7 @@ export function ChatSessionListImpl({
   profile,
   className,
   onPicked,
+  onPickSession,
   onNewChat,
   manageable = false,
   onSessionDeleted,
@@ -380,9 +385,10 @@ export function ChatSessionListImpl({
     (id: string) => {
       onPicked?.();
       if (id === activeSessionId) return;
+      onPickSession?.(id);
       setResumeParam(id);
     },
-    [activeSessionId, onPicked],
+    [activeSessionId, onPicked, onPickSession],
   );
 
   // "New chat" prefers the host page's handler (clears resume AND bumps the

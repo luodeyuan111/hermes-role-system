@@ -21,7 +21,6 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { AlertCircle, PanelLeft, PanelLeftOpen, RefreshCw } from "lucide-react";
 
-import { ChatSessionList } from "./ChatSessionList";
 import {
   ChatBackgroundPicker,
   useAgentAvatar,
@@ -32,6 +31,7 @@ import { MessageList } from "./chat/MessageList";
 import { PendingPromptCard } from "./chat/PendingPromptCard";
 import { TodoPanel } from "./chat/TodoPanel";
 import type { ChatMessage } from "./chat/types";
+import { RoleSidebar } from "./RoleSidebar";
 import { setResumeParam, useLocationSearch } from "./router";
 import { Button, cn } from "./sdk";
 import { Spinner } from "./shared/Spinner";
@@ -76,6 +76,10 @@ export default function BubbleChatPage() {
   /*  Page-local actions (URL + composer injection glue)               */
   /* ---------------------------------------------------------------- */
 
+  /** Plain fresh chat (/new, session-deleted fallback): clears ?resume and
+   *  bumps the nonce. Role/model context comes from the store's staged
+   *  new-chat context (the role view's 新建小对话 sets it; default role
+   *  otherwise) — there is deliberately no picker dialog. */
   const startNewChat = useCallback(() => {
     setResumeParam(null);
     store.bumpNewChatNonce();
@@ -168,11 +172,8 @@ export default function BubbleChatPage() {
             "rounded-xl border border-current/10 py-2",
           )}
         >
-          <ChatSessionList
+          <RoleSidebar
             activeSessionId={resumeParam}
-            profile={scopedProfile}
-            onNewChat={startNewChat}
-            manageable
             onSessionDeleted={handleSessionDeleted}
             onCollapse={toggleSidebar}
           />
@@ -188,12 +189,9 @@ export default function BubbleChatPage() {
             onClick={() => setDrawerOpen(false)}
           />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-current/10 bg-background-base py-2 shadow-xl">
-            <ChatSessionList
+            <RoleSidebar
               activeSessionId={resumeParam}
-              profile={scopedProfile}
-              onNewChat={startNewChat}
               onPicked={closeDrawer}
-              manageable
               onSessionDeleted={handleSessionDeleted}
             />
           </div>

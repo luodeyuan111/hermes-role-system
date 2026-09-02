@@ -25,6 +25,7 @@
  */
 
 import { api, type SessionMessage } from "./sdk";
+import { lookupSessionProfile } from "./roles";
 import {
   GatewayClient,
   type ConnectionState,
@@ -47,6 +48,19 @@ interface SessionResumeResult {
   session_id: string;
   resumed?: string;
   running?: boolean;
+}
+
+/** model.options RPC payload (subset the new-chat picker reads). */
+export interface ModelOptionsPayload {
+  /** Current/default model id (preselected by the picker). */
+  model?: string;
+  provider?: string;
+  providers?: Array<{
+    slug: string;
+    name: string;
+    is_current?: boolean;
+    models?: string[];
+  }>;
 }
 
 /** Plain slash.exec worker result (see tui_gateway server.py @method slash.exec). */
@@ -330,6 +344,73 @@ class BubbleChatStore {
   private readonly toolCards = new Map<string, string>();
 
   /* ---------------------------------------------------------------- */
+  /*  Role context (sidebar two-level role UI)                         */
+  /* ---------------------------------------------------------------- */
+
+  /** Role the NEXT new chat is created under (a profile id; "" = default).
+   *  Staged by the role view's 新建小对话 button, read by the create branch
+   *  of the session lifecycle. Creation-time only — never applied to a
+   *  live/resumed session (prompt caching is sacred). */
+  private newChatRole = "";
+  /** Optional per-chat model pick from the role view's dropdown, with the
+   *  provider slug resolved from the model.options payload (sending model
+   *  without its provider makes the gateway resolve the model against the
+   *  profile's DEFAULT provider → "API 没有找到" for foreign model ids). */
+  private newChatModel = "";
+  private newChatProvider = "";
+  /** Role that owns the session being RESUMED ("" = default/management).
+   *  Set when the user picks a row inside a role view; role sessions live
+   *  in their own profile's state.db, so resume must bind that profile. */
+  private resumeRole = "";
+
+  /** 新建小对话 (role view): stage the creation context and force the
+   *  attach effect to spawn a fresh session. The page clears ?resume. */
+  startNewChatInRole = (role: string, model = "", provider = ""): void => {
+    this.newChatRole = role;
+    this.newChatModel = model;
+    this.newChatProvider = provider;
+    this.emit({ newChatNonce: this.state.newChatNonce + 1 });
+  };
+
+  /** A plain fresh chat keeps the last staged role context (the role view
+   *  the user is standing in) — same as picking 新建小对话 without
+   *  touching the model dropdown. */
+  bumpNewChatNonce = (): void => {
+    this.emit({ newChatNonce: this.state.newChatNonce + 1 });
+  };
+
+  /** Session picked inside a role view: bind that role for the resume. */
+  bindResumeRole = (role: string): void => {
+    this.resumeRole = role;
+  };
+
+  /** model.options RPC for the role view's model dropdown; null when the
+   *  socket isn't open or the call fails (dropdown degrades to 默认 only).
+   *  Cached for the page's lifetime — the catalog is disk-cached server
+   *  side, and a failed fetch is not cached so the next open retries. */
+  private modelOptionsPromise: Promise<ModelOptionsPayload | null> | null = null;
+
+  getModelOptions = (): Promise<ModelOptionsPayload | null> => {
+    if (!this.modelOptionsPromise) {
+      this.modelOptionsPromise = this.fetchModelOptions().catch(() => {
+        this.modelOptionsPromise = null;
+        return null;
+      });
+    }
+    return this.modelOptionsPromise;
+  };
+
+  fetchModelOptions = async (): Promise<ModelOptionsPayload | null> => {
+    const gw = this.gw;
+    if (!gw || this.state.connState !== "open") return null;
+    try {
+      return await gw.request<ModelOptionsPayload>("model.options", {});
+    } catch {
+      return null;
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
   /*  Subscription (useSyncExternalStore contract)                     */
   /* ---------------------------------------------------------------- */
 
@@ -472,7 +553,6 @@ class BubbleChatStore {
     if (!gw) return;
     const myReq = ++this.sessionReq;
     const isCurrent = () => this.sessionReq === myReq;
-    const profileParam = spec.profile ? { profile: spec.profile } : {};
 
     // Reset the per-session render state. attach() already did this on a
     // spec change, but this path also runs on RECONNECT (socket reopened
@@ -492,43 +572,29 @@ class BubbleChatStore {
     });
 
     if (spec.resume) {
-      // History from REST (display truth) + live resume over WS, in parallel.
-      this.emit({ loadingHistory: true });
-      const resumeId = spec.resume;
-      Promise.all([
-        api.getSessionMessages(resumeId, spec.profile),
-        gw.request<SessionResumeResult>("session.resume", {
-          session_id: resumeId,
-          ...profileParam,
-        }),
-      ])
-        .then(([hist, resumed]) => {
-          if (!isCurrent()) return;
-          this.liveSid = resumed.session_id;
-          this.emit({
-            messages: mergeToolCards(
-              hist.messages.flatMap(historyToChatMessages),
-            ),
-            // Hydrate the todo panel from the latest todo tool row (stored
-            // results carry the full list as JSON).
-            todos: latestTodosFromHistory(hist.messages) ?? [],
-            // A session resumed mid-turn keeps its busy indicator.
-            generating: resumed.running === true,
-            sessionReady: true,
-          });
-        })
-        .catch((e: Error) => {
-          if (!isCurrent()) return;
-          this.emit({ error: e.message || "会话恢复失败" });
-        })
-        .finally(() => {
-          if (isCurrent()) this.emit({ loadingHistory: false });
-        });
+      void this.runResumeLifecycle(gw, spec, spec.resume, isCurrent);
     } else {
+      // Creation-time overrides only: the role is a profile id staged by
+      // the role view's 新建小对话 (the management profile scope wins when
+      // both are set); the model carries its provider slug resolved from
+      // model.options — sending a bare model id made the gateway resolve
+      // it against the profile's DEFAULT provider, so a kimi model went to
+      // 智谱 and the agent build died with "API 没有找到". Neither override
+      // is ever sent for a live/resumed session — swapping role/model mid-
+      // conversation would rebuild the system prompt and kill the cache.
+      const createProfile = spec.profile || this.newChatRole;
       gw
         .request<SessionCreateResult>("session.create", {
           source: "dashboard",
-          ...profileParam,
+          ...(createProfile ? { profile: createProfile } : {}),
+          ...(this.newChatModel
+            ? {
+                model: this.newChatModel,
+                ...(this.newChatProvider
+                  ? { provider: this.newChatProvider }
+                  : {}),
+              }
+            : {}),
         })
         .then((res) => {
           if (!isCurrent()) return;
@@ -542,11 +608,65 @@ class BubbleChatStore {
     }
   }
 
-  /** 新对话：bump the nonce; the page clears ?resume and the attach effect
-   *  re-runs with a fresh key. */
-  bumpNewChatNonce = (): void => {
-    this.emit({ newChatNonce: this.state.newChatNonce + 1 });
-  };
+  /** History REST load + live session.resume, binding the owning profile.
+   *  Role sessions live in their own profile's state.db, so a resume that
+   *  binds the wrong profile comes back "session not found" — look up the
+   *  owner via the plugin backend and retry once (also covers a page
+   *  reload, where the in-memory role binding is gone). */
+  private async runResumeLifecycle(
+    gw: GatewayClient,
+    spec: SessionSpec,
+    resumeId: string,
+    isCurrent: () => boolean,
+  ): Promise<void> {
+    this.emit({ loadingHistory: true });
+    const attempt = async (profile: string) => {
+      const [hist, resumed] = await Promise.all([
+        api.getSessionMessages(resumeId, profile),
+        gw.request<SessionResumeResult>("session.resume", {
+          session_id: resumeId,
+          ...(profile ? { profile } : {}),
+        }),
+      ]);
+      return { hist, resumed, profile };
+    };
+    try {
+      let result;
+      const firstProfile = this.resumeRole || spec.profile;
+      try {
+        result = await attempt(firstProfile);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (!/session not found/i.test(msg)) throw e;
+        const owner = await lookupSessionProfile(resumeId);
+        const ownerProfile = owner === "default" ? "" : (owner ?? "");
+        if (!owner || ownerProfile === firstProfile) throw e;
+        result = await attempt(ownerProfile);
+      }
+      if (!isCurrent()) return;
+      // Remember the resolved owner so later resumes of this conversation
+      // (and the role badge context) bind correctly.
+      this.resumeRole = result.profile;
+      this.liveSid = result.resumed.session_id;
+      this.emit({
+        messages: mergeToolCards(
+          result.hist.messages.flatMap(historyToChatMessages),
+        ),
+        // Hydrate the todo panel from the latest todo tool row (stored
+        // results carry the full list as JSON).
+        todos: latestTodosFromHistory(result.hist.messages) ?? [],
+        // A session resumed mid-turn keeps its busy indicator.
+        generating: result.resumed.running === true,
+        sessionReady: true,
+      });
+    } catch (e) {
+      if (!isCurrent()) return;
+      const msg = e instanceof Error ? e.message : String(e);
+      this.emit({ error: msg || "会话恢复失败" });
+    } finally {
+      if (isCurrent()) this.emit({ loadingHistory: false });
+    }
+  }
 
   /* ---------------------------------------------------------------- */
   /*  Gateway event handling                                           */
