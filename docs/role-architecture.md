@@ -1,0 +1,77 @@
+# Hermes 分角色架构（Role-based Conversations）
+
+> 本 fork 在 [Hermes Agent](https://github.com/NousResearch/hermes-agent) 之上实现了一套 CherryStudio 式的分角色对话系统：全局共享底座 + 多个职能角色 + 每个角色开独立小对话，解决"单助手上下文膨胀"和"人格/技能混杂"两个问题。
+
+## 设计一句话
+
+所有角色都是同一个 Hermes 内核，只是职能不同。**共享底座只有一份，角色差异全部按层叠加**：
+
+| 层 | 文件 | 作用域 |
+|---|---|---|
+| 人格底座 | `<HERMES_HOME>/SOUL.md`（+ AGENTS.md / USER.md） | 所有角色共享（命名 profile 也读根目录这份，不用创建时的副本） |
+| 角色提示词 | `profiles/<角色>/ROLE.md` | 单角色，注入 system prompt stable 层 |
+| 记忆 | `profiles/<角色>/memories/MEMORY.md` | 单角色，互不共享 |
+| 技能 | 见下"技能四层 + 白名单" | 共享池按引用 + 角色白名单裁剪 |
+
+角色 = Hermes 原生 profile（`~/.hermes/profiles/<name>/`，独立 HERMES_HOME），机制零新增，新增的是分层注入与 UI。
+
+## 技能：四层解析 + 白名单
+
+解析优先级（同名高优先级赢）：
+
+1. **角色本地** `profiles/<角色>/skills/` — 只放私有/覆盖 skill
+2. **共享全局池** `~/.hermes/skills/` — 唯一一份，所有角色按引用可见
+3. **external_dirs** — config 声明的外挂目录
+4. **大库池 library_dirs** — 索引中隐藏，`skill_view(名字)` 显式加载（适合放几百个备选 skill）
+
+**白名单模式**：角色索引只注入 `profiles/<角色>/skills.whitelist` 列出的技能（纯文本、每行一个名、`#` 注释）。文件不存在则回退黑名单（`skills.disabled`）。三个关键性质：
+
+- 普通文本文件，**agent 对话中可以自己维护**（config.yaml 通常有安全护栏改不了，这是落文件的核心原因）
+- 名单里的**大库技能会被"提拔"进该角色索引**——白名单是权威
+- 全局池新增 skill 不会漏进任何角色的索引（黑名单模式下会漏）
+
+显式加载（`skill_view` / `--skills` / cron `skills:`）永远不受名单限制。
+
+## Dashboard UI（bubble-chat 插件）
+
+CherryStudio 式两级会话栏：
+
+- 一级：**角色列表**（可新建角色：名称/描述/提示词 → 自动建 profile + ROLE.md，免种子不复制内置技能）
+- 二级：**角色视图** — 提示词（ROLE.md）/ 记忆（MEMORY.md）/ 技能列表（skills.whitelist）三个文本块直接编辑；下方是该角色的小对话列表
+- 默认角色特殊化为**全局底座**：直接编辑 SOUL.md / AGENTS.md / USER.md 三个共享文件
+- 角色/模型选择只在**建会话时**生效（会话中途切换会失效 prompt 前缀缓存，这是红线）
+
+插件后端端点在 `plugins/bubble-chat/dashboard/plugin_api.py`（`/api/plugins/bubble-chat/roles*`），前端 `src/RoleSidebar.tsx`。
+
+## 核心改动清单（相对上游）
+
+| 改动 | 位置 |
+|---|---|
+| `pre_api_request` hook 从只读改为可改写 messages（`{"messages":...}` / `{"append_system":...}`） | `agent/conversation_loop.py`、`hermes_cli/plugins.py` |
+| ROLE.md 角色层 + 命名 profile 共享根目录 SOUL 底座 | `agent/system_prompt.py` |
+| 技能四层解析（共享池按引用）+ 白名单过滤 + 共享池写护栏 | `agent/skill_utils.py`、`agent/prompt_builder.py`、`tools/` |
+| `hermes skills pool show/check/apply` 三层池 CLI | `hermes_cli/skills_pool.py` |
+| tui_gateway 进程内 profile 作用域修复（重建型入口绑 scope） | `tui_gateway/server.py` |
+| 两级角色会话栏 + 角色管理端点 | `plugins/bubble-chat/dashboard/`、`web/src/App.tsx` |
+
+## 快速上手
+
+```bash
+# 1. 建角色（UI 或脚本，examples/setup_roles.sh 是幂等示例）
+hermes profile create coder --no-skills
+# 2. 写角色提示词（首行 # 标题 = 显示名，首段 = 描述）
+$EDITOR ~/.hermes/profiles/coder/ROLE.md
+# 3. 配技能白名单
+printf 'plan\nsystematic-debugging\n' > ~/.hermes/profiles/coder/skills.whitelist
+# 4. 配大库池（可选）：该角色 config.yaml 加
+#    skills: {pools: {library_dirs: [/path/to/hermes-agent/skills]}}
+# 5. 验证
+hermes skills pool show && hermes skills pool check
+```
+
+kanban 可按角色派活：`hermes kanban create "任务" --assignee coder`（dispatcher 会拉起 `hermes -p coder` 子进程执行）。
+
+## 示例与维护
+
+- `examples/`：`hermes-role-ops` 运维手册 skill（快照）、`setup_roles.sh` 角色搭建脚本
+- 本仓库是分享快照；使用方的**活文档**应放在 agent 环境内的 skill（如 examples 里的 role-ops），由 agent 日常自维护，仓库文档不追踪后续演进

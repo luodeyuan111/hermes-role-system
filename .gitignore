@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 hermes_cli/web_dist/
 .DS_Store
+cli-config.yaml
+.pytest_cache/
+test_durations.json
+.venv/

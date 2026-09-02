@@ -3,6 +3,9 @@
 </p>
 
 # Hermes Agent ☤
+
+> **本 fork**：在 Hermes Agent 之上实现了 CherryStudio 式**分角色对话架构**（共享底座 + 职能角色 + 角色小对话 + 技能白名单）。中文设计文档：[docs/role-architecture.md](docs/role-architecture.md)，示例：`examples/`。
+
 <p align="center">
   <a href="https://hermes-agent.nousresearch.com/">Hermes Agent</a> | <a href="https://hermes-agent.nousresearch.com/">Hermes Desktop</a>
 </p>
