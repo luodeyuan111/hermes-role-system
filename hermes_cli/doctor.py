@@ -629,6 +629,38 @@ def run_doctor(args):
     except Exception as e:
         check_warn(f"MCP security check failed: {e}")
     
+    _section("Provider Configuration")
+    try:
+        from hermes_cli.config import get_env_path, load_config
+        from hermes_cli.provider_consistency import audit_provider_config
+
+        # Three layers, all read from the ACTIVE profile (HERMES_HOME):
+        # config.yaml, the profile's .env file, and the registry overlay.
+        _prov_cfg = load_config() or {}
+        try:
+            from dotenv import dotenv_values
+
+            _prov_env = {k: v for k, v in dotenv_values(get_env_path()).items() if v}
+        except Exception:
+            _prov_env = {}
+        _findings = audit_provider_config(_prov_cfg, _prov_env)
+        for _f in _findings:
+            if _f.level == "ok":
+                check_ok(_f.text)
+            elif _f.level == "info":
+                check_info(_f.text)
+            elif _f.level == "warn":
+                check_warn(_f.text)
+                if _f.fix:
+                    manual_issues.append(_f.fix)
+            else:
+                check_fail(_f.text)
+                if _f.fix:
+                    manual_issues.append(_f.fix)
+    except Exception as e:
+        # Never let a bug in the audit block the rest of doctor.
+        check_warn(f"Provider configuration audit failed: {e}")
+
     _section("Python Environment")
     py_version = sys.version_info
     if py_version >= (3, 11):

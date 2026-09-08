@@ -84,6 +84,80 @@ def _model_switch_skew_guard() -> Optional[str]:
     )
 
 
+def _persist_model_switch_as_profile_default(result) -> Optional[str]:
+    """Write a /model switch into the ACTIVE profile scope's config.yaml.
+
+    This is the "save as default" tier of /model (``--global`` or the
+    ``model.persist_switch_by_default`` default).  Both the read and the write
+    go through ``hermes_cli.config``'s canonical path resolution
+    (``get_config_path`` / ``save_config``), which honors the hermes-home
+    override ContextVar — so in a profile multiplexer this MUST be called
+    inside the session's ``_profile_runtime_scope``; otherwise the write
+    silently lands in the gateway process's own profile (cross-profile
+    pollution) instead of the session's profile.  Single-profile gateways
+    need no scope: the process home IS the profile.
+
+    Returns the config path written, or None on failure (already logged).
+    """
+    import yaml
+
+    try:
+        from hermes_cli.config import get_config_path, save_config
+
+        config_path = get_config_path()
+        if config_path.exists():
+            with open(config_path, encoding="utf-8") as f:
+                cfg = yaml.safe_load(f) or {}
+        else:
+            cfg = {}
+        # Coerce scalar/None ``model:`` into a dict before mutation —
+        # otherwise ``cfg.setdefault("model", {})`` returns the existing
+        # scalar and the next assignment raises
+        # ``TypeError: 'str' object does not support item assignment``.
+        # Reproduces when ``config.yaml`` has ``model: <name>`` (flat
+        # string) instead of the proper nested ``model: {default: ...}``.
+        raw_model = cfg.get("model")
+        if isinstance(raw_model, dict):
+            model_cfg = raw_model
+        elif isinstance(raw_model, str) and raw_model.strip():
+            model_cfg = {"default": raw_model.strip()}
+            cfg["model"] = model_cfg
+        else:
+            model_cfg = {}
+            cfg["model"] = model_cfg
+        model_cfg["default"] = result.new_model
+        model_cfg["provider"] = result.target_provider
+        if result.base_url:
+            model_cfg["base_url"] = result.base_url
+        if str(result.target_provider or "").strip().lower() != "custom":
+            clear_model_endpoint_credentials(model_cfg, clear_base_url=True)
+        save_config(cfg)
+        return str(config_path)
+    except Exception as e:
+        logger.warning("Failed to persist model switch: %s", e)
+        return None
+
+
+def _model_persist_confirmation_lines(
+    persist_global: bool,
+    saved_path: Optional[str],
+    profile_name: Optional[str] = None,
+) -> list:
+    """Build the persistence-tier lines for the /model confirmation reply.
+
+    Makes the two tiers explicit to the user (R5.2): either the switch was
+    saved as the profile default (and WHERE — profile name + file), or it is
+    session-only and will NOT survive new sessions.
+    """
+    if persist_global:
+        if saved_path and profile_name:
+            return [t("gateway.model.saved_global_profile", profile=profile_name, path=saved_path)]
+        if saved_path:
+            return [t("gateway.model.saved_global_path", path=saved_path)]
+        return [t("gateway.model.saved_global")]
+    return [t("gateway.model.session_only_hint")]
+
+
 class GatewaySlashCommandsMixin:
     """In-session slash-command handlers for GatewayRunner."""
 
@@ -1420,6 +1494,25 @@ class GatewaySlashCommandsMixin:
         )
 
     async def _handle_model_command(self, event: MessageEvent) -> Optional[str]:
+        """Profile-scoping wrapper around the /model implementation.
+
+        Slash-command dispatch does NOT enter ``_profile_runtime_scope``
+        (only agent turns do, via ``_run_agent``), so without this wrapper
+        every config read/write in the handler resolves the gateway
+        process's own profile.  In a profile multiplexer that writes one
+        session's model into ANOTHER profile's config.yaml — the session's
+        own profile stays unchanged ("fix doesn't persist") and the process
+        profile gets polluted ("wire-crossing").  Scope the whole command
+        to the session's profile, mirroring ``_run_agent``.
+        """
+        if getattr(getattr(self, "config", None), "multiplex_profiles", False):
+            from gateway.run import _profile_runtime_scope
+
+            with _profile_runtime_scope(self._resolve_profile_home_for_source(event.source)):
+                return await self._handle_model_command_impl(event)
+        return await self._handle_model_command_impl(event)
+
+    async def _handle_model_command_impl(self, event: MessageEvent) -> Optional[str]:
         """Handle /model command — switch model.
 
         Supports:
@@ -1430,8 +1523,7 @@ class GatewaySlashCommandsMixin:
           /model <name> --provider <provider> — switch provider + model
           /model --provider <provider>        — switch to provider, auto-detect model
         """
-        from gateway.run import _hermes_home, _load_gateway_config
-        import yaml
+        from gateway.run import _load_gateway_config
         from hermes_cli.model_switch import (
             switch_model as _switch_model, parse_model_flags,
             resolve_persist_behavior,
@@ -1439,6 +1531,16 @@ class GatewaySlashCommandsMixin:
             list_picker_providers,
         )
         from hermes_cli.providers import get_label
+
+        # Profile multiplexing: the wrapper has already scoped THIS invocation
+        # to the session's profile.  Deferred continuations (picker callback,
+        # expensive-model confirm) fire on later events outside that scope, so
+        # they must re-enter it themselves — capture what they need.
+        _mux_profile_home = None
+        _mux_profile_name = None
+        if getattr(getattr(self, "config", None), "multiplex_profiles", False):
+            _mux_profile_home = self._resolve_profile_home_for_source(event.source)
+            _mux_profile_name = (event.source.profile or "").strip() or "default"
 
         raw_args = event.get_command_args().strip()
 
@@ -1460,14 +1562,15 @@ class GatewaySlashCommandsMixin:
             except Exception:
                 pass
 
-        # Read current model/provider from config
+        # Read current model/provider from config.  ``_load_gateway_config``
+        # honors the hermes-home override, so under the multiplexing wrapper
+        # this is the SESSION profile's config — never the process home's.
         current_model = ""
         current_provider = "openrouter"
         current_base_url = ""
         current_api_key = ""
         user_provs = None
         custom_provs = None
-        config_path = _hermes_home / "config.yaml"
         try:
             cfg = _load_gateway_config()
             if cfg:
@@ -1538,6 +1641,28 @@ class GatewaySlashCommandsMixin:
                     _cur_api_key = current_api_key
 
                     async def _on_model_selected(
+                        _chat_id: str, model_id: str, provider_slug: str
+                    ) -> str:
+                        """Re-enter the session's profile scope, then switch.
+
+                        The picker callback fires on a later button-press event,
+                        outside the profile scope the /model wrapper installed —
+                        re-enter it here so credential resolution and the config
+                        persist hit the SESSION's profile, not the gateway
+                        process's own.
+                        """
+                        if _mux_profile_home is not None:
+                            from gateway.run import _profile_runtime_scope
+
+                            with _profile_runtime_scope(_mux_profile_home):
+                                return await _on_model_selected_scoped(
+                                    _chat_id, model_id, provider_slug
+                                )
+                        return await _on_model_selected_scoped(
+                            _chat_id, model_id, provider_slug
+                        )
+
+                    async def _on_model_selected_scoped(
                         _chat_id: str, model_id: str, provider_slug: str
                     ) -> str:
                         """Perform the model switch and return confirmation text."""
@@ -1670,32 +1795,12 @@ class GatewaySlashCommandsMixin:
                         # Persist to config (default) unless --session opted out,
                         # mirroring the text /model command path above so a picked
                         # model survives across sessions like a typed one (#49066).
+                        # Runs inside the profile scope re-entered by
+                        # _on_model_selected, so the write lands in the SESSION
+                        # profile's config.yaml.
+                        _saved_path = None
                         if persist_global:
-                            try:
-                                if config_path.exists():
-                                    with open(config_path, encoding="utf-8") as f:
-                                        _persist_cfg = yaml.safe_load(f) or {}
-                                else:
-                                    _persist_cfg = {}
-                                _raw_model = _persist_cfg.get("model")
-                                if isinstance(_raw_model, dict):
-                                    _persist_model_cfg = _raw_model
-                                elif isinstance(_raw_model, str) and _raw_model.strip():
-                                    _persist_model_cfg = {"default": _raw_model.strip()}
-                                    _persist_cfg["model"] = _persist_model_cfg
-                                else:
-                                    _persist_model_cfg = {}
-                                    _persist_cfg["model"] = _persist_model_cfg
-                                _persist_model_cfg["default"] = result.new_model
-                                _persist_model_cfg["provider"] = result.target_provider
-                                if result.base_url:
-                                    _persist_model_cfg["base_url"] = result.base_url
-                                if str(result.target_provider or "").strip().lower() != "custom":
-                                    clear_model_endpoint_credentials(_persist_model_cfg, clear_base_url=True)
-                                from hermes_cli.config import save_config
-                                save_config(_persist_cfg)
-                            except Exception as e:
-                                logger.warning("Failed to persist model switch: %s", e)
+                            _saved_path = _persist_model_switch_as_profile_default(result)
 
                         # Build confirmation text
                         plabel = result.provider_label or result.target_provider
@@ -1730,10 +1835,11 @@ class GatewaySlashCommandsMixin:
                             lines.append(t("gateway.model.capabilities_label", capabilities=mi.format_capabilities()))
                         if result.warning_message:
                             lines.append(t("gateway.model.warning_prefix", warning=result.warning_message))
-                        if persist_global:
-                            lines.append(t("gateway.model.saved_global"))
-                        else:
-                            lines.append(t("gateway.model.session_only_hint"))
+                        lines.extend(
+                            _model_persist_confirmation_lines(
+                                persist_global, _saved_path, _mux_profile_name
+                            )
+                        )
                         return "\n".join(lines)
 
                     metadata = self._thread_metadata_for_source(source, self._reply_anchor_for_event(event))
@@ -1824,6 +1930,20 @@ class GatewaySlashCommandsMixin:
             logger.debug("preflight-compression switch warning failed: %s", exc)
 
         async def _finish_switch() -> str:
+            """Re-enter the session's profile scope, then apply the switch.
+
+            Called both inline (scope already active — re-entering is a
+            harmless no-op) and from the expensive-model confirm handler,
+            which fires on a LATER event outside the /model wrapper's scope.
+            """
+            if _mux_profile_home is not None:
+                from gateway.run import _profile_runtime_scope
+
+                with _profile_runtime_scope(_mux_profile_home):
+                    return await _finish_switch_scoped()
+            return await _finish_switch_scoped()
+
+        async def _finish_switch_scoped() -> str:
             """Apply the resolved switch (agent, session, config) and build the reply."""
             # If there's a cached agent, update it in-place
             cached_entry = None
@@ -1914,39 +2034,13 @@ class GatewaySlashCommandsMixin:
             # override rather than relying on cache signature mismatch detection.
             self._evict_cached_agent(session_key)
 
-            # Persist to config (default) unless --session opted out
+            # Persist to config (default) unless --session opted out.  Runs
+            # inside the session's profile scope (see _finish_switch), so the
+            # write lands in the SESSION profile's config.yaml — in a
+            # multiplexer, never the gateway process's own profile.
+            _saved_path = None
             if persist_global:
-                try:
-                    if config_path.exists():
-                        with open(config_path, encoding="utf-8") as f:
-                            cfg = yaml.safe_load(f) or {}
-                    else:
-                        cfg = {}
-                    # Coerce scalar/None ``model:`` into a dict before mutation —
-                    # otherwise ``cfg.setdefault("model", {})`` returns the existing
-                    # scalar and the next assignment raises
-                    # ``TypeError: 'str' object does not support item assignment``.
-                    # Reproduces when ``config.yaml`` has ``model: <name>`` (flat
-                    # string) instead of the proper nested ``model: {default: ...}``.
-                    raw_model = cfg.get("model")
-                    if isinstance(raw_model, dict):
-                        model_cfg = raw_model
-                    elif isinstance(raw_model, str) and raw_model.strip():
-                        model_cfg = {"default": raw_model.strip()}
-                        cfg["model"] = model_cfg
-                    else:
-                        model_cfg = {}
-                        cfg["model"] = model_cfg
-                    model_cfg["default"] = result.new_model
-                    model_cfg["provider"] = result.target_provider
-                    if result.base_url:
-                        model_cfg["base_url"] = result.base_url
-                    if str(result.target_provider or "").strip().lower() != "custom":
-                        clear_model_endpoint_credentials(model_cfg, clear_base_url=True)
-                    from hermes_cli.config import save_config
-                    save_config(cfg)
-                except Exception as e:
-                    logger.warning("Failed to persist model switch: %s", e)
+                _saved_path = _persist_model_switch_as_profile_default(result)
 
             # Build confirmation message with full metadata
             provider_label = result.provider_label or result.target_provider
@@ -1994,10 +2088,11 @@ class GatewaySlashCommandsMixin:
             if result.warning_message:
                 lines.append(t("gateway.model.warning_prefix", warning=result.warning_message))
 
-            if persist_global:
-                lines.append(t("gateway.model.saved_global"))
-            else:
-                lines.append(t("gateway.model.session_only_hint"))
+            lines.extend(
+                _model_persist_confirmation_lines(
+                    persist_global, _saved_path, _mux_profile_name
+                )
+            )
 
             return "\n".join(lines)
 

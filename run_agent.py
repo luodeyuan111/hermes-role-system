@@ -1008,6 +1008,15 @@ class AIAgent:
                 buf.clear()
         except Exception:
             pass
+        # A successful turn also re-arms the one-shot quota/auth attribution
+        # notices (R5.4): an outage that recurs AFTER this recovery is a new
+        # event and should notify again.
+        try:
+            from agent.failover_notice import clear_quota_attribution_latch
+
+            clear_quota_attribution_latch(self)
+        except Exception:
+            pass
 
     def _emit_pending_fallback_notice(self) -> None:
         """Surface the one-shot fallback-switch notice on successful recovery.
