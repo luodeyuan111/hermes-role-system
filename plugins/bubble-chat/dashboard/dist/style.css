@@ -665,6 +665,9 @@
 .hermes-bubble-chat .bg-transparent {
   background-color: transparent;
 }
+.hermes-bubble-chat .bg-warning {
+  background-color: var(--warning, #ffbd38);
+}
 .hermes-bubble-chat .bg-warning\/10 {
   background-color: var(--warning, #ffbd38);
   @supports (color: color-mix(in lab, red, red)) {
@@ -758,6 +761,9 @@
 .hermes-bubble-chat .pt-1 {
   padding-top: calc(0.25rem * var(--theme-spacing-mul, 1));
 }
+.hermes-bubble-chat .pt-1\.5 {
+  padding-top: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 1.5);
+}
 .hermes-bubble-chat .pt-2\.5 {
   padding-top: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 2.5);
 }
@@ -837,6 +843,10 @@
 .hermes-bubble-chat .font-medium {
   --tw-font-weight: var(--font-weight-medium, 500);
   font-weight: var(--font-weight-medium, 500);
+}
+.hermes-bubble-chat .font-normal {
+  --tw-font-weight: var(--font-weight-normal, 400);
+  font-weight: var(--font-weight-normal, 400);
 }
 .hermes-bubble-chat .font-semibold {
   --tw-font-weight: var(--font-weight-semibold, 600);
