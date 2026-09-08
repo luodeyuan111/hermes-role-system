@@ -92,11 +92,11 @@ function Avatar({
   );
 }
 
-// Memoized: the store emits per streaming delta (20-50/s), and without a
-// stable-reference bail-out every one of those re-renders ALL bubbles in a
-// long conversation — enough main-thread work for Firefox's "this page is
-// slowing down" warning. Untouched messages keep the same object identity
-// (store patches via map), so they skip render entirely.
+// Memoized: streaming deltas arrive in bursts and the store re-notifies
+// subscribers per flush window — without a stable-reference bail-out every
+// one of those re-renders ALL bubbles in a long conversation. Untouched
+// messages keep the same object identity (store patches via map), so they
+// skip render entirely.
 export const MessageBubble = memo(function MessageBubble({
   msg,
   onRetry,

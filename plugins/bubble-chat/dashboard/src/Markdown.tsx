@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { memo, useMemo, useRef, type ReactNode } from "react";
 
 import { isLocalFileRef } from "./chat/content";
 
@@ -10,6 +10,10 @@ import { isLocalFileRef } from "./chat/content";
  * `streaming` renders a blinking caret at the tail of the last block so it
  * appears to hug the final character instead of wrapping onto a new line
  * after a block element (paragraph/list/code/…).
+ *
+ * Streaming 期间走增量解析（useIncrementalBlocks）：已闭合的块跨帧复用
+ * 解析结果与渲染（Block 是 memo 组件），每帧只重解析/重渲染最后一个
+ * 可能未闭合的块，避免 O(n²) 的全量重解析。
  */
 export function Markdown({
   content,
@@ -28,7 +32,7 @@ export function Markdown({
    */
   localFileLinks?: boolean;
 }) {
-  const blocks = useMemo(() => parseBlocks(content), [content]);
+  const blocks = useIncrementalBlocks(content, streaming);
   const caret = streaming ? <StreamingCaret /> : null;
 
   return (
@@ -71,9 +75,22 @@ type BlockNode =
 /*  Block parser                                                       */
 /* ------------------------------------------------------------------ */
 
-function parseBlocks(text: string): BlockNode[] {
+interface BlockSpan {
+  node: BlockNode;
+  /** 块首行在源文本中的字符偏移——增量缓存据此切出「稳定前缀」。 */
+  start: number;
+}
+
+function parseBlockSpans(text: string): BlockSpan[] {
   const lines = text.split("\n");
-  const blocks: BlockNode[] = [];
+  // 每行的起始字符偏移（按 +1 计入换行符）。
+  const lineStarts = new Array<number>(lines.length);
+  let offset = 0;
+  for (let k = 0; k < lines.length; k++) {
+    lineStarts[k] = offset;
+    offset += lines[k].length + 1;
+  }
+  const spans: BlockSpan[] = [];
   let i = 0;
 
   while (i < lines.length) {
@@ -82,6 +99,7 @@ function parseBlocks(text: string): BlockNode[] {
     // Fenced code block
     const fenceMatch = line.match(/^```(\w*)/);
     if (fenceMatch) {
+      const start = lineStarts[i];
       const lang = fenceMatch[1] || "";
       const codeLines: string[] = [];
       i++;
@@ -90,17 +108,23 @@ function parseBlocks(text: string): BlockNode[] {
         i++;
       }
       i++; // skip closing ```
-      blocks.push({ type: "code", lang, content: codeLines.join("\n") });
+      spans.push({
+        start,
+        node: { type: "code", lang, content: codeLines.join("\n") },
+      });
       continue;
     }
 
     // Heading
     const headingMatch = line.match(/^(#{1,4})\s+(.+)/);
     if (headingMatch) {
-      blocks.push({
-        type: "heading",
-        level: headingMatch[1].length,
-        content: headingMatch[2],
+      spans.push({
+        start: lineStarts[i],
+        node: {
+          type: "heading",
+          level: headingMatch[1].length,
+          content: headingMatch[2],
+        },
       });
       i++;
       continue;
@@ -108,30 +132,32 @@ function parseBlocks(text: string): BlockNode[] {
 
     // Horizontal rule
     if (/^[-*_]{3,}\s*$/.test(line)) {
-      blocks.push({ type: "hr" });
+      spans.push({ start: lineStarts[i], node: { type: "hr" } });
       i++;
       continue;
     }
 
     // Unordered list
     if (/^[-*+]\s/.test(line)) {
+      const start = lineStarts[i];
       const items: string[] = [];
       while (i < lines.length && /^[-*+]\s/.test(lines[i])) {
         items.push(lines[i].replace(/^[-*+]\s/, ""));
         i++;
       }
-      blocks.push({ type: "list", ordered: false, items });
+      spans.push({ start, node: { type: "list", ordered: false, items } });
       continue;
     }
 
     // Ordered list
     if (/^\d+[.)]\s/.test(line)) {
+      const start = lineStarts[i];
       const items: string[] = [];
       while (i < lines.length && /^\d+[.)]\s/.test(lines[i])) {
         items.push(lines[i].replace(/^\d+[.)]\s/, ""));
         i++;
       }
-      blocks.push({ type: "list", ordered: true, items });
+      spans.push({ start, node: { type: "list", ordered: true, items } });
       continue;
     }
 
@@ -142,6 +168,7 @@ function parseBlocks(text: string): BlockNode[] {
     }
 
     // Paragraph — collect consecutive non-empty, non-special lines
+    const start = lineStarts[i];
     const paraLines: string[] = [];
     while (
       i < lines.length &&
@@ -156,18 +183,84 @@ function parseBlocks(text: string): BlockNode[] {
       i++;
     }
     if (paraLines.length > 0) {
-      blocks.push({ type: "paragraph", content: paraLines.join("\n") });
+      spans.push({
+        start,
+        node: { type: "paragraph", content: paraLines.join("\n") },
+      });
+    } else {
+      // 守卫：heading 分支要求 # 后非空（`(.+)`），但段落守卫只看
+      // `^#{1,4}\s`——streaming 中途的 "# "（井号+空格、内容未到达）两边
+      // 都不认领，不兜底的话 i 不前进，解析死循环、页面卡死。按纯文本收下。
+      spans.push({ start, node: { type: "paragraph", content: line } });
+      i++;
     }
   }
 
-  return blocks;
+  return spans;
+}
+
+/**
+ * Streaming 增量解析：streaming 气泡的内容只会追加，已稳定的块跨帧复用
+ * 解析结果，每帧只重解析尾部——把 streaming 期 O(n²) 的全量重解析降到
+ * 接近 O(n)。
+ *
+ * 「稳定」的判定比「非最后一块」更严格：列表/段落会在连续非空行之间合
+ * 并（"- 项目一" 缓存后，下一行 "- 项目二" 到达时全量解析会把它俩并为
+ * 一块），所以只有空行分隔的块边界才可以入缓存；最后一块永远重解析
+ * （未闭合的 ``` 围栏、增长中的段落都天然落在它上面）。
+ *
+ * 消息结束（streaming=false）或内容不是纯追加（message.complete 的权威
+ * 文本覆盖了累积 delta）时回退为一次性全量解析，且不保留缓存。
+ */
+function useIncrementalBlocks(content: string, streaming?: boolean): BlockNode[] {
+  const cacheRef = useRef<{ prefix: string; blocks: BlockNode[] }>({
+    prefix: "",
+    blocks: [],
+  });
+  return useMemo(() => {
+    let cache = cacheRef.current;
+    if (!streaming || !content.startsWith(cache.prefix)) {
+      cache = { prefix: "", blocks: [] };
+    }
+    const tail = content.slice(cache.prefix.length);
+    const tailSpans = parseBlockSpans(tail);
+    const blocks = cache.blocks.concat(tailSpans.map((s) => s.node));
+    if (streaming && tailSpans.length > 1) {
+      // 最靠后的空行分隔边界（tailSpans[k] 之前的 k 块入缓存）。
+      let stable = 0;
+      for (let k = 1; k < tailSpans.length; k++) {
+        if (hasBlankLineBefore(tail, tailSpans[k].start)) stable = k;
+      }
+      cacheRef.current =
+        stable > 0
+          ? {
+              prefix: cache.prefix + tail.slice(0, tailSpans[stable].start),
+              blocks: cache.blocks.concat(
+                tailSpans.slice(0, stable).map((s) => s.node),
+              ),
+            }
+          : cache;
+    } else {
+      cacheRef.current = streaming ? cache : { prefix: "", blocks: [] };
+    }
+    return blocks;
+  }, [content, streaming]);
+}
+
+/** start 处块边界的前一行是否空行——空行两侧的块不可能再被追加合并。 */
+function hasBlankLineBefore(text: string, start: number): boolean {
+  if (start < 1 || text[start - 1] !== "\n") return false;
+  return start === 1 || text[start - 2] === "\n";
 }
 
 /* ------------------------------------------------------------------ */
 /*  Block renderer                                                     */
 /* ------------------------------------------------------------------ */
 
-function Block({
+// Memoized: streaming 期间稳定块（useIncrementalBlocks 复用的解析结果）
+// 保持对象引用不变，配合 memo 直接跳过重渲染——每帧只有最后一个未闭合
+// 的块真正重跑 InlineContent。
+const Block = memo(function Block({
   block,
   highlightTerms,
   localFileLinks,
@@ -250,7 +343,7 @@ function Block({
         </p>
       );
   }
-}
+});
 
 /* ------------------------------------------------------------------ */
 /*  Inline parser + renderer                                           */

@@ -342,6 +342,14 @@ class BubbleChatStore {
   private streamingMsgId: string | null = null;
   /** tool_call_id → rendered tool-card message id. */
   private readonly toolCards = new Map<string, string>();
+  /** Streaming delta 合帧：delta 以 20-50/s 到达，逐条 emit 会让订阅方
+   *  （页面根组件）同频重渲染，长对话下足以触发 Firefox 的「此网页拖慢了
+   *  您的 Firefox」警告。message.delta / reasoning.delta 的文本累积同步
+   *  进 state（后续 delta 和 message.complete 读到的都是最新全文），但
+   *  订阅通知合并到每个时间片最多一次，中间帧直接丢弃。 */
+  private streamFlushTimer: ReturnType<typeof setTimeout> | null = null;
+  private streamDirty = false;
+  private static readonly STREAM_FLUSH_MS = 33;
 
   /* ---------------------------------------------------------------- */
   /*  Role context (sidebar two-level role UI)                         */
@@ -466,6 +474,37 @@ class BubbleChatStore {
     const id = this.streamingMsgId;
     if (!id) return;
     this.patchMessages((prev) => prev.map((m) => (m.id === id ? patch(m) : m)));
+  }
+
+  /** 同步累积 streaming 气泡内容，但不立即通知订阅者——通知由合帧
+   *  定时器按 STREAM_FLUSH_MS 节奏发出（见字段注释）。 */
+  private patchStreamingBubbleDeferred(
+    patch: (m: ChatMessage) => ChatMessage,
+  ): void {
+    const id = this.streamingMsgId;
+    if (!id) return;
+    this.state = {
+      ...this.state,
+      messages: this.state.messages.map((m) => (m.id === id ? patch(m) : m)),
+    };
+    this.streamDirty = true;
+    if (!this.streamFlushTimer) {
+      this.streamFlushTimer = setTimeout(() => {
+        this.streamFlushTimer = null;
+        if (!this.streamDirty) return;
+        this.streamDirty = false;
+        // state 已是最新累积文本，这里只补一次订阅通知。
+        this.emit({});
+      }, BubbleChatStore.STREAM_FLUSH_MS);
+    }
+  }
+
+  /** 回合收尾（complete/error）前调用：丢弃挂起的合帧通知——紧随其后
+   *  的常规 emit 已携带最终累积状态。 */
+  private cancelStreamFlush(): void {
+    if (this.streamFlushTimer) clearTimeout(this.streamFlushTimer);
+    this.streamFlushTimer = null;
+    this.streamDirty = false;
   }
 
   /* ---------------------------------------------------------------- */
@@ -704,7 +743,7 @@ class BubbleChatStore {
           ]);
           break;
         }
-        this.patchStreamingBubble((m) => ({ ...m, text: m.text + text }));
+        this.patchStreamingBubbleDeferred((m) => ({ ...m, text: m.text + text }));
         break;
       }
 
@@ -712,7 +751,7 @@ class BubbleChatStore {
       case "thinking.delta": {
         const text = typeof payload.text === "string" ? payload.text : "";
         if (!text || !this.streamingMsgId) break;
-        this.patchStreamingBubble((m) => ({
+        this.patchStreamingBubbleDeferred((m) => ({
           ...m,
           reasoning: (m.reasoning ?? "") + text,
         }));
@@ -749,6 +788,8 @@ class BubbleChatStore {
 
       case "message.complete": {
         const finalText = typeof payload.text === "string" ? payload.text : null;
+        // 最终状态必须立刻 emit（含合帧窗口内尚未通知的累积文本）。
+        this.cancelStreamFlush();
         this.patchStreamingBubble((m) => ({
           ...m,
           // The complete payload is authoritative; keep accumulated
@@ -842,6 +883,7 @@ class BubbleChatStore {
       case "error": {
         const message =
           typeof payload.message === "string" ? payload.message : "未知错误";
+        this.cancelStreamFlush();
         this.patchStreamingBubble((m) => ({ ...m, streaming: false }));
         this.streamingMsgId = null;
         this.patchMessages((prev) => [...prev, systemMessage(`错误：${message}`)]);

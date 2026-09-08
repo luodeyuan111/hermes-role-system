@@ -1885,7 +1885,7 @@
     streaming,
     localFileLinks
   }) {
-    const blocks = useMemo(() => parseBlocks(content), [content]);
+    const blocks = useIncrementalBlocks(content, streaming);
     const caret = streaming ? /* @__PURE__ */ jsx(StreamingCaret, {}) : null;
     return /* @__PURE__ */ jsxs("div", { className: "text-sm text-foreground leading-relaxed space-y-2", children: [
       blocks.map((block, i) => /* @__PURE__ */ jsx(
@@ -1910,14 +1910,21 @@
       }
     );
   }
-  function parseBlocks(text) {
+  function parseBlockSpans(text) {
     const lines = text.split("\n");
-    const blocks = [];
+    const lineStarts = new Array(lines.length);
+    let offset = 0;
+    for (let k = 0; k < lines.length; k++) {
+      lineStarts[k] = offset;
+      offset += lines[k].length + 1;
+    }
+    const spans = [];
     let i = 0;
     while (i < lines.length) {
       const line = lines[i];
       const fenceMatch = line.match(/^```(\w*)/);
       if (fenceMatch) {
+        const start2 = lineStarts[i];
         const lang = fenceMatch[1] || "";
         const codeLines = [];
         i++;
@@ -1926,58 +1933,107 @@
           i++;
         }
         i++;
-        blocks.push({ type: "code", lang, content: codeLines.join("\n") });
+        spans.push({
+          start: start2,
+          node: { type: "code", lang, content: codeLines.join("\n") }
+        });
         continue;
       }
       const headingMatch = line.match(/^(#{1,4})\s+(.+)/);
       if (headingMatch) {
-        blocks.push({
-          type: "heading",
-          level: headingMatch[1].length,
-          content: headingMatch[2]
+        spans.push({
+          start: lineStarts[i],
+          node: {
+            type: "heading",
+            level: headingMatch[1].length,
+            content: headingMatch[2]
+          }
         });
         i++;
         continue;
       }
       if (/^[-*_]{3,}\s*$/.test(line)) {
-        blocks.push({ type: "hr" });
+        spans.push({ start: lineStarts[i], node: { type: "hr" } });
         i++;
         continue;
       }
       if (/^[-*+]\s/.test(line)) {
+        const start2 = lineStarts[i];
         const items = [];
         while (i < lines.length && /^[-*+]\s/.test(lines[i])) {
           items.push(lines[i].replace(/^[-*+]\s/, ""));
           i++;
         }
-        blocks.push({ type: "list", ordered: false, items });
+        spans.push({ start: start2, node: { type: "list", ordered: false, items } });
         continue;
       }
       if (/^\d+[.)]\s/.test(line)) {
+        const start2 = lineStarts[i];
         const items = [];
         while (i < lines.length && /^\d+[.)]\s/.test(lines[i])) {
           items.push(lines[i].replace(/^\d+[.)]\s/, ""));
           i++;
         }
-        blocks.push({ type: "list", ordered: true, items });
+        spans.push({ start: start2, node: { type: "list", ordered: true, items } });
         continue;
       }
       if (line.trim() === "") {
         i++;
         continue;
       }
+      const start = lineStarts[i];
       const paraLines = [];
       while (i < lines.length && lines[i].trim() !== "" && !lines[i].match(/^```/) && !lines[i].match(/^#{1,4}\s/) && !lines[i].match(/^[-*+]\s/) && !lines[i].match(/^\d+[.)]\s/) && !lines[i].match(/^[-*_]{3,}\s*$/)) {
         paraLines.push(lines[i]);
         i++;
       }
       if (paraLines.length > 0) {
-        blocks.push({ type: "paragraph", content: paraLines.join("\n") });
+        spans.push({
+          start,
+          node: { type: "paragraph", content: paraLines.join("\n") }
+        });
+      } else {
+        spans.push({ start, node: { type: "paragraph", content: line } });
+        i++;
       }
     }
-    return blocks;
+    return spans;
   }
-  function Block({
+  function useIncrementalBlocks(content, streaming) {
+    const cacheRef = useRef({
+      prefix: "",
+      blocks: []
+    });
+    return useMemo(() => {
+      let cache = cacheRef.current;
+      if (!streaming || !content.startsWith(cache.prefix)) {
+        cache = { prefix: "", blocks: [] };
+      }
+      const tail = content.slice(cache.prefix.length);
+      const tailSpans = parseBlockSpans(tail);
+      const blocks = cache.blocks.concat(tailSpans.map((s) => s.node));
+      if (streaming && tailSpans.length > 1) {
+        let stable = 0;
+        for (let k = 1; k < tailSpans.length; k++) {
+          if (hasBlankLineBefore(tail, tailSpans[k].start)) stable = k;
+        }
+        cacheRef.current = stable > 0 ? {
+          prefix: cache.prefix + tail.slice(0, tailSpans[stable].start),
+          blocks: cache.blocks.concat(
+            tailSpans.slice(0, stable).map((s) => s.node)
+          )
+        } : cache;
+      } else {
+        cacheRef.current = streaming ? cache : { prefix: "", blocks: [] };
+      }
+      return blocks;
+    }, [content, streaming]);
+  }
+  function hasBlankLineBefore(text, start) {
+    if (start < 1 || text[start - 1] !== "\n") return false;
+    return start === 1 || text[start - 2] === "\n";
+  }
+  var Block = memo(function Block2({
     block,
     highlightTerms,
     localFileLinks,
@@ -2048,7 +2104,7 @@
           caret
         ] });
     }
-  }
+  });
   function parseInline(text) {
     const nodes = [];
     const pattern = /(`[^`]+`)|(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(\bhttps?:\/\/[^\s<>)\]]+)|(\n)/g;
@@ -2636,37 +2692,32 @@
     streaming
   }) {
     const [open, setOpen] = useState(false);
-    const [touched, setTouched] = useState(false);
     const bodyRef = useRef(null);
-    const effectiveOpen = touched ? open : !!streaming;
     useEffect(() => {
       const el = bodyRef.current;
-      if (el && streaming && !touched) el.scrollTop = el.scrollHeight;
-    }, [text, streaming, touched]);
+      if (el && streaming && open) el.scrollTop = el.scrollHeight;
+    }, [text, streaming, open]);
     if (!text.trim()) return null;
     return /* @__PURE__ */ jsxs("div", { className: "rounded-md border border-current/10 bg-muted/40 text-xs", children: [
       /* @__PURE__ */ jsxs(
         "button",
         {
           type: "button",
-          onClick: () => {
-            setTouched(true);
-            setOpen(!effectiveOpen);
-          },
-          "aria-expanded": effectiveOpen,
+          onClick: () => setOpen(!open),
+          "aria-expanded": open,
           className: cn(
             "flex w-full items-center gap-1.5 px-2.5 py-1.5",
             "text-text-tertiary hover:text-text-secondary",
             "cursor-pointer transition-colors"
           ),
           children: [
-            effectiveOpen ? /* @__PURE__ */ jsx(ChevronDown, { className: "h-3 w-3 shrink-0" }) : /* @__PURE__ */ jsx(ChevronRight, { className: "h-3 w-3 shrink-0" }),
+            open ? /* @__PURE__ */ jsx(ChevronDown, { className: "h-3 w-3 shrink-0" }) : /* @__PURE__ */ jsx(ChevronRight, { className: "h-3 w-3 shrink-0" }),
             /* @__PURE__ */ jsx("span", { children: streaming ? "\u6B63\u5728\u601D\u8003\u2026" : "\u601D\u8003\u8FC7\u7A0B" }),
             streaming && /* @__PURE__ */ jsx("span", { className: "ml-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-tertiary" })
           ]
         }
       ),
-      effectiveOpen && /* @__PURE__ */ jsx(
+      open && /* @__PURE__ */ jsx(
         "div",
         {
           ref: bodyRef,
@@ -3014,6 +3065,7 @@
 
   // src/chat/MessageList.tsx
   var AT_BOTTOM_THRESHOLD = 80;
+  var RENDER_WINDOW = 50;
   function MessageList({
     messages,
     emptyHint,
@@ -3054,6 +3106,21 @@
       }
       return null;
     }, [messages]);
+    const [windowSize, setWindowSize] = useState(RENDER_WINDOW);
+    const hiddenCount = Math.max(0, messages.length - windowSize);
+    const visibleMessages = hiddenCount > 0 ? messages.slice(hiddenCount) : messages;
+    const prependAnchorRef = useRef(null);
+    const loadEarlier = useCallback(() => {
+      const el = containerRef.current;
+      if (el) prependAnchorRef.current = el.scrollHeight - el.scrollTop;
+      setWindowSize((n) => n + RENDER_WINDOW);
+    }, []);
+    useLayoutEffect(() => {
+      const el = containerRef.current;
+      if (!el || prependAnchorRef.current == null) return;
+      el.scrollTop = el.scrollHeight - prependAnchorRef.current;
+      prependAnchorRef.current = null;
+    }, [windowSize]);
     return /* @__PURE__ */ jsxs("div", { className: "relative min-h-0 flex-1", children: [
       /* @__PURE__ */ jsx(
         "div",
@@ -3061,16 +3128,35 @@
           ref: containerRef,
           onScroll,
           className: "flex h-full flex-col gap-3 overflow-y-auto overflow-x-hidden py-3",
-          children: messages.length === 0 ? /* @__PURE__ */ jsx("div", { className: "flex flex-1 items-center justify-center px-4 text-center text-sm text-text-tertiary", children: emptyHint ?? "\u5F00\u59CB\u65B0\u7684\u5BF9\u8BDD\u5427" }) : messages.map((m) => /* @__PURE__ */ jsx(
-            MessageBubble,
-            {
-              msg: m,
-              agentAvatarUrl,
-              onRetry: onRetry && (m.role === "user" || m.id === lastAssistantId) ? onRetry : void 0,
-              onEdit: onEdit && m.role === "user" ? onEdit : void 0
-            },
-            m.id
-          ))
+          children: messages.length === 0 ? /* @__PURE__ */ jsx("div", { className: "flex flex-1 items-center justify-center px-4 text-center text-sm text-text-tertiary", children: emptyHint ?? "\u5F00\u59CB\u65B0\u7684\u5BF9\u8BDD\u5427" }) : /* @__PURE__ */ jsxs(Fragment2, { children: [
+            hiddenCount > 0 && /* @__PURE__ */ jsx("div", { className: "flex justify-center", children: /* @__PURE__ */ jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: loadEarlier,
+                className: cn(
+                  "rounded-full border border-current/15 bg-background-base px-3 py-1",
+                  "text-xs text-text-secondary shadow-sm",
+                  "cursor-pointer hover:text-foreground transition-colors"
+                ),
+                children: [
+                  "\u52A0\u8F7D\u66F4\u65E9\u6D88\u606F\uFF08\u8FD8\u6709 ",
+                  hiddenCount,
+                  " \u6761\uFF09"
+                ]
+              }
+            ) }),
+            visibleMessages.map((m) => /* @__PURE__ */ jsx(
+              MessageBubble,
+              {
+                msg: m,
+                agentAvatarUrl,
+                onRetry: onRetry && (m.role === "user" || m.id === lastAssistantId) ? onRetry : void 0,
+                onEdit: onEdit && m.role === "user" ? onEdit : void 0
+              },
+              m.id
+            ))
+          ] })
         }
       ),
       !atBottom && /* @__PURE__ */ jsxs(
@@ -4557,6 +4643,14 @@ ${t.sessions.confirmDeleteMessage}`
     streamingMsgId = null;
     /** tool_call_id → rendered tool-card message id. */
     toolCards = /* @__PURE__ */ new Map();
+    /** Streaming delta 合帧：delta 以 20-50/s 到达，逐条 emit 会让订阅方
+     *  （页面根组件）同频重渲染，长对话下足以触发 Firefox 的「此网页拖慢了
+     *  您的 Firefox」警告。message.delta / reasoning.delta 的文本累积同步
+     *  进 state（后续 delta 和 message.complete 读到的都是最新全文），但
+     *  订阅通知合并到每个时间片最多一次，中间帧直接丢弃。 */
+    streamFlushTimer = null;
+    streamDirty = false;
+    static STREAM_FLUSH_MS = 33;
     /* ---------------------------------------------------------------- */
     /*  Role context (sidebar two-level role UI)                         */
     /* ---------------------------------------------------------------- */
@@ -4661,6 +4755,32 @@ ${t.sessions.confirmDeleteMessage}`
       const id = this.streamingMsgId;
       if (!id) return;
       this.patchMessages((prev) => prev.map((m) => m.id === id ? patch(m) : m));
+    }
+    /** 同步累积 streaming 气泡内容，但不立即通知订阅者——通知由合帧
+     *  定时器按 STREAM_FLUSH_MS 节奏发出（见字段注释）。 */
+    patchStreamingBubbleDeferred(patch) {
+      const id = this.streamingMsgId;
+      if (!id) return;
+      this.state = {
+        ...this.state,
+        messages: this.state.messages.map((m) => m.id === id ? patch(m) : m)
+      };
+      this.streamDirty = true;
+      if (!this.streamFlushTimer) {
+        this.streamFlushTimer = setTimeout(() => {
+          this.streamFlushTimer = null;
+          if (!this.streamDirty) return;
+          this.streamDirty = false;
+          this.emit({});
+        }, _BubbleChatStore.STREAM_FLUSH_MS);
+      }
+    }
+    /** 回合收尾（complete/error）前调用：丢弃挂起的合帧通知——紧随其后
+     *  的常规 emit 已携带最终累积状态。 */
+    cancelStreamFlush() {
+      if (this.streamFlushTimer) clearTimeout(this.streamFlushTimer);
+      this.streamFlushTimer = null;
+      this.streamDirty = false;
     }
     /* ---------------------------------------------------------------- */
     /*  Gateway lifecycle (connect once, reconnect on demand)            */
@@ -4851,14 +4971,14 @@ ${t.sessions.confirmDeleteMessage}`
             ]);
             break;
           }
-          this.patchStreamingBubble((m) => ({ ...m, text: m.text + text }));
+          this.patchStreamingBubbleDeferred((m) => ({ ...m, text: m.text + text }));
           break;
         }
         case "reasoning.delta":
         case "thinking.delta": {
           const text = typeof payload.text === "string" ? payload.text : "";
           if (!text || !this.streamingMsgId) break;
-          this.patchStreamingBubble((m) => ({
+          this.patchStreamingBubbleDeferred((m) => ({
             ...m,
             reasoning: (m.reasoning ?? "") + text
           }));
@@ -4884,6 +5004,7 @@ ${t.sessions.confirmDeleteMessage}`
         }
         case "message.complete": {
           const finalText = typeof payload.text === "string" ? payload.text : null;
+          this.cancelStreamFlush();
           this.patchStreamingBubble((m) => ({
             ...m,
             // The complete payload is authoritative; keep accumulated
@@ -4959,6 +5080,7 @@ ${t.sessions.confirmDeleteMessage}`
         }
         case "error": {
           const message = typeof payload.message === "string" ? payload.message : "\u672A\u77E5\u9519\u8BEF";
+          this.cancelStreamFlush();
           this.patchStreamingBubble((m) => ({ ...m, streaming: false }));
           this.streamingMsgId = null;
           this.patchMessages((prev) => [...prev, systemMessage(`\u9519\u8BEF\uFF1A${message}`)]);
