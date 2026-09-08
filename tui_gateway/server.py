@@ -3945,6 +3945,18 @@ def _agent_cbs(sid: str) -> dict:
             sid,
             {"text": text, **({"verbose": True} if _session_verbose(sid) else {})},
         ),
+        # Mid-turn tool-loop commentary ("interim narration"). Core strips
+        # think tags and dedupes (run_agent._emit_interim_assistant_message)
+        # and reports whether the text already went out on the delta stream.
+        # Clients can't otherwise tell this visible text apart from the final
+        # answer (both stream via message.delta) — message.interim marks it so
+        # they can drop it from display/TTS queues. message.delta and
+        # message.complete are unaffected.
+        "interim_assistant_callback": lambda text, already_streamed=False: _emit(
+            "message.interim",
+            sid,
+            {"text": text, "already_streamed": bool(already_streamed)},
+        ),
         "status_callback": lambda kind, text=None: _status_update(
             sid, str(kind), None if text is None else str(text)
         ),

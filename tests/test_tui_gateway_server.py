@@ -1615,6 +1615,32 @@ def test_status_callback_accepts_single_message_argument():
     )
 
 
+def test_interim_assistant_callback_emits_message_interim():
+    """Tool-loop interim narration broadcasts as message.interim with the
+    core-provided already_streamed flag, routed to the owning session."""
+    with patch("tui_gateway.server._emit") as emit:
+        cb = server._agent_cbs("sid")["interim_assistant_callback"]
+        cb("Let me check that for you.", already_streamed=True)
+
+    emit.assert_called_once_with(
+        "message.interim",
+        "sid",
+        {"text": "Let me check that for you.", "already_streamed": True},
+    )
+
+
+def test_interim_assistant_callback_defaults_already_streamed_false():
+    with patch("tui_gateway.server._emit") as emit:
+        cb = server._agent_cbs("sid")["interim_assistant_callback"]
+        cb("working on it")
+
+    emit.assert_called_once_with(
+        "message.interim",
+        "sid",
+        {"text": "working on it", "already_streamed": False},
+    )
+
+
 def test_resolve_model_uses_inference_model_env(monkeypatch):
     monkeypatch.delenv("HERMES_MODEL", raising=False)
     monkeypatch.setenv("HERMES_INFERENCE_MODEL", " anthropic/claude-sonnet-4.6\n")
