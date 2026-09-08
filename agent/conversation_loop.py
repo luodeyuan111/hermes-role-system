@@ -2705,6 +2705,12 @@ def run_conversation(
                     classified.retryable, classified.should_compress,
                     classified.should_rotate_credential, classified.should_fallback,
                 )
+                # Durable quota/auth failures (dead plan, rejected key) get a
+                # one-shot channel-visible attribution line even when the
+                # fallback chain goes on to recover the turn (R5.4).
+                from agent.failover_notice import emit_quota_attribution_once
+
+                emit_quota_attribution_once(agent, classified)
                 agent._invoke_api_request_error_hook(
                     task_id=effective_task_id,
                     turn_id=turn_id,

@@ -1540,6 +1540,7 @@ def try_activate_fallback(agent, reason: "FailoverReason | None" = None) -> bool
 
         old_model = agent.model
         old_provider = agent.provider
+        old_base_url = getattr(agent, "base_url", "") or ""
 
         # Clear the per-config context_length override so the fallback
         # model's actual context window is resolved instead of inheriting
@@ -1713,9 +1714,17 @@ def try_activate_fallback(agent, reason: "FailoverReason | None" = None) -> bool
         # success path surfaces exactly once via _emit_pending_fallback_notice
         # (see run_agent.py); it is discarded on terminal failure since the
         # buffered line is flushed instead.  See fallback-observability fix.
+        # The notice names the failing side AND the cause (R5.4): "DeepSeek
+        # failed (rate limit / quota throttling (HTTP 429)) — switched to
+        # fallback: glm-5.3-flash via Z.AI / GLM (China)", with multi-node
+        # providers (GLM metered vs Coding Plan) disambiguated by endpoint.
+        from agent.failover_notice import describe_failover_cause, provider_display_label
+
+        _old_label = provider_display_label(old_provider, old_base_url)
+        _fb_label = provider_display_label(fb_provider, fb_base_url)
         agent._pending_fallback_notice = (
-            f"🔄 Switched to fallback model: {old_model} via {old_provider} "
-            f"→ {fb_model} via {fb_provider}"
+            f"🔄 {_old_label} failed ({describe_failover_cause(reason)}) — "
+            f"switched to fallback: {fb_model} via {_fb_label}"
         )
         logger.info(
             "Fallback activated: %s → %s (%s)",
