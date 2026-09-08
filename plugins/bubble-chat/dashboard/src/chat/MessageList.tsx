@@ -6,7 +6,7 @@
  * instead of yanking the view around.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 
 import { MessageBubble } from "./MessageBubble";
@@ -15,6 +15,10 @@ import { cn } from "../sdk";
 
 // Distance from the bottom (px) that still counts as "at the bottom".
 const AT_BOTTOM_THRESHOLD = 80;
+
+// 渲染窗口：只挂载最近 N 条消息，更早的折叠到顶部「加载更早消息」按钮
+// 后面——长对话全量挂载的 DOM 规模本身就会拖慢每一帧的布局/绘制。
+const RENDER_WINDOW = 50;
 
 export function MessageList({
   messages,
@@ -52,10 +56,9 @@ export function MessageList({
   }, []);
 
   // New message (or streaming growth): follow the tail only when the user
-  // hasn't scrolled up into the backlog. rAF-coalesced: the store emits per
-  // streaming delta (20-50/s) and scrollTo forces a synchronous layout of
-  // the whole list each time — at delta rate that alone can trip Firefox's
-  // "this page is slowing down" warning on long conversations.
+  // hasn't scrolled up into the backlog. rAF-coalesced: scrollTo forces a
+  // synchronous layout of the whole list, so even with the store's delta
+  // batching (STREAM_FLUSH_MS) the follow-scroll stays at most one per frame.
   const scrollRafRef = useRef(0);
   useEffect(() => {
     if (!atBottomRef.current || scrollRafRef.current) return;
@@ -70,13 +73,36 @@ export function MessageList({
   );
 
   // Retry is offered on every user message and on the latest assistant
-  // reply (which resubmits the user text that prompted it).
+  // reply (which resubmits the user text that prompted it). Computed over
+  // the FULL list — windowing below only limits what gets mounted.
   const lastAssistantId = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       if (messages[i].role === "assistant") return messages[i].id;
     }
     return null;
   }, [messages]);
+
+  // 窗口化：只渲染最近 windowSize 条；派生计算（上面的 lastAssistantId、
+  // 空态判断）仍基于全量 messages。
+  const [windowSize, setWindowSize] = useState(RENDER_WINDOW);
+  const hiddenCount = Math.max(0, messages.length - windowSize);
+  const visibleMessages =
+    hiddenCount > 0 ? messages.slice(hiddenCount) : messages;
+
+  // 向上扩展窗口前记录滚动锚点，渲染后把视口钉回原先读到的位置，
+  // 避免 prepend 的更早消息把当前阅读位置顶跑。
+  const prependAnchorRef = useRef<number | null>(null);
+  const loadEarlier = useCallback(() => {
+    const el = containerRef.current;
+    if (el) prependAnchorRef.current = el.scrollHeight - el.scrollTop;
+    setWindowSize((n) => n + RENDER_WINDOW);
+  }, []);
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el || prependAnchorRef.current == null) return;
+    el.scrollTop = el.scrollHeight - prependAnchorRef.current;
+    prependAnchorRef.current = null;
+  }, [windowSize]);
 
   return (
     <div className="relative min-h-0 flex-1">
@@ -90,19 +116,36 @@ export function MessageList({
             {emptyHint ?? "开始新的对话吧"}
           </div>
         ) : (
-          messages.map((m) => (
-            <MessageBubble
-              key={m.id}
-              msg={m}
-              agentAvatarUrl={agentAvatarUrl}
-              onRetry={
-                onRetry && (m.role === "user" || m.id === lastAssistantId)
-                  ? onRetry
-                  : undefined
-              }
-              onEdit={onEdit && m.role === "user" ? onEdit : undefined}
-            />
-          ))
+          <>
+            {hiddenCount > 0 && (
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={loadEarlier}
+                  className={cn(
+                    "rounded-full border border-current/15 bg-background-base px-3 py-1",
+                    "text-xs text-text-secondary shadow-sm",
+                    "cursor-pointer hover:text-foreground transition-colors",
+                  )}
+                >
+                  加载更早消息（还有 {hiddenCount} 条）
+                </button>
+              </div>
+            )}
+            {visibleMessages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                msg={m}
+                agentAvatarUrl={agentAvatarUrl}
+                onRetry={
+                  onRetry && (m.role === "user" || m.id === lastAssistantId)
+                    ? onRetry
+                    : undefined
+                }
+                onEdit={onEdit && m.role === "user" ? onEdit : undefined}
+              />
+            ))}
+          </>
         )}
       </div>
 
