@@ -26,6 +26,7 @@ import {
   useAgentAvatar,
   useChatBackground,
 } from "./chat/ChatBackground";
+import { ChatModelBadge } from "./chat/ChatModelBadge";
 import { Composer } from "./chat/Composer";
 import { MessageList } from "./chat/MessageList";
 import { PendingPromptCard } from "./chat/PendingPromptCard";
@@ -212,7 +213,8 @@ export default function BubbleChatPage() {
               <PanelLeft />
             </Button>
           </span>
-          <span className="ml-auto">
+          <span className="ml-auto flex items-center gap-1">
+            <ChatModelBadge />
             <ChatBackgroundPicker bg={chatBg} profile={scopedProfile} avatar={agentAvatar} />
           </span>
         </div>

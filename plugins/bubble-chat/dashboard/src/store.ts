@@ -111,7 +111,6 @@ function asSlashDirective(raw: unknown): SlashDirective | null {
 // degrades to a grey system hint instead of crashing the stream.
 const IGNORED_EVENT_TYPES = new Set([
   "gateway.ready",
-  "session.info",
   "tool.progress",
   "skin.changed",
 ]);
@@ -306,6 +305,10 @@ export interface BubbleChatState {
   /** The agent's per-session todo list (latest write wins). */
   todos: TodoItem[];
   messages: ChatMessage[];
+  /** Live session's current model/provider, from session.info events (or
+   *  the creation-time pick). "" until the first event arrives. */
+  sessionModel: string;
+  sessionProvider: string;
 }
 
 const INITIAL_STATE: BubbleChatState = {
@@ -321,6 +324,8 @@ const INITIAL_STATE: BubbleChatState = {
   promptBusy: false,
   todos: [],
   messages: [],
+  sessionModel: "",
+  sessionProvider: "",
 };
 
 class BubbleChatStore {
@@ -390,6 +395,41 @@ class BubbleChatStore {
   /** Session picked inside a role view: bind that role for the resume. */
   bindResumeRole = (role: string): void => {
     this.resumeRole = role;
+  };
+
+  /**
+   * Switch the LIVE session's model via `/model --session` (slash.exec).
+   * Session-scoped only — never writes the profile default. Returns null on
+   * success (the badge updates immediately; session.info confirms), or an
+   * error string to show in the picker (unknown model, agent busy, …).
+   */
+  setSessionModel = async (
+    model: string,
+    provider: string,
+  ): Promise<string | null> => {
+    const gw = this.gw;
+    const sid = this.liveSid;
+    if (!gw || !sid) return "网关未连接";
+    try {
+      const raw = await gw.request<unknown>("slash.exec", {
+        session_id: sid,
+        command: `/model --session ${model}`,
+      });
+      const output = ((raw ?? {}) as SlashOutputResult).output ?? "";
+      // The agent-running guard and validation failures come back as normal
+      // output text, not RPC errors — surface them as picker errors.
+      if (/agent is running|未知|unknown model|not found|无法|失败/i.test(output)) {
+        return output.trim() || "切换失败";
+      }
+      this.emit({
+        sessionModel: model,
+        sessionProvider: provider,
+        statusText: null,
+      });
+      return null;
+    } catch (e) {
+      return e instanceof Error ? e.message : String(e);
+    }
   };
 
   /** model.options RPC for the role view's model dropdown; null when the
@@ -575,6 +615,8 @@ class BubbleChatStore {
       promptBusy: false,
       todos: [],
       messages: [],
+      sessionModel: "",
+      sessionProvider: "",
     });
     this.maybeStartSession();
   };
@@ -608,6 +650,8 @@ class BubbleChatStore {
       promptBusy: false,
       todos: [],
       messages: [],
+      sessionModel: "",
+      sessionProvider: "",
     });
 
     if (spec.resume) {
@@ -638,7 +682,13 @@ class BubbleChatStore {
         .then((res) => {
           if (!isCurrent()) return;
           this.liveSid = res.session_id;
-          this.emit({ sessionReady: true });
+          // Show the creation-time pick immediately; session.info confirms
+          // (or fills in the profile default) once the agent is built.
+          this.emit({
+            sessionReady: true,
+            sessionModel: this.newChatModel,
+            sessionProvider: this.newChatProvider,
+          });
         })
         .catch((e: Error) => {
           if (!isCurrent()) return;
@@ -926,6 +976,19 @@ class BubbleChatStore {
           },
           statusText: "等待你的回答…",
         });
+        break;
+      }
+
+      case "session.info": {
+        // Agent (re)built — authoritative model/provider for this session
+        // (covers /model switches, resume rehydrate, fallbacks).
+        const model = typeof payload.model === "string" ? payload.model : "";
+        const provider =
+          typeof payload.provider === "string" ? payload.provider : "";
+        if (!model && !provider) break;
+        if (model === this.state.sessionModel && provider === this.state.sessionProvider)
+          break;
+        this.emit({ sessionModel: model, sessionProvider: provider });
         break;
       }
 
