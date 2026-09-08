@@ -1,12 +1,13 @@
 /**
  * Collapsible reasoning/thinking block shown above an assistant bubble.
  *
- * While reasoning is STREAMING the block auto-expands and follows the tail:
- * a collapsed block hides the whole thinking phase, which reads as a dead
- * bubble for 10-30s on hard questions (the model streams hundreds of
- * reasoning deltas before the first visible content token). The first
- * manual toggle wins and sticks for the rest of the message's life; an
- * untouched block folds itself back once the stream completes.
+ * The block stays COLLAPSED while reasoning streams: auto-expanding meant
+ * every reasoning.delta re-rendered the full thinking text and forced a
+ * synchronous scroll layout — on hard questions the model streams hundreds
+ * of deltas before the first content token, which was a main-thread cost
+ * big enough to trip Firefox's "this page is slowing down" warning. The
+ * header still shows a live 正在思考… indicator, and the user can expand
+ * manually at any time (the toggle is sticky for the message's life).
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -22,16 +23,15 @@ export function ReasoningBlock({
   streaming?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [touched, setTouched] = useState(false);
   const bodyRef = useRef<HTMLDivElement | null>(null);
-  const effectiveOpen = touched ? open : !!streaming;
 
-  // Follow the reasoning tail while auto-opened; never yank the scroll
-  // position once the user has taken over the toggle.
+  // Follow the reasoning tail only while the user has manually expanded
+  // the block mid-stream (the max-h-64 container keeps layout bounded);
+  // a collapsed block never touches scroll position.
   useEffect(() => {
     const el = bodyRef.current;
-    if (el && streaming && !touched) el.scrollTop = el.scrollHeight;
-  }, [text, streaming, touched]);
+    if (el && streaming && open) el.scrollTop = el.scrollHeight;
+  }, [text, streaming, open]);
 
   if (!text.trim()) return null;
 
@@ -39,18 +39,15 @@ export function ReasoningBlock({
     <div className="rounded-md border border-current/10 bg-muted/40 text-xs">
       <button
         type="button"
-        onClick={() => {
-          setTouched(true);
-          setOpen(!effectiveOpen);
-        }}
-        aria-expanded={effectiveOpen}
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
         className={cn(
           "flex w-full items-center gap-1.5 px-2.5 py-1.5",
           "text-text-tertiary hover:text-text-secondary",
           "cursor-pointer transition-colors",
         )}
       >
-        {effectiveOpen ? (
+        {open ? (
           <ChevronDown className="h-3 w-3 shrink-0" />
         ) : (
           <ChevronRight className="h-3 w-3 shrink-0" />
@@ -60,7 +57,7 @@ export function ReasoningBlock({
           <span className="ml-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-tertiary" />
         )}
       </button>
-      {effectiveOpen && (
+      {open && (
         <div
           ref={bodyRef}
           className="max-h-64 overflow-y-auto border-t border-current/10 px-2.5 py-2 whitespace-pre-wrap text-text-secondary"
