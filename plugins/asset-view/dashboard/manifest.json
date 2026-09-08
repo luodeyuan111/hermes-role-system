@@ -1,0 +1,14 @@
+{
+  "name": "asset-view",
+  "label": "资产总览",
+  "description": "资产总览 — 当前 profile 的 toolsets 启停、MCP servers、自建脚本与 cron workflow 的只读聚合视图",
+  "icon": "Package",
+  "version": "1.0.0",
+  "tab": {
+    "path": "/asset-view",
+    "position": "after:files"
+  },
+  "entry": "dist/index.js",
+  "css": "dist/style.css",
+  "api": "plugin_api.py"
+}

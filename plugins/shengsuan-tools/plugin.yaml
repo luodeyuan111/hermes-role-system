@@ -1,0 +1,8 @@
+name: shengsuan-tools
+version: 1.0.0
+description: "胜算云自建工具 first-class 化 — vision_analyze_ss（本地图片识别，包 scripts/tools/vision.py）与 image_generate_ss（胜算云生图，包 scripts/tools/generate.py，走 doubao-seedream-4.0 / gpt-image-2）。key 走 SHENGSHUAN_API_KEY 环境变量或 scripts/tools/api_keys.json，不落明文。"
+author: velya
+kind: backend
+provides_tools:
+  - vision_analyze_ss
+  - image_generate_ss
