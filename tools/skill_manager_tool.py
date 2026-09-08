@@ -858,7 +858,10 @@ def _shared_pool_mutation_guard(skill_dir: Path) -> Optional[Dict[str, Any]]:
             f"'{skill_dir}' lives in the shared default-profile skills pool, "
             "which is read-only from a named profile. Switch to the default "
             "profile to modify it, or create a same-named local override in "
-            "this profile instead."
+            "this profile instead. "
+            "如需修改底座资产：在会话内向用户说明需求并请求审批，"
+            "或通过 `hermes request create --kind skill --title \"...\"` "
+            "提交资产申请单走审批流程（`hermes request list` 查看进度）。"
         ),
     }
 
