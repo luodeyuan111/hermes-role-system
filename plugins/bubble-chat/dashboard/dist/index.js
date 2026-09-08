@@ -200,8 +200,27 @@
   ];
   var Copy = createLucideIcon("copy", __iconNode12);
 
-  // ../../../node_modules/lucide-react/dist/esm/icons/file-text.js
+  // ../../../node_modules/lucide-react/dist/esm/icons/cpu.js
   var __iconNode13 = [
+    ["path", { d: "M12 20v2", key: "1lh1kg" }],
+    ["path", { d: "M12 2v2", key: "tus03m" }],
+    ["path", { d: "M17 20v2", key: "1rnc9c" }],
+    ["path", { d: "M17 2v2", key: "11trls" }],
+    ["path", { d: "M2 12h2", key: "1t8f8n" }],
+    ["path", { d: "M2 17h2", key: "7oei6x" }],
+    ["path", { d: "M2 7h2", key: "asdhe0" }],
+    ["path", { d: "M20 12h2", key: "1q8mjw" }],
+    ["path", { d: "M20 17h2", key: "1fpfkl" }],
+    ["path", { d: "M20 7h2", key: "1o8tra" }],
+    ["path", { d: "M7 20v2", key: "4gnj0m" }],
+    ["path", { d: "M7 2v2", key: "1i4yhu" }],
+    ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
+    ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
+  ];
+  var Cpu = createLucideIcon("cpu", __iconNode13);
+
+  // ../../../node_modules/lucide-react/dist/esm/icons/file-text.js
+  var __iconNode14 = [
     [
       "path",
       {
@@ -214,10 +233,10 @@
     ["path", { d: "M16 13H8", key: "t4e002" }],
     ["path", { d: "M16 17H8", key: "z1uh3a" }]
   ];
-  var FileText = createLucideIcon("file-text", __iconNode13);
+  var FileText = createLucideIcon("file-text", __iconNode14);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/file.js
-  var __iconNode14 = [
+  var __iconNode15 = [
     [
       "path",
       {
@@ -227,10 +246,10 @@
     ],
     ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }]
   ];
-  var File2 = createLucideIcon("file", __iconNode14);
+  var File2 = createLucideIcon("file", __iconNode15);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/folder.js
-  var __iconNode15 = [
+  var __iconNode16 = [
     [
       "path",
       {
@@ -239,10 +258,10 @@
       }
     ]
   ];
-  var Folder = createLucideIcon("folder", __iconNode15);
+  var Folder = createLucideIcon("folder", __iconNode16);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-off.js
-  var __iconNode16 = [
+  var __iconNode17 = [
     ["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "a6p6uj" }],
     ["path", { d: "M10.41 10.41a2 2 0 1 1-2.83-2.83", key: "1bzlo9" }],
     ["line", { x1: "13.5", x2: "6", y1: "13.5", y2: "21", key: "1q0aeu" }],
@@ -256,52 +275,52 @@
     ],
     ["path", { d: "M21 15V5a2 2 0 0 0-2-2H9", key: "43el77" }]
   ];
-  var ImageOff = createLucideIcon("image-off", __iconNode16);
+  var ImageOff = createLucideIcon("image-off", __iconNode17);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image-plus.js
-  var __iconNode17 = [
+  var __iconNode18 = [
     ["path", { d: "M16 5h6", key: "1vod17" }],
     ["path", { d: "M19 2v6", key: "4bpg5p" }],
     ["path", { d: "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5", key: "1ue2ih" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }]
   ];
-  var ImagePlus = createLucideIcon("image-plus", __iconNode17);
+  var ImagePlus = createLucideIcon("image-plus", __iconNode18);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/image.js
-  var __iconNode18 = [
+  var __iconNode19 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
     ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
     ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
   ];
-  var Image = createLucideIcon("image", __iconNode18);
+  var Image = createLucideIcon("image", __iconNode19);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/list-checks.js
-  var __iconNode19 = [
+  var __iconNode20 = [
     ["path", { d: "M13 5h8", key: "a7qcls" }],
     ["path", { d: "M13 12h8", key: "h98zly" }],
     ["path", { d: "M13 19h8", key: "c3s6r1" }],
     ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
     ["path", { d: "m3 7 2 2 4-4", key: "1obspn" }]
   ];
-  var ListChecks = createLucideIcon("list-checks", __iconNode19);
+  var ListChecks = createLucideIcon("list-checks", __iconNode20);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/list-todo.js
-  var __iconNode20 = [
+  var __iconNode21 = [
     ["path", { d: "M13 5h8", key: "a7qcls" }],
     ["path", { d: "M13 12h8", key: "h98zly" }],
     ["path", { d: "M13 19h8", key: "c3s6r1" }],
     ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
     ["rect", { x: "3", y: "4", width: "6", height: "6", rx: "1", key: "cif1o7" }]
   ];
-  var ListTodo = createLucideIcon("list-todo", __iconNode20);
+  var ListTodo = createLucideIcon("list-todo", __iconNode21);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/loader-circle.js
-  var __iconNode21 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-  var LoaderCircle = createLucideIcon("loader-circle", __iconNode21);
+  var __iconNode22 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+  var LoaderCircle = createLucideIcon("loader-circle", __iconNode22);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square-plus.js
-  var __iconNode22 = [
+  var __iconNode23 = [
     [
       "path",
       {
@@ -312,10 +331,10 @@
     ["path", { d: "M12 8v6", key: "1ib9pf" }],
     ["path", { d: "M9 11h6", key: "1fldmi" }]
   ];
-  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode22);
+  var MessageSquarePlus = createLucideIcon("message-square-plus", __iconNode23);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/message-square.js
-  var __iconNode23 = [
+  var __iconNode24 = [
     [
       "path",
       {
@@ -324,18 +343,18 @@
       }
     ]
   ];
-  var MessageSquare = createLucideIcon("message-square", __iconNode23);
+  var MessageSquare = createLucideIcon("message-square", __iconNode24);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/music.js
-  var __iconNode24 = [
+  var __iconNode25 = [
     ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
     ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
     ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
   ];
-  var Music = createLucideIcon("music", __iconNode24);
+  var Music = createLucideIcon("music", __iconNode25);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/palette.js
-  var __iconNode25 = [
+  var __iconNode26 = [
     [
       "path",
       {
@@ -348,33 +367,33 @@
     ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
     ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
   ];
-  var Palette = createLucideIcon("palette", __iconNode25);
+  var Palette = createLucideIcon("palette", __iconNode26);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-close.js
-  var __iconNode26 = [
+  var __iconNode27 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m16 15-3-3 3-3", key: "14y99z" }]
   ];
-  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode26);
+  var PanelLeftClose = createLucideIcon("panel-left-close", __iconNode27);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left-open.js
-  var __iconNode27 = [
+  var __iconNode28 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }],
     ["path", { d: "m14 9 3 3-3 3", key: "8010ee" }]
   ];
-  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode27);
+  var PanelLeftOpen = createLucideIcon("panel-left-open", __iconNode28);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/panel-left.js
-  var __iconNode28 = [
+  var __iconNode29 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
     ["path", { d: "M9 3v18", key: "fh3hqa" }]
   ];
-  var PanelLeft = createLucideIcon("panel-left", __iconNode28);
+  var PanelLeft = createLucideIcon("panel-left", __iconNode29);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/paperclip.js
-  var __iconNode29 = [
+  var __iconNode30 = [
     [
       "path",
       {
@@ -383,10 +402,10 @@
       }
     ]
   ];
-  var Paperclip = createLucideIcon("paperclip", __iconNode29);
+  var Paperclip = createLucideIcon("paperclip", __iconNode30);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/pencil.js
-  var __iconNode30 = [
+  var __iconNode31 = [
     [
       "path",
       {
@@ -396,33 +415,33 @@
     ],
     ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
   ];
-  var Pencil = createLucideIcon("pencil", __iconNode30);
+  var Pencil = createLucideIcon("pencil", __iconNode31);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/plus.js
-  var __iconNode31 = [
+  var __iconNode32 = [
     ["path", { d: "M5 12h14", key: "1ays0h" }],
     ["path", { d: "M12 5v14", key: "s699le" }]
   ];
-  var Plus = createLucideIcon("plus", __iconNode31);
+  var Plus = createLucideIcon("plus", __iconNode32);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/refresh-cw.js
-  var __iconNode32 = [
+  var __iconNode33 = [
     ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
     ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
     ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
     ["path", { d: "M8 16H3v5", key: "1cv678" }]
   ];
-  var RefreshCw = createLucideIcon("refresh-cw", __iconNode32);
+  var RefreshCw = createLucideIcon("refresh-cw", __iconNode33);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/rotate-ccw.js
-  var __iconNode33 = [
+  var __iconNode34 = [
     ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
     ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
   ];
-  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode33);
+  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode34);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/send-horizontal.js
-  var __iconNode34 = [
+  var __iconNode35 = [
     [
       "path",
       {
@@ -432,10 +451,10 @@
     ],
     ["path", { d: "M6 12h16", key: "s4cdu5" }]
   ];
-  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode34);
+  var SendHorizontal = createLucideIcon("send-horizontal", __iconNode35);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/shield-alert.js
-  var __iconNode35 = [
+  var __iconNode36 = [
     [
       "path",
       {
@@ -446,10 +465,10 @@
     ["path", { d: "M12 8v4", key: "1got3b" }],
     ["path", { d: "M12 16h.01", key: "1drbdi" }]
   ];
-  var ShieldAlert = createLucideIcon("shield-alert", __iconNode35);
+  var ShieldAlert = createLucideIcon("shield-alert", __iconNode36);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/sparkles.js
-  var __iconNode36 = [
+  var __iconNode37 = [
     [
       "path",
       {
@@ -461,16 +480,16 @@
     ["path", { d: "M22 4h-4", key: "gwowj6" }],
     ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
   ];
-  var Sparkles = createLucideIcon("sparkles", __iconNode36);
+  var Sparkles = createLucideIcon("sparkles", __iconNode37);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/square.js
-  var __iconNode37 = [
+  var __iconNode38 = [
     ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
   ];
-  var Square = createLucideIcon("square", __iconNode37);
+  var Square = createLucideIcon("square", __iconNode38);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/star.js
-  var __iconNode38 = [
+  var __iconNode39 = [
     [
       "path",
       {
@@ -479,35 +498,35 @@
       }
     ]
   ];
-  var Star = createLucideIcon("star", __iconNode38);
+  var Star = createLucideIcon("star", __iconNode39);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/terminal.js
-  var __iconNode39 = [
+  var __iconNode40 = [
     ["path", { d: "M12 19h8", key: "baeox8" }],
     ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
   ];
-  var Terminal = createLucideIcon("terminal", __iconNode39);
+  var Terminal = createLucideIcon("terminal", __iconNode40);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/timer.js
-  var __iconNode40 = [
+  var __iconNode41 = [
     ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
     ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
     ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
   ];
-  var Timer = createLucideIcon("timer", __iconNode40);
+  var Timer = createLucideIcon("timer", __iconNode41);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/trash-2.js
-  var __iconNode41 = [
+  var __iconNode42 = [
     ["path", { d: "M10 11v6", key: "nco0om" }],
     ["path", { d: "M14 11v6", key: "outv1u" }],
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
     ["path", { d: "M3 6h18", key: "d0wm0j" }],
     ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
   ];
-  var Trash2 = createLucideIcon("trash-2", __iconNode41);
+  var Trash2 = createLucideIcon("trash-2", __iconNode42);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/wrench.js
-  var __iconNode42 = [
+  var __iconNode43 = [
     [
       "path",
       {
@@ -516,14 +535,14 @@
       }
     ]
   ];
-  var Wrench = createLucideIcon("wrench", __iconNode42);
+  var Wrench = createLucideIcon("wrench", __iconNode43);
 
   // ../../../node_modules/lucide-react/dist/esm/icons/x.js
-  var __iconNode43 = [
+  var __iconNode44 = [
     ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
     ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
   ];
-  var X = createLucideIcon("x", __iconNode43);
+  var X = createLucideIcon("x", __iconNode44);
 
   // src/sdk.ts
   function sdk() {
@@ -1137,6 +1156,1386 @@
     ] });
   }
 
+  // src/roles.ts
+  var BASE = `${HERMES_BASE_PATH}/api/plugins/bubble-chat`;
+  var rolesPromise = null;
+  function fetchRoles() {
+    if (!rolesPromise) {
+      rolesPromise = fetchJSON(`${BASE}/roles`).then((list) => Array.isArray(list) ? list : []).catch(() => {
+        rolesPromise = null;
+        return [];
+      });
+    }
+    return rolesPromise;
+  }
+  function invalidateRoles() {
+    rolesPromise = null;
+  }
+  async function createRole(payload) {
+    const role = await fetchJSON(`${BASE}/roles`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    invalidateRoles();
+    return role;
+  }
+  function fetchRolePrompt(name) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/prompt`);
+  }
+  async function writeRolePrompt(name, content) {
+    await fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/prompt`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content })
+    });
+    invalidateRoles();
+  }
+  function fetchRoleMemory(name) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`);
+  }
+  function fetchBaseFiles() {
+    return fetchJSON(`${BASE}/roles/default/base-files`);
+  }
+  function readBaseFile(name) {
+    return fetchJSON(
+      `${BASE}/roles/default/base-file?name=${encodeURIComponent(name)}`
+    );
+  }
+  async function writeBaseFile(name, content) {
+    await fetchJSON(
+      `${BASE}/roles/default/base-file?name=${encodeURIComponent(name)}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content })
+      }
+    );
+  }
+  async function writeRoleMemory(name, content) {
+    await fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content })
+    });
+  }
+  function fetchRoleSkills(name) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/skills`);
+  }
+  function writeRoleSkills(name, text) {
+    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/skills`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+  }
+  async function lookupSessionProfile(sessionId) {
+    try {
+      const res = await fetchJSON(
+        `${BASE}/roles/lookup?session_id=${encodeURIComponent(sessionId)}`
+      );
+      return res?.profile ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  // ../../../apps/shared/src/json-rpc-gateway.ts
+  var ANY = "*";
+  var DEFAULT_REQUEST_TIMEOUT_MS = 12e4;
+  var DEFAULT_CONNECT_TIMEOUT_MS = 15e3;
+  var JsonRpcGatewayClient = class {
+    nextId = 0;
+    pending = /* @__PURE__ */ new Map();
+    socket = null;
+    state = "idle";
+    eventHandlers = /* @__PURE__ */ new Map();
+    stateHandlers = /* @__PURE__ */ new Set();
+    options;
+    constructor(options = {}) {
+      this.options = {
+        closedErrorMessage: options.closedErrorMessage ?? "WebSocket closed",
+        connectErrorMessage: options.connectErrorMessage ?? "WebSocket connection failed",
+        connectTimeoutMs: options.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS,
+        createRequestId: options.createRequestId ?? ((nextId) => `${options.requestIdPrefix ?? "r"}${nextId}`),
+        notConnectedErrorMessage: options.notConnectedErrorMessage ?? "gateway not connected",
+        requestIdPrefix: options.requestIdPrefix ?? "r",
+        requestTimeoutMs: options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
+        socketFactory: options.socketFactory
+      };
+    }
+    get connectionState() {
+      return this.state;
+    }
+    async connect(wsUrl) {
+      if (this.socket?.readyState === WebSocket.OPEN || this.state === "connecting") {
+        return;
+      }
+      this.setState("connecting");
+      const socket = this.options.socketFactory?.(wsUrl) ?? new WebSocket(wsUrl);
+      this.socket = socket;
+      socket.addEventListener("message", (message) => {
+        if (this.socket !== socket) {
+          return;
+        }
+        this.handleMessage(message.data);
+      });
+      socket.addEventListener("close", () => {
+        if (this.socket !== socket) {
+          return;
+        }
+        this.socket = null;
+        this.setState("closed");
+        this.rejectAllPending(new Error(this.options.closedErrorMessage));
+      });
+      await new Promise((resolve, reject) => {
+        let settled = false;
+        let timer;
+        const cleanup = () => {
+          if (timer !== void 0) {
+            clearTimeout(timer);
+          }
+          socket.removeEventListener("open", onOpen);
+          socket.removeEventListener("error", onError);
+        };
+        const onOpen = () => {
+          if (settled || this.socket !== socket) {
+            return;
+          }
+          settled = true;
+          cleanup();
+          this.setState("open");
+          resolve();
+        };
+        const onError = () => {
+          if (settled || this.socket !== socket) {
+            return;
+          }
+          settled = true;
+          cleanup();
+          this.setState("error");
+          reject(new Error(this.options.connectErrorMessage));
+        };
+        socket.addEventListener("open", onOpen, { once: true });
+        socket.addEventListener("error", onError, { once: true });
+        if (this.options.connectTimeoutMs > 0) {
+          timer = setTimeout(() => {
+            if (settled) {
+              return;
+            }
+            settled = true;
+            cleanup();
+            if (this.socket === socket) {
+              try {
+                socket.close();
+              } catch {
+              }
+              this.socket = null;
+            }
+            this.setState("error");
+            reject(new Error(this.options.connectErrorMessage));
+          }, this.options.connectTimeoutMs);
+        }
+      });
+    }
+    close() {
+      const socket = this.socket;
+      if (!socket) {
+        return;
+      }
+      try {
+        socket.close();
+      } finally {
+        this.socket = null;
+        this.setState("closed");
+        this.rejectAllPending(new Error(this.options.closedErrorMessage));
+      }
+    }
+    on(type, handler) {
+      let handlers = this.eventHandlers.get(type);
+      if (!handlers) {
+        handlers = /* @__PURE__ */ new Set();
+        this.eventHandlers.set(type, handlers);
+      }
+      handlers.add(handler);
+      return () => handlers?.delete(handler);
+    }
+    onAny(handler) {
+      return this.on(ANY, handler);
+    }
+    onEvent(handler) {
+      return this.onAny(handler);
+    }
+    onState(handler) {
+      this.stateHandlers.add(handler);
+      handler(this.state);
+      return () => this.stateHandlers.delete(handler);
+    }
+    request(method, params = {}, timeoutMs = this.options.requestTimeoutMs, signal) {
+      const socket = this.socket;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return Promise.reject(new Error(this.options.notConnectedErrorMessage));
+      }
+      if (signal?.aborted) {
+        return Promise.reject(new DOMException("Aborted", "AbortError"));
+      }
+      const id = this.options.createRequestId(++this.nextId);
+      return new Promise((resolve, reject) => {
+        let onAbort;
+        const detach = () => {
+          if (onAbort && signal) {
+            signal.removeEventListener("abort", onAbort);
+          }
+        };
+        const pending = {
+          resolve: (value) => {
+            detach();
+            resolve(value);
+          },
+          reject: (error) => {
+            detach();
+            reject(error);
+          }
+        };
+        if (timeoutMs > 0) {
+          pending.timer = setTimeout(() => {
+            if (this.pending.delete(id)) {
+              detach();
+              reject(new Error(`request timed out: ${method}`));
+            }
+          }, timeoutMs);
+        }
+        if (signal) {
+          onAbort = () => {
+            const call = this.pending.get(id);
+            if (call?.timer) {
+              clearTimeout(call.timer);
+            }
+            this.pending.delete(id);
+            detach();
+            reject(new DOMException("Aborted", "AbortError"));
+          };
+          signal.addEventListener("abort", onAbort, { once: true });
+        }
+        this.pending.set(id, pending);
+        try {
+          socket.send(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              id,
+              method,
+              params
+            })
+          );
+        } catch (error) {
+          this.clearPending(id);
+          detach();
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
+      });
+    }
+    handleMessage(raw) {
+      const text = typeof raw === "string" ? raw : String(raw);
+      let frame;
+      try {
+        frame = JSON.parse(text);
+      } catch {
+        return;
+      }
+      if (frame.id !== void 0 && frame.id !== null) {
+        const call = this.pending.get(frame.id);
+        if (!call) {
+          return;
+        }
+        this.clearPending(frame.id);
+        if (frame.error) {
+          call.reject(new Error(frame.error.message || "Hermes RPC failed"));
+        } else {
+          call.resolve(frame.result);
+        }
+        return;
+      }
+      if (frame.method === "event" && frame.params?.type) {
+        this.dispatchEvent(frame.params);
+      }
+    }
+    clearPending(id) {
+      const call = this.pending.get(id);
+      if (call?.timer) {
+        clearTimeout(call.timer);
+      }
+      this.pending.delete(id);
+    }
+    dispatchEvent(event) {
+      for (const handler of this.eventHandlers.get(event.type) ?? []) {
+        handler(event);
+      }
+      for (const handler of this.eventHandlers.get(ANY) ?? []) {
+        handler(event);
+      }
+    }
+    rejectAllPending(error) {
+      for (const [id, call] of this.pending) {
+        if (call.timer) {
+          clearTimeout(call.timer);
+        }
+        call.reject(error);
+        this.pending.delete(id);
+      }
+    }
+    setState(state) {
+      if (this.state === state) {
+        return;
+      }
+      this.state = state;
+      for (const handler of this.stateHandlers) {
+        handler(state);
+      }
+    }
+  };
+
+  // ../../../apps/shared/src/websocket-url.ts
+  function readWindowLocation() {
+    if (typeof window === "undefined") {
+      return { host: "", protocol: "http:" };
+    }
+    return { host: window.location.host, protocol: window.location.protocol };
+  }
+  function normalizeBasePath(basePath) {
+    if (!basePath) {
+      return "";
+    }
+    const withLead = basePath.startsWith("/") ? basePath : `/${basePath}`;
+    return withLead.replace(/\/+$/, "");
+  }
+  function normalizeEndpointPath(path) {
+    return path.startsWith("/") ? path : `/${path}`;
+  }
+  function buildHermesWebSocketUrl(options) {
+    const loc = readWindowLocation();
+    const protocol = options.protocol ?? loc.protocol;
+    const host = options.host ?? loc.host;
+    const wsScheme = protocol === "https:" || protocol === "wss:" ? "wss:" : "ws:";
+    const qs = new URLSearchParams(options.params ?? {});
+    if (options.authParam) {
+      const [name, value] = options.authParam;
+      qs.set(name, value);
+    }
+    const query = qs.toString();
+    const suffix = query ? `?${query}` : "";
+    return `${wsScheme}//${host}${normalizeBasePath(options.basePath)}${normalizeEndpointPath(options.path)}${suffix}`;
+  }
+
+  // src/gatewayClient.ts
+  var GatewayClient = class extends JsonRpcGatewayClient {
+    constructor() {
+      super({
+        closedErrorMessage: "WebSocket closed",
+        connectErrorMessage: "WebSocket connection failed",
+        notConnectedErrorMessage: "gateway not connected",
+        requestIdPrefix: "w"
+      });
+    }
+    async connect(token) {
+      if (this.connectionState === "open" || this.connectionState === "connecting") {
+        return;
+      }
+      const authParam = token ? ["token", token] : await buildWsAuthParam();
+      if (!authParam[1]) {
+        throw new Error(
+          "Session token not available \u2014 page must be served by the Hermes dashboard server"
+        );
+      }
+      await super.connect(
+        buildHermesWebSocketUrl({
+          authParam,
+          basePath: HERMES_BASE_PATH,
+          path: "/api/ws"
+        })
+      );
+    }
+  };
+
+  // src/chat/types.ts
+  var nextMessageId = 0;
+  function messageId() {
+    nextMessageId += 1;
+    return `m${nextMessageId}`;
+  }
+  function nowSeconds() {
+    return Date.now() / 1e3;
+  }
+  function formatBubbleTime(ts) {
+    const d = new Date(ts * 1e3);
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  }
+  var CONTENT_JSON_PREFIX = "\0json:";
+  function contentPartsOf(content) {
+    if (Array.isArray(content)) return content;
+    if (typeof content !== "string") return null;
+    if (!content.startsWith(CONTENT_JSON_PREFIX)) return null;
+    try {
+      const parts = JSON.parse(content.slice(CONTENT_JSON_PREFIX.length));
+      return Array.isArray(parts) ? parts : null;
+    } catch {
+      return null;
+    }
+  }
+  function imagePartUrl(part) {
+    const raw = part.image_url;
+    if (typeof raw === "string") return raw;
+    if (raw && typeof raw === "object") {
+      const url = raw.url;
+      if (typeof url === "string") return url;
+    }
+    return null;
+  }
+  function decodeMessageContentParts(content) {
+    if (!content) return { text: "", images: [] };
+    const parts = contentPartsOf(content);
+    if (parts === null) {
+      return typeof content === "string" ? { text: content, images: [] } : { text: String(content), images: [] };
+    }
+    const out = [];
+    const images = [];
+    for (const part of parts) {
+      if (part == null || typeof part !== "object") continue;
+      const p = part;
+      if (p.type === "text" && typeof p.text === "string") {
+        out.push(p.text);
+      } else if (p.type === "image_url") {
+        const url = imagePartUrl(p);
+        if (url) images.push(url);
+      }
+    }
+    return { text: out.filter(Boolean).join("\n"), images };
+  }
+
+  // src/store.ts
+  function asSlashDirective(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const r = raw;
+    const str = (v) => typeof v === "string" ? v : void 0;
+    switch (r.type) {
+      case "exec":
+      case "plugin":
+        return { type: r.type, output: str(r.output) };
+      case "alias":
+        return typeof r.target === "string" ? { type: "alias", target: r.target } : null;
+      case "skill":
+        return typeof r.name === "string" ? { type: "skill", name: r.name, message: str(r.message) } : null;
+      case "send":
+        return typeof r.message === "string" ? { type: "send", message: r.message, notice: str(r.notice) } : null;
+      case "prefill":
+        return { type: "prefill", message: str(r.message), notice: str(r.notice) };
+      default:
+        return null;
+    }
+  }
+  var IGNORED_EVENT_TYPES = /* @__PURE__ */ new Set([
+    "gateway.ready",
+    "tool.progress",
+    "skin.changed"
+  ]);
+  function parseToolArgs(raw) {
+    if (!raw) return void 0;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return raw;
+    }
+  }
+  function parseTodoList(raw) {
+    let data = raw;
+    if (typeof raw === "string") {
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+    if (!data || typeof data !== "object") return null;
+    const todos = data.todos;
+    if (!Array.isArray(todos)) return null;
+    return todos.filter((t) => !!t && typeof t === "object").map((t) => ({
+      id: String(t.id ?? ""),
+      content: String(t.content ?? ""),
+      status: String(t.status ?? "pending")
+    }));
+  }
+  function latestTodosFromHistory(messages) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role === "tool" && m.tool_name === "todo") {
+        const todos = parseTodoList(m.content);
+        if (todos) return todos;
+      }
+    }
+    return null;
+  }
+  function stringifyToolResult(result) {
+    if (result == null) return void 0;
+    if (typeof result === "string") return result;
+    try {
+      return JSON.stringify(result, null, 2);
+    } catch {
+      return String(result);
+    }
+  }
+  function isErrorResult(result) {
+    if (typeof result === "string") {
+      return /^\s*(error[:\s]|错误[:：]|failed[:\s])/i.test(result);
+    }
+    if (result && typeof result === "object") {
+      const err = result.error;
+      return typeof err === "string" ? err.trim().length > 0 : Boolean(err);
+    }
+    return false;
+  }
+  function historyToChatMessages(msg, index) {
+    const base = {
+      timestamp: msg.timestamp ?? 0
+    };
+    const out = [];
+    const { text, images } = decodeMessageContentParts(msg.content);
+    if (msg.role === "tool") {
+      out.push({
+        ...base,
+        id: `h${index}`,
+        role: "tool",
+        text: "",
+        toolName: msg.tool_name ?? "tool",
+        toolRunning: false,
+        toolCallId: msg.tool_call_id,
+        toolResult: text || void 0
+      });
+      return out;
+    }
+    const reasoning = msg.reasoning || msg.reasoning_content || msg.reasoning_details || void 0;
+    out.push({
+      ...base,
+      id: `h${index}`,
+      role: msg.role,
+      text,
+      reasoning: msg.role === "assistant" ? reasoning : void 0,
+      images: images.length > 0 ? images : void 0
+    });
+    if (msg.role === "assistant" && msg.tool_calls) {
+      msg.tool_calls.forEach((tc, i) => {
+        out.push({
+          ...base,
+          id: `h${index}t${i}`,
+          role: "tool",
+          text: "",
+          toolName: tc.function?.name ?? "tool",
+          toolRunning: false,
+          toolCallId: tc.id,
+          toolArgs: parseToolArgs(tc.function?.arguments)
+        });
+      });
+    }
+    return out;
+  }
+  function mergeToolCards(messages) {
+    const byCallId = /* @__PURE__ */ new Map();
+    const out = [];
+    for (const m of messages) {
+      if (m.role === "tool" && m.toolCallId) {
+        const existing = byCallId.get(m.toolCallId);
+        if (existing) {
+          existing.toolResult = m.toolResult ?? existing.toolResult;
+          existing.toolArgs = existing.toolArgs ?? m.toolArgs;
+          continue;
+        }
+        byCallId.set(m.toolCallId, m);
+      }
+      out.push(m);
+    }
+    return out;
+  }
+  function systemMessage(text) {
+    return { id: messageId(), role: "system", text, timestamp: nowSeconds() };
+  }
+  var APPROVAL_CHOICE_LABELS = {
+    once: "\u5141\u8BB8\u4E00\u6B21",
+    session: "\u672C\u6B21\u4F1A\u8BDD\u5185\u5141\u8BB8",
+    always: "\u6C38\u4E45\u5141\u8BB8",
+    deny: "\u62D2\u7EDD"
+  };
+  var INITIAL_STATE = {
+    connState: "idle",
+    error: null,
+    newChatNonce: 0,
+    sessionReady: false,
+    loadingHistory: false,
+    generating: false,
+    statusText: null,
+    slashBusy: false,
+    pendingPrompt: null,
+    promptBusy: false,
+    todos: [],
+    messages: [],
+    sessionModel: "",
+    sessionProvider: ""
+  };
+  var BubbleChatStore = class _BubbleChatStore {
+    state = INITIAL_STATE;
+    listeners = /* @__PURE__ */ new Set();
+    gw = null;
+    /** Live gateway session id (session.create/resume result) — events and
+     *  prompt.submit/interrupt all key on this, NOT the stored resume id. */
+    liveSid = null;
+    /** Spec the page last attached, and the spec the lifecycle last started
+     *  for. Both serialise to the same key shape. */
+    attachedKey = null;
+    startedKey = null;
+    attachedSpec = null;
+    /** Monotonic token: only the latest session lifecycle run may commit. */
+    sessionReq = 0;
+    /** Assistant bubble currently receiving deltas. */
+    streamingMsgId = null;
+    /** tool_call_id → rendered tool-card message id. */
+    toolCards = /* @__PURE__ */ new Map();
+    /** Streaming delta 合帧：delta 以 20-50/s 到达，逐条 emit 会让订阅方
+     *  （页面根组件）同频重渲染，长对话下足以触发 Firefox 的「此网页拖慢了
+     *  您的 Firefox」警告。message.delta / reasoning.delta 的文本累积同步
+     *  进 state（后续 delta 和 message.complete 读到的都是最新全文），但
+     *  订阅通知合并到每个时间片最多一次，中间帧直接丢弃。 */
+    streamFlushTimer = null;
+    streamDirty = false;
+    static STREAM_FLUSH_MS = 33;
+    /* ---------------------------------------------------------------- */
+    /*  Role context (sidebar two-level role UI)                         */
+    /* ---------------------------------------------------------------- */
+    /** Role the NEXT new chat is created under (a profile id; "" = default).
+     *  Staged by the role view's 新建小对话 button, read by the create branch
+     *  of the session lifecycle. Creation-time only — never applied to a
+     *  live/resumed session (prompt caching is sacred). */
+    newChatRole = "";
+    /** Optional per-chat model pick from the role view's dropdown, with the
+     *  provider slug resolved from the model.options payload (sending model
+     *  without its provider makes the gateway resolve the model against the
+     *  profile's DEFAULT provider → "API 没有找到" for foreign model ids). */
+    newChatModel = "";
+    newChatProvider = "";
+    /** Role that owns the session being RESUMED ("" = default/management).
+     *  Set when the user picks a row inside a role view; role sessions live
+     *  in their own profile's state.db, so resume must bind that profile. */
+    resumeRole = "";
+    /** 新建小对话 (role view): stage the creation context and force the
+     *  attach effect to spawn a fresh session. The page clears ?resume. */
+    startNewChatInRole = (role, model = "", provider = "") => {
+      this.newChatRole = role;
+      this.newChatModel = model;
+      this.newChatProvider = provider;
+      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
+    };
+    /** A plain fresh chat keeps the last staged role context (the role view
+     *  the user is standing in) — same as picking 新建小对话 without
+     *  touching the model dropdown. */
+    bumpNewChatNonce = () => {
+      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
+    };
+    /** Session picked inside a role view: bind that role for the resume. */
+    bindResumeRole = (role) => {
+      this.resumeRole = role;
+    };
+    /**
+     * Switch the LIVE session's model via `/model --session` (slash.exec).
+     * Session-scoped only — never writes the profile default. Returns null on
+     * success (the badge updates immediately; session.info confirms), or an
+     * error string to show in the picker (unknown model, agent busy, …).
+     */
+    setSessionModel = async (model, provider) => {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      if (!gw || !sid) return "\u7F51\u5173\u672A\u8FDE\u63A5";
+      try {
+        const raw = await gw.request("slash.exec", {
+          session_id: sid,
+          command: `/model --session ${model}`
+        });
+        const output = (raw ?? {}).output ?? "";
+        if (/agent is running|未知|unknown model|not found|无法|失败/i.test(output)) {
+          return output.trim() || "\u5207\u6362\u5931\u8D25";
+        }
+        this.emit({
+          sessionModel: model,
+          sessionProvider: provider,
+          statusText: null
+        });
+        return null;
+      } catch (e) {
+        return e instanceof Error ? e.message : String(e);
+      }
+    };
+    /** model.options RPC for the role view's model dropdown; null when the
+     *  socket isn't open or the call fails (dropdown degrades to 默认 only).
+     *  Cached for the page's lifetime — the catalog is disk-cached server
+     *  side, and a failed fetch is not cached so the next open retries. */
+    modelOptionsPromise = null;
+    getModelOptions = () => {
+      if (!this.modelOptionsPromise) {
+        this.modelOptionsPromise = this.fetchModelOptions().catch(() => {
+          this.modelOptionsPromise = null;
+          return null;
+        });
+      }
+      return this.modelOptionsPromise;
+    };
+    fetchModelOptions = async () => {
+      const gw = this.gw;
+      if (!gw || this.state.connState !== "open") return null;
+      try {
+        return await gw.request("model.options", {});
+      } catch {
+        return null;
+      }
+    };
+    /* ---------------------------------------------------------------- */
+    /*  Subscription (useSyncExternalStore contract)                     */
+    /* ---------------------------------------------------------------- */
+    subscribe = (fn) => {
+      this.listeners.add(fn);
+      return () => this.listeners.delete(fn);
+    };
+    getSnapshot = () => this.state;
+    /** Watchdog: while generating, any silence longer than this surfaces a
+     *  status hint instead of looking like the turn vanished (429 storms,
+     *  dead turns with no terminal event — seen in production). */
+    watchdogTimer = null;
+    static WATCHDOG_MS = 45e3;
+    armWatchdog() {
+      if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
+      this.watchdogTimer = setTimeout(() => {
+        this.watchdogTimer = null;
+        if (!this.state.generating) return;
+        this.emit({
+          statusText: "\u7B49\u5F85\u54CD\u5E94\u65F6\u95F4\u8F83\u957F\u2014\u2014\u53EF\u80FD\u88AB\u9650\u6D41\u6216\u56DE\u5408\u5F02\u5E38\uFF0C\u53EF\u70B9\u6D88\u606F\u7684\u91CD\u8BD5"
+        });
+      }, _BubbleChatStore.WATCHDOG_MS);
+    }
+    disarmWatchdog() {
+      if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
+      this.watchdogTimer = null;
+    }
+    emit(partial) {
+      this.state = { ...this.state, ...partial };
+      if (partial.generating === true) this.armWatchdog();
+      if (partial.generating === false) this.disarmWatchdog();
+      for (const fn of this.listeners) {
+        try {
+          fn();
+        } catch {
+        }
+      }
+    }
+    patchMessages(patch) {
+      this.emit({ messages: patch(this.state.messages) });
+    }
+    patchStreamingBubble(patch) {
+      const id = this.streamingMsgId;
+      if (!id) return;
+      this.patchMessages((prev) => prev.map((m) => m.id === id ? patch(m) : m));
+    }
+    /** 同步累积 streaming 气泡内容，但不立即通知订阅者——通知由合帧
+     *  定时器按 STREAM_FLUSH_MS 节奏发出（见字段注释）。 */
+    patchStreamingBubbleDeferred(patch) {
+      const id = this.streamingMsgId;
+      if (!id) return;
+      this.state = {
+        ...this.state,
+        messages: this.state.messages.map((m) => m.id === id ? patch(m) : m)
+      };
+      this.streamDirty = true;
+      if (!this.streamFlushTimer) {
+        this.streamFlushTimer = setTimeout(() => {
+          this.streamFlushTimer = null;
+          if (!this.streamDirty) return;
+          this.streamDirty = false;
+          this.emit({});
+        }, _BubbleChatStore.STREAM_FLUSH_MS);
+      }
+    }
+    /** 回合收尾（complete/error）前调用：丢弃挂起的合帧通知——紧随其后
+     *  的常规 emit 已携带最终累积状态。 */
+    cancelStreamFlush() {
+      if (this.streamFlushTimer) clearTimeout(this.streamFlushTimer);
+      this.streamFlushTimer = null;
+      this.streamDirty = false;
+    }
+    /* ---------------------------------------------------------------- */
+    /*  Gateway lifecycle (connect once, reconnect on demand)            */
+    /* ---------------------------------------------------------------- */
+    ensureGateway() {
+      if (!this.gw) {
+        const gw = new GatewayClient();
+        this.gw = gw;
+        gw.onState((connState) => {
+          this.emit({ connState });
+          if (connState === "open") {
+            this.maybeStartSession();
+          } else if (connState === "closed" || connState === "error") {
+            this.startedKey = null;
+          }
+        });
+        gw.onAny((ev) => this.handleEvent(ev));
+        queueMicrotask(() => this.connectGateway());
+      }
+      return this.gw;
+    }
+    /** (Re)connect the socket — also the error banner's 重新连接 action. */
+    connectGateway = () => {
+      const gw = this.ensureGateway();
+      this.emit({ error: null });
+      gw.connect().catch((e) => {
+        this.emit({ error: e.message || "WebSocket \u8FDE\u63A5\u5931\u8D25" });
+      });
+    };
+    /* ---------------------------------------------------------------- */
+    /*  Session attach + lifecycle                                       */
+    /* ---------------------------------------------------------------- */
+    static keyOf(spec, nonce) {
+      return `${spec.profile}${spec.resume ?? ""}${nonce}`;
+    }
+    /**
+     * Attach the page to a conversation spec. Idempotent: re-attaching the
+     * same key (e.g. a tab-switch remount) is a no-op, so the live session
+     * and its messages survive. A changed key resets the per-session render
+     * state and starts the lifecycle once the socket is open.
+     */
+    attach = (spec) => {
+      this.ensureGateway();
+      const key = _BubbleChatStore.keyOf(spec, this.state.newChatNonce);
+      if (key === this.attachedKey) return;
+      this.attachedKey = key;
+      this.attachedSpec = spec;
+      this.sessionReq += 1;
+      this.liveSid = null;
+      this.streamingMsgId = null;
+      this.toolCards.clear();
+      this.emit({
+        sessionReady: false,
+        loadingHistory: false,
+        generating: false,
+        statusText: null,
+        pendingPrompt: null,
+        promptBusy: false,
+        todos: [],
+        messages: [],
+        sessionModel: "",
+        sessionProvider: ""
+      });
+      this.maybeStartSession();
+    };
+    /** Run the session lifecycle when the socket is open and the attached
+     *  spec hasn't been started yet. */
+    maybeStartSession() {
+      const spec = this.attachedSpec;
+      if (!spec || this.state.connState !== "open") return;
+      const key = this.attachedKey;
+      if (!key || key === this.startedKey) return;
+      this.startedKey = key;
+      const gw = this.gw;
+      if (!gw) return;
+      const myReq = ++this.sessionReq;
+      const isCurrent = () => this.sessionReq === myReq;
+      this.liveSid = null;
+      this.streamingMsgId = null;
+      this.toolCards.clear();
+      this.emit({
+        sessionReady: false,
+        generating: false,
+        statusText: null,
+        pendingPrompt: null,
+        promptBusy: false,
+        todos: [],
+        messages: [],
+        sessionModel: "",
+        sessionProvider: ""
+      });
+      if (spec.resume) {
+        void this.runResumeLifecycle(gw, spec, spec.resume, isCurrent);
+      } else {
+        const createProfile = spec.profile || this.newChatRole;
+        gw.request("session.create", {
+          source: "dashboard",
+          ...createProfile ? { profile: createProfile } : {},
+          ...this.newChatModel ? {
+            model: this.newChatModel,
+            ...this.newChatProvider ? { provider: this.newChatProvider } : {}
+          } : {}
+        }).then((res) => {
+          if (!isCurrent()) return;
+          this.liveSid = res.session_id;
+          this.emit({
+            sessionReady: true,
+            sessionModel: this.newChatModel,
+            sessionProvider: this.newChatProvider
+          });
+        }).catch((e) => {
+          if (!isCurrent()) return;
+          this.emit({ error: e.message || "\u4F1A\u8BDD\u521B\u5EFA\u5931\u8D25" });
+        });
+      }
+    }
+    /** History REST load + live session.resume, binding the owning profile.
+     *  Role sessions live in their own profile's state.db, so a resume that
+     *  binds the wrong profile comes back "session not found" — look up the
+     *  owner via the plugin backend and retry once (also covers a page
+     *  reload, where the in-memory role binding is gone). */
+    async runResumeLifecycle(gw, spec, resumeId, isCurrent) {
+      this.emit({ loadingHistory: true });
+      const attempt = async (profile) => {
+        const [hist, resumed] = await Promise.all([
+          api.getSessionMessages(resumeId, profile),
+          gw.request("session.resume", {
+            session_id: resumeId,
+            ...profile ? { profile } : {}
+          })
+        ]);
+        return { hist, resumed, profile };
+      };
+      try {
+        let result;
+        const firstProfile = this.resumeRole || spec.profile;
+        try {
+          result = await attempt(firstProfile);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (!/session not found/i.test(msg)) throw e;
+          const owner = await lookupSessionProfile(resumeId);
+          const ownerProfile = owner === "default" ? "" : owner ?? "";
+          if (!owner || ownerProfile === firstProfile) throw e;
+          result = await attempt(ownerProfile);
+        }
+        if (!isCurrent()) return;
+        this.resumeRole = result.profile;
+        this.liveSid = result.resumed.session_id;
+        this.emit({
+          messages: mergeToolCards(
+            result.hist.messages.flatMap(historyToChatMessages)
+          ),
+          // Hydrate the todo panel from the latest todo tool row (stored
+          // results carry the full list as JSON).
+          todos: latestTodosFromHistory(result.hist.messages) ?? [],
+          // A session resumed mid-turn keeps its busy indicator.
+          generating: result.resumed.running === true,
+          sessionReady: true
+        });
+      } catch (e) {
+        if (!isCurrent()) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        this.emit({ error: msg || "\u4F1A\u8BDD\u6062\u590D\u5931\u8D25" });
+      } finally {
+        if (isCurrent()) this.emit({ loadingHistory: false });
+      }
+    }
+    /* ---------------------------------------------------------------- */
+    /*  Gateway event handling                                           */
+    /* ---------------------------------------------------------------- */
+    handleEvent(ev) {
+      if (ev.session_id !== this.liveSid) return;
+      if (this.state.generating) this.armWatchdog();
+      const payload = ev.payload ?? {};
+      switch (ev.type) {
+        case "message.start": {
+          const id = messageId();
+          this.streamingMsgId = id;
+          this.patchMessages((prev) => [
+            ...prev,
+            { id, role: "assistant", text: "", timestamp: nowSeconds(), streaming: true }
+          ]);
+          this.emit({ generating: true });
+          break;
+        }
+        case "message.delta": {
+          const text = typeof payload.text === "string" ? payload.text : "";
+          if (!text) break;
+          if (!this.streamingMsgId) {
+            const id = messageId();
+            this.streamingMsgId = id;
+            this.patchMessages((prev) => [
+              ...prev,
+              { id, role: "assistant", text, timestamp: nowSeconds(), streaming: true }
+            ]);
+            break;
+          }
+          this.patchStreamingBubbleDeferred((m) => ({ ...m, text: m.text + text }));
+          break;
+        }
+        case "reasoning.delta":
+        case "thinking.delta": {
+          const text = typeof payload.text === "string" ? payload.text : "";
+          if (!text || !this.streamingMsgId) break;
+          this.patchStreamingBubbleDeferred((m) => ({
+            ...m,
+            reasoning: (m.reasoning ?? "") + text
+          }));
+          break;
+        }
+        case "reasoning.available": {
+          const text = typeof payload.text === "string" ? payload.text : "";
+          if (!text) break;
+          const fill = (m) => m.reasoning ? m : { ...m, reasoning: text };
+          if (this.streamingMsgId) {
+            this.patchStreamingBubble(fill);
+            break;
+          }
+          this.patchMessages((prev) => {
+            for (let i = prev.length - 1; i >= 0; i--) {
+              if (prev[i].role === "assistant") {
+                return prev.map((m, j) => j === i ? fill(m) : m);
+              }
+            }
+            return prev;
+          });
+          break;
+        }
+        case "message.complete": {
+          const finalText = typeof payload.text === "string" ? payload.text : null;
+          this.cancelStreamFlush();
+          this.patchStreamingBubble((m) => ({
+            ...m,
+            // The complete payload is authoritative; keep accumulated
+            // deltas when the final text is empty (e.g. interrupted turn).
+            text: finalText ? finalText : m.text,
+            streaming: false
+          }));
+          this.streamingMsgId = null;
+          this.emit({ generating: false, statusText: null });
+          break;
+        }
+        case "tool.start": {
+          const toolId = typeof payload.tool_id === "string" ? payload.tool_id : "";
+          const name = typeof payload.name === "string" ? payload.name : "tool";
+          const context = typeof payload.context === "string" && payload.context ? payload.context : void 0;
+          const preview = typeof payload.preview === "string" && payload.preview ? payload.preview : void 0;
+          const id = messageId();
+          if (toolId) this.toolCards.set(toolId, id);
+          this.patchMessages((prev) => [
+            ...prev,
+            {
+              id,
+              role: "tool",
+              text: "",
+              toolName: name,
+              toolRunning: true,
+              toolCallId: toolId || void 0,
+              toolContext: context,
+              toolResult: preview,
+              timestamp: nowSeconds()
+            }
+          ]);
+          break;
+        }
+        case "tool.complete": {
+          const toolId = typeof payload.tool_id === "string" ? payload.tool_id : "";
+          const name = typeof payload.name === "string" ? payload.name : "";
+          if (name === "todo") {
+            const todos = parseTodoList(payload.todos ?? payload.result);
+            if (todos) this.emit({ todos });
+          }
+          const mid = this.toolCards.get(toolId);
+          if (mid) {
+            const resultText = stringifyToolResult(payload.result);
+            const failed = isErrorResult(payload.result);
+            const duration = typeof payload.duration_s === "number" ? payload.duration_s : void 0;
+            const args = payload.args;
+            this.patchMessages(
+              (prev) => prev.map(
+                (m) => m.id === mid ? {
+                  ...m,
+                  toolRunning: false,
+                  toolArgs: args ?? m.toolArgs,
+                  toolResult: resultText ?? m.toolResult,
+                  toolError: failed,
+                  toolDuration: duration
+                } : m
+              )
+            );
+            this.toolCards.delete(toolId);
+          }
+          break;
+        }
+        case "tool.generating": {
+          const name = typeof payload.name === "string" ? payload.name : "tool";
+          this.emit({ statusText: `\u6B63\u5728\u8C03\u7528 ${name}\u2026` });
+          break;
+        }
+        case "status.update": {
+          const text = typeof payload.text === "string" ? payload.text.trim() : "";
+          this.emit({ statusText: text || null });
+          break;
+        }
+        case "error": {
+          const message = typeof payload.message === "string" ? payload.message : "\u672A\u77E5\u9519\u8BEF";
+          this.cancelStreamFlush();
+          this.patchStreamingBubble((m) => ({ ...m, streaming: false }));
+          this.streamingMsgId = null;
+          this.patchMessages((prev) => [...prev, systemMessage(`\u9519\u8BEF\uFF1A${message}`)]);
+          this.emit({ generating: false, statusText: null });
+          break;
+        }
+        case "approval.request": {
+          this.emit({
+            pendingPrompt: {
+              kind: "approval",
+              command: typeof payload.command === "string" ? payload.command : "",
+              description: typeof payload.description === "string" && payload.description ? payload.description : "\u5371\u9669\u64CD\u4F5C",
+              allowPermanent: payload.allow_permanent !== false,
+              smartDenied: payload.smart_denied === true
+            },
+            statusText: "\u7B49\u5F85\u5BA1\u6279\u2026"
+          });
+          break;
+        }
+        case "clarify.request": {
+          const requestId = typeof payload.request_id === "string" ? payload.request_id : "";
+          if (!requestId) break;
+          this.emit({
+            pendingPrompt: {
+              kind: "clarify",
+              requestId,
+              question: typeof payload.question === "string" ? payload.question : "",
+              choices: Array.isArray(payload.choices) ? payload.choices.filter((c) => typeof c === "string") : null
+            },
+            statusText: "\u7B49\u5F85\u4F60\u7684\u56DE\u7B54\u2026"
+          });
+          break;
+        }
+        case "session.info": {
+          const model = typeof payload.model === "string" ? payload.model : "";
+          const provider = typeof payload.provider === "string" ? payload.provider : "";
+          if (!model && !provider) break;
+          if (model === this.state.sessionModel && provider === this.state.sessionProvider)
+            break;
+          this.emit({ sessionModel: model, sessionProvider: provider });
+          break;
+        }
+        default: {
+          if (IGNORED_EVENT_TYPES.has(ev.type)) break;
+          this.patchMessages((prev) => [...prev, systemMessage(`[${ev.type}]`)]);
+        }
+      }
+    }
+    /* ---------------------------------------------------------------- */
+    /*  Actions                                                          */
+    /* ---------------------------------------------------------------- */
+    sys(text) {
+      this.patchMessages((prev) => [...prev, systemMessage(text)]);
+    }
+    /** Plain prompt.submit path: user bubble + generating state. */
+    submitPrompt(text, images) {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      if (!gw || !sid || !text) return;
+      this.patchMessages((prev) => [
+        ...prev,
+        {
+          id: messageId(),
+          role: "user",
+          text,
+          // Echo the just-attached images in the user's own bubble (the
+          // gateway's image.attach emits no event, so nothing else would
+          // show them until a history reload).
+          images: images && images.length > 0 ? images : void 0,
+          timestamp: nowSeconds()
+        }
+      ]);
+      this.emit({ generating: true });
+      gw.request("prompt.submit", { session_id: sid, text }).catch((e) => {
+        this.emit({ generating: false });
+        this.sys(`\u53D1\u9001\u5931\u8D25\uFF1A${e.message || "\u672A\u77E5\u9519\u8BEF"}`);
+      });
+    }
+    /**
+     * Slash command path. prompt.submit does NOT parse leading slashes (the
+     * text would reach the LLM verbatim), so "/..." messages go to slash.exec
+     * instead. The response is either {output, warning?} (rendered as a
+     * system bubble) or a command.dispatch directive: exec/plugin render
+     * output, send/skill submit `message` as a normal turn (the turn's
+     * message.start/… events arrive on their own), prefill (/undo) refills
+     * the composer, alias re-executes the target.
+     *
+     * `/new` is handled by the PAGE (it owns the URL/nonce); the store only
+     * sees commands that execute over the wire. `onPrefill` refills the
+     * composer (page-local UI state).
+     */
+    async runSlash(text, onPrefill, depth = 0) {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      if (!gw || !sid) return;
+      const m = /^\/(\S*)\s*(.*)$/.exec(text);
+      const name = (m?.[1] ?? "").toLowerCase();
+      const arg = (m?.[2] ?? "").trim();
+      if (!name) {
+        this.sys("\u7A7A\u547D\u4EE4");
+        return;
+      }
+      this.emit({ slashBusy: true });
+      try {
+        const raw = await gw.request("slash.exec", {
+          session_id: sid,
+          command: text
+        });
+        const d = asSlashDirective(raw);
+        if (!d) {
+          const r = raw ?? {};
+          const body = r.output?.trim() ? r.output : `/${name}\uFF1A\u65E0\u8F93\u51FA`;
+          this.sys(r.warning ? `\u8B66\u544A\uFF1A${r.warning}
+${body}` : body);
+          return;
+        }
+        switch (d.type) {
+          case "exec":
+          case "plugin":
+            this.sys(d.output?.trim() ? d.output : "(\u65E0\u8F93\u51FA)");
+            break;
+          case "alias":
+            if (depth >= 3) {
+              this.sys("\u547D\u4EE4\u522B\u540D\u5D4C\u5957\u8FC7\u6DF1");
+              break;
+            }
+            await this.runSlash(`/${d.target}${arg ? ` ${arg}` : ""}`, onPrefill, depth + 1);
+            break;
+          case "skill": {
+            const msgText = d.message?.trim() ?? "";
+            if (!msgText) {
+              this.sys(`/${name}\uFF1A\u6280\u80FD\u8F7D\u8377\u7F3A\u5C11\u6D88\u606F\u5185\u5BB9`);
+              break;
+            }
+            this.sys(`\u26A1 \u52A0\u8F7D\u6280\u80FD\uFF1A${d.name}`);
+            this.submitPrompt(msgText);
+            break;
+          }
+          case "send": {
+            if (d.notice?.trim()) this.sys(d.notice);
+            const msgText = d.message.trim();
+            if (!msgText) {
+              this.sys(`/${name}\uFF1A\u7A7A\u6D88\u606F`);
+              break;
+            }
+            this.submitPrompt(msgText);
+            break;
+          }
+          case "prefill":
+            if (d.notice?.trim()) this.sys(d.notice);
+            if (d.message) onPrefill(d.message);
+            break;
+        }
+      } catch (e) {
+        this.sys(`\u547D\u4EE4\u5931\u8D25\uFF1A${e instanceof Error ? e.message : String(e)}`);
+      } finally {
+        this.emit({ slashBusy: false });
+      }
+    }
+    /** Composer send. `onNew` handles /new client-side (page owns the URL);
+     *  `onPrefill` refills the composer for /undo. */
+    send = (text, images, hooks) => {
+      if (!this.gw || !this.liveSid || !text) return;
+      const firstToken = text.split(/\s/, 1)[0];
+      const isSlashCommand = firstToken.startsWith("/") && !firstToken.slice(1).includes("/");
+      if (isSlashCommand) {
+        this.patchMessages((prev) => [
+          ...prev,
+          {
+            id: messageId(),
+            role: "user",
+            text,
+            images: images && images.length > 0 ? images : void 0,
+            timestamp: nowSeconds()
+          }
+        ]);
+        if (/^\/new(?:\s|$)/.test(text)) {
+          hooks.onNew();
+          return;
+        }
+        void this.runSlash(text, hooks.onPrefill);
+        return;
+      }
+      this.submitPrompt(text, images);
+    };
+    interrupt = () => {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      if (!gw || !sid) return;
+      this.emit({ pendingPrompt: null, statusText: null });
+      gw.request("session.interrupt", { session_id: sid }).catch(() => {
+      });
+    };
+    /** PendingPromptCard answer: clarify — empty answer means "skip". */
+    answerClarify = (answer) => {
+      const gw = this.gw;
+      const cur = this.state.pendingPrompt;
+      if (!gw || !cur || cur.kind !== "clarify") return;
+      this.emit({ pendingPrompt: null, statusText: null, promptBusy: true });
+      gw.request("clarify.respond", { request_id: cur.requestId, answer }).then(
+        () => this.sys(
+          answer ? `\u2753 ${cur.question}
+\u2705 ${answer}` : `\u2753 ${cur.question}
+\uFF08\u5DF2\u8DF3\u8FC7\uFF09`
+        )
+      ).catch((e) => this.sys(`\u56DE\u7B54\u63D0\u4EA4\u5931\u8D25\uFF1A${e.message || "\u672A\u77E5\u9519\u8BEF"}`)).finally(() => this.emit({ promptBusy: false }));
+    };
+    /** PendingPromptCard answer: approval — choice ∈ once|session|always|deny. */
+    answerApproval = (choice) => {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      const cur = this.state.pendingPrompt;
+      if (!gw || !sid || !cur || cur.kind !== "approval") return;
+      this.emit({ pendingPrompt: null, statusText: null, promptBusy: true });
+      gw.request("approval.respond", { session_id: sid, choice }).then(
+        () => this.sys(
+          `\u{1F6E1}\uFE0F \u5BA1\u6279\uFF1A${cur.description} \u2192 ${APPROVAL_CHOICE_LABELS[choice] ?? choice}`
+        )
+      ).catch((e) => this.sys(`\u5BA1\u6279\u63D0\u4EA4\u5931\u8D25\uFF1A${e.message || "\u672A\u77E5\u9519\u8BEF"}`)).finally(() => this.emit({ promptBusy: false }));
+    };
+    /** Bubble "retry": resubmit a user message's text (for the latest
+     * assistant reply, the user text that prompted it). Interrupts the
+     * current turn first when one is still streaming. */
+    retryMessage = (msg, hooks) => {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      if (!gw || !sid) return;
+      const messages = this.state.messages;
+      let text = msg.role === "user" ? msg.text : "";
+      if (msg.role !== "user") {
+        const idx = messages.findIndex((m) => m.id === msg.id);
+        for (let i = idx - 1; i >= 0; i--) {
+          if (messages[i].role === "user" && messages[i].text.trim()) {
+            text = messages[i].text;
+            break;
+          }
+        }
+      }
+      text = text.trim();
+      if (!text) {
+        this.sys("\u6CA1\u6709\u53EF\u91CD\u8BD5\u7684\u7528\u6237\u6D88\u606F");
+        return;
+      }
+      void (async () => {
+        if (this.state.generating) {
+          await gw.request("session.interrupt", { session_id: sid }).catch(() => {
+          });
+        }
+        this.send(text, void 0, hooks);
+      })();
+    };
+    /** Attach an already-uploaded image to the live session. The gateway
+     *  queues it in session.attached_images and the next prompt.submit turn
+     *  picks it up (this is the same path the TUI's /image command uses). */
+    attachImage = async (path) => {
+      const gw = this.gw;
+      const sid = this.liveSid;
+      if (!gw || !sid) throw new Error("\u4F1A\u8BDD\u672A\u5C31\u7EEA");
+      await gw.request("image.attach", { session_id: sid, path });
+    };
+  };
+  var bubbleChatStore = new BubbleChatStore();
+
   // src/shared/Spinner.tsx
   var BRAILLE_FRAMES = ["\u280B", "\u2819", "\u2839", "\u2838", "\u283C", "\u2834", "\u2826", "\u2827", "\u2807", "\u280F"];
   var INTERVAL_MS = 80;
@@ -1164,6 +2563,115 @@
         children: BRAILLE_FRAMES[frame]
       }
     );
+  }
+
+  // src/chat/ChatModelBadge.tsx
+  function ChatModelBadge() {
+    const state = useSyncExternalStore(bubbleChatStore.subscribe, bubbleChatStore.getSnapshot);
+    const [open, setOpen] = useState(false);
+    const [options, setOptions] = useState(null);
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+      if (!open || options) return;
+      let live = true;
+      bubbleChatStore.getModelOptions().then((p) => {
+        if (live && p) setOptions(p);
+      });
+      return () => {
+        live = false;
+      };
+    }, [open, options]);
+    const label = state.sessionModel || options?.model || "\u9ED8\u8BA4\u6A21\u578B";
+    const pick = async (model, provider) => {
+      if (busy) return;
+      setBusy(true);
+      setError(null);
+      const err = await bubbleChatStore.setSessionModel(model, provider);
+      setBusy(false);
+      if (err) {
+        setError(err);
+      } else {
+        setOpen(false);
+      }
+    };
+    return /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+      /* @__PURE__ */ jsx(
+        Button,
+        {
+          ghost: true,
+          size: "sm",
+          onClick: () => {
+            setError(null);
+            setOpen((o) => !o);
+          },
+          prefix: /* @__PURE__ */ jsx(Cpu, {}),
+          "aria-label": "\u5F53\u524D\u6A21\u578B",
+          title: `\u5F53\u524D\u5BF9\u8BDD\u6A21\u578B\uFF1A${label}\uFF08\u70B9\u51FB\u5207\u6362\uFF0C\u4EC5\u672C\u5BF9\u8BDD\u751F\u6548\uFF09`,
+          className: "max-w-48 text-text-secondary hover:text-foreground",
+          children: /* @__PURE__ */ jsx("span", { className: "truncate", children: label })
+        }
+      ),
+      open && /* @__PURE__ */ jsxs(Fragment2, { children: [
+        /* @__PURE__ */ jsx(
+          "div",
+          {
+            "aria-hidden": true,
+            className: "fixed inset-0 z-40",
+            onClick: () => setOpen(false)
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "absolute top-full right-0 z-50 mt-1 flex max-h-96 w-64 flex-col gap-1 overflow-y-auto rounded-xl border border-current/15 bg-background-base p-2 shadow-xl", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-1", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-medium text-foreground", children: "\u5BF9\u8BDD\u6A21\u578B" }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => setOpen(false),
+                "aria-label": "\u5173\u95ED",
+                title: "\u5173\u95ED",
+                className: "cursor-pointer rounded p-0.5 text-text-tertiary hover:bg-midground/10 hover:text-foreground",
+                children: /* @__PURE__ */ jsx(X, { className: "h-3.5 w-3.5" })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "px-1 pb-1 text-[0.625rem] text-text-tertiary", children: "\u4EC5\u672C\u5BF9\u8BDD\u751F\u6548\uFF08--session\uFF09\uFF0C\u4E0D\u6539\u89D2\u8272\u9ED8\u8BA4" }),
+          !options ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+            /* @__PURE__ */ jsx(Spinner, {}),
+            " \u52A0\u8F7D\u6A21\u578B\u76EE\u5F55\u2026"
+          ] }) : (options.providers ?? []).map((group) => /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("div", { className: "px-1 pt-1 text-[0.625rem] font-medium text-text-tertiary", children: group.name || group.slug }),
+            (group.models ?? []).map((m) => {
+              const active = m === state.sessionModel;
+              return /* @__PURE__ */ jsxs(
+                "button",
+                {
+                  type: "button",
+                  disabled: busy,
+                  onClick: () => void pick(m, group.slug),
+                  className: cn(
+                    "flex w-full cursor-pointer items-center gap-1.5 rounded px-1.5 py-1 text-left text-xs",
+                    "hover:bg-midground/10 disabled:opacity-50",
+                    active ? "text-primary" : "text-text-secondary"
+                  ),
+                  children: [
+                    /* @__PURE__ */ jsx("span", { className: "min-w-0 flex-1 truncate", children: m }),
+                    active && /* @__PURE__ */ jsx(Check, { className: "h-3 w-3 shrink-0" })
+                  ]
+                },
+                `${group.slug}/${m}`
+              );
+            })
+          ] }, group.slug)),
+          busy && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-1 text-xs text-text-secondary", children: [
+            /* @__PURE__ */ jsx(Spinner, {}),
+            " \u5207\u6362\u4E2D\u2026"
+          ] }),
+          error && /* @__PURE__ */ jsx("div", { className: "rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: error })
+        ] })
+      ] })
+    ] });
   }
 
   // src/chat/content.ts
@@ -2855,63 +4363,6 @@
     );
   }
 
-  // src/chat/types.ts
-  var nextMessageId = 0;
-  function messageId() {
-    nextMessageId += 1;
-    return `m${nextMessageId}`;
-  }
-  function nowSeconds() {
-    return Date.now() / 1e3;
-  }
-  function formatBubbleTime(ts) {
-    const d = new Date(ts * 1e3);
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mm = String(d.getMinutes()).padStart(2, "0");
-    return `${hh}:${mm}`;
-  }
-  var CONTENT_JSON_PREFIX = "\0json:";
-  function contentPartsOf(content) {
-    if (Array.isArray(content)) return content;
-    if (typeof content !== "string") return null;
-    if (!content.startsWith(CONTENT_JSON_PREFIX)) return null;
-    try {
-      const parts = JSON.parse(content.slice(CONTENT_JSON_PREFIX.length));
-      return Array.isArray(parts) ? parts : null;
-    } catch {
-      return null;
-    }
-  }
-  function imagePartUrl(part) {
-    const raw = part.image_url;
-    if (typeof raw === "string") return raw;
-    if (raw && typeof raw === "object") {
-      const url = raw.url;
-      if (typeof url === "string") return url;
-    }
-    return null;
-  }
-  function decodeMessageContentParts(content) {
-    if (!content) return { text: "", images: [] };
-    const parts = contentPartsOf(content);
-    if (parts === null) {
-      return typeof content === "string" ? { text: content, images: [] } : { text: String(content), images: [] };
-    }
-    const out = [];
-    const images = [];
-    for (const part of parts) {
-      if (part == null || typeof part !== "object") continue;
-      const p = part;
-      if (p.type === "text" && typeof p.text === "string") {
-        out.push(p.text);
-      } else if (p.type === "image_url") {
-        const url = imagePartUrl(p);
-        if (url) images.push(url);
-      }
-    }
-    return { text: out.filter(Boolean).join("\n"), images };
-  }
-
   // src/chat/MessageBubble.tsx
   var actionButtonClass = cn(
     "shrink-0 cursor-pointer self-end rounded p-1",
@@ -3377,90 +4828,6 @@
         ]
       }
     );
-  }
-
-  // src/roles.ts
-  var BASE = `${HERMES_BASE_PATH}/api/plugins/bubble-chat`;
-  var rolesPromise = null;
-  function fetchRoles() {
-    if (!rolesPromise) {
-      rolesPromise = fetchJSON(`${BASE}/roles`).then((list) => Array.isArray(list) ? list : []).catch(() => {
-        rolesPromise = null;
-        return [];
-      });
-    }
-    return rolesPromise;
-  }
-  function invalidateRoles() {
-    rolesPromise = null;
-  }
-  async function createRole(payload) {
-    const role = await fetchJSON(`${BASE}/roles`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    invalidateRoles();
-    return role;
-  }
-  function fetchRolePrompt(name) {
-    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/prompt`);
-  }
-  async function writeRolePrompt(name, content) {
-    await fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/prompt`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content })
-    });
-    invalidateRoles();
-  }
-  function fetchRoleMemory(name) {
-    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`);
-  }
-  function fetchBaseFiles() {
-    return fetchJSON(`${BASE}/roles/default/base-files`);
-  }
-  function readBaseFile(name) {
-    return fetchJSON(
-      `${BASE}/roles/default/base-file?name=${encodeURIComponent(name)}`
-    );
-  }
-  async function writeBaseFile(name, content) {
-    await fetchJSON(
-      `${BASE}/roles/default/base-file?name=${encodeURIComponent(name)}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content })
-      }
-    );
-  }
-  async function writeRoleMemory(name, content) {
-    await fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content })
-    });
-  }
-  function fetchRoleSkills(name) {
-    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/skills`);
-  }
-  function writeRoleSkills(name, text) {
-    return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/skills`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-  }
-  async function lookupSessionProfile(sessionId) {
-    try {
-      const res = await fetchJSON(
-        `${BASE}/roles/lookup?session_id=${encodeURIComponent(sessionId)}`
-      );
-      return res?.profile ?? null;
-    } catch {
-      return null;
-    }
   }
 
   // src/router.ts
@@ -4142,1198 +5509,6 @@ ${t.sessions.confirmDeleteMessage}`
     );
   }
   var ChatSessionList = memo(ChatSessionListImpl);
-
-  // ../../../apps/shared/src/json-rpc-gateway.ts
-  var ANY = "*";
-  var DEFAULT_REQUEST_TIMEOUT_MS = 12e4;
-  var DEFAULT_CONNECT_TIMEOUT_MS = 15e3;
-  var JsonRpcGatewayClient = class {
-    nextId = 0;
-    pending = /* @__PURE__ */ new Map();
-    socket = null;
-    state = "idle";
-    eventHandlers = /* @__PURE__ */ new Map();
-    stateHandlers = /* @__PURE__ */ new Set();
-    options;
-    constructor(options = {}) {
-      this.options = {
-        closedErrorMessage: options.closedErrorMessage ?? "WebSocket closed",
-        connectErrorMessage: options.connectErrorMessage ?? "WebSocket connection failed",
-        connectTimeoutMs: options.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS,
-        createRequestId: options.createRequestId ?? ((nextId) => `${options.requestIdPrefix ?? "r"}${nextId}`),
-        notConnectedErrorMessage: options.notConnectedErrorMessage ?? "gateway not connected",
-        requestIdPrefix: options.requestIdPrefix ?? "r",
-        requestTimeoutMs: options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
-        socketFactory: options.socketFactory
-      };
-    }
-    get connectionState() {
-      return this.state;
-    }
-    async connect(wsUrl) {
-      if (this.socket?.readyState === WebSocket.OPEN || this.state === "connecting") {
-        return;
-      }
-      this.setState("connecting");
-      const socket = this.options.socketFactory?.(wsUrl) ?? new WebSocket(wsUrl);
-      this.socket = socket;
-      socket.addEventListener("message", (message) => {
-        if (this.socket !== socket) {
-          return;
-        }
-        this.handleMessage(message.data);
-      });
-      socket.addEventListener("close", () => {
-        if (this.socket !== socket) {
-          return;
-        }
-        this.socket = null;
-        this.setState("closed");
-        this.rejectAllPending(new Error(this.options.closedErrorMessage));
-      });
-      await new Promise((resolve, reject) => {
-        let settled = false;
-        let timer;
-        const cleanup = () => {
-          if (timer !== void 0) {
-            clearTimeout(timer);
-          }
-          socket.removeEventListener("open", onOpen);
-          socket.removeEventListener("error", onError);
-        };
-        const onOpen = () => {
-          if (settled || this.socket !== socket) {
-            return;
-          }
-          settled = true;
-          cleanup();
-          this.setState("open");
-          resolve();
-        };
-        const onError = () => {
-          if (settled || this.socket !== socket) {
-            return;
-          }
-          settled = true;
-          cleanup();
-          this.setState("error");
-          reject(new Error(this.options.connectErrorMessage));
-        };
-        socket.addEventListener("open", onOpen, { once: true });
-        socket.addEventListener("error", onError, { once: true });
-        if (this.options.connectTimeoutMs > 0) {
-          timer = setTimeout(() => {
-            if (settled) {
-              return;
-            }
-            settled = true;
-            cleanup();
-            if (this.socket === socket) {
-              try {
-                socket.close();
-              } catch {
-              }
-              this.socket = null;
-            }
-            this.setState("error");
-            reject(new Error(this.options.connectErrorMessage));
-          }, this.options.connectTimeoutMs);
-        }
-      });
-    }
-    close() {
-      const socket = this.socket;
-      if (!socket) {
-        return;
-      }
-      try {
-        socket.close();
-      } finally {
-        this.socket = null;
-        this.setState("closed");
-        this.rejectAllPending(new Error(this.options.closedErrorMessage));
-      }
-    }
-    on(type, handler) {
-      let handlers = this.eventHandlers.get(type);
-      if (!handlers) {
-        handlers = /* @__PURE__ */ new Set();
-        this.eventHandlers.set(type, handlers);
-      }
-      handlers.add(handler);
-      return () => handlers?.delete(handler);
-    }
-    onAny(handler) {
-      return this.on(ANY, handler);
-    }
-    onEvent(handler) {
-      return this.onAny(handler);
-    }
-    onState(handler) {
-      this.stateHandlers.add(handler);
-      handler(this.state);
-      return () => this.stateHandlers.delete(handler);
-    }
-    request(method, params = {}, timeoutMs = this.options.requestTimeoutMs, signal) {
-      const socket = this.socket;
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        return Promise.reject(new Error(this.options.notConnectedErrorMessage));
-      }
-      if (signal?.aborted) {
-        return Promise.reject(new DOMException("Aborted", "AbortError"));
-      }
-      const id = this.options.createRequestId(++this.nextId);
-      return new Promise((resolve, reject) => {
-        let onAbort;
-        const detach = () => {
-          if (onAbort && signal) {
-            signal.removeEventListener("abort", onAbort);
-          }
-        };
-        const pending = {
-          resolve: (value) => {
-            detach();
-            resolve(value);
-          },
-          reject: (error) => {
-            detach();
-            reject(error);
-          }
-        };
-        if (timeoutMs > 0) {
-          pending.timer = setTimeout(() => {
-            if (this.pending.delete(id)) {
-              detach();
-              reject(new Error(`request timed out: ${method}`));
-            }
-          }, timeoutMs);
-        }
-        if (signal) {
-          onAbort = () => {
-            const call = this.pending.get(id);
-            if (call?.timer) {
-              clearTimeout(call.timer);
-            }
-            this.pending.delete(id);
-            detach();
-            reject(new DOMException("Aborted", "AbortError"));
-          };
-          signal.addEventListener("abort", onAbort, { once: true });
-        }
-        this.pending.set(id, pending);
-        try {
-          socket.send(
-            JSON.stringify({
-              jsonrpc: "2.0",
-              id,
-              method,
-              params
-            })
-          );
-        } catch (error) {
-          this.clearPending(id);
-          detach();
-          reject(error instanceof Error ? error : new Error(String(error)));
-        }
-      });
-    }
-    handleMessage(raw) {
-      const text = typeof raw === "string" ? raw : String(raw);
-      let frame;
-      try {
-        frame = JSON.parse(text);
-      } catch {
-        return;
-      }
-      if (frame.id !== void 0 && frame.id !== null) {
-        const call = this.pending.get(frame.id);
-        if (!call) {
-          return;
-        }
-        this.clearPending(frame.id);
-        if (frame.error) {
-          call.reject(new Error(frame.error.message || "Hermes RPC failed"));
-        } else {
-          call.resolve(frame.result);
-        }
-        return;
-      }
-      if (frame.method === "event" && frame.params?.type) {
-        this.dispatchEvent(frame.params);
-      }
-    }
-    clearPending(id) {
-      const call = this.pending.get(id);
-      if (call?.timer) {
-        clearTimeout(call.timer);
-      }
-      this.pending.delete(id);
-    }
-    dispatchEvent(event) {
-      for (const handler of this.eventHandlers.get(event.type) ?? []) {
-        handler(event);
-      }
-      for (const handler of this.eventHandlers.get(ANY) ?? []) {
-        handler(event);
-      }
-    }
-    rejectAllPending(error) {
-      for (const [id, call] of this.pending) {
-        if (call.timer) {
-          clearTimeout(call.timer);
-        }
-        call.reject(error);
-        this.pending.delete(id);
-      }
-    }
-    setState(state) {
-      if (this.state === state) {
-        return;
-      }
-      this.state = state;
-      for (const handler of this.stateHandlers) {
-        handler(state);
-      }
-    }
-  };
-
-  // ../../../apps/shared/src/websocket-url.ts
-  function readWindowLocation() {
-    if (typeof window === "undefined") {
-      return { host: "", protocol: "http:" };
-    }
-    return { host: window.location.host, protocol: window.location.protocol };
-  }
-  function normalizeBasePath(basePath) {
-    if (!basePath) {
-      return "";
-    }
-    const withLead = basePath.startsWith("/") ? basePath : `/${basePath}`;
-    return withLead.replace(/\/+$/, "");
-  }
-  function normalizeEndpointPath(path) {
-    return path.startsWith("/") ? path : `/${path}`;
-  }
-  function buildHermesWebSocketUrl(options) {
-    const loc = readWindowLocation();
-    const protocol = options.protocol ?? loc.protocol;
-    const host = options.host ?? loc.host;
-    const wsScheme = protocol === "https:" || protocol === "wss:" ? "wss:" : "ws:";
-    const qs = new URLSearchParams(options.params ?? {});
-    if (options.authParam) {
-      const [name, value] = options.authParam;
-      qs.set(name, value);
-    }
-    const query = qs.toString();
-    const suffix = query ? `?${query}` : "";
-    return `${wsScheme}//${host}${normalizeBasePath(options.basePath)}${normalizeEndpointPath(options.path)}${suffix}`;
-  }
-
-  // src/gatewayClient.ts
-  var GatewayClient = class extends JsonRpcGatewayClient {
-    constructor() {
-      super({
-        closedErrorMessage: "WebSocket closed",
-        connectErrorMessage: "WebSocket connection failed",
-        notConnectedErrorMessage: "gateway not connected",
-        requestIdPrefix: "w"
-      });
-    }
-    async connect(token) {
-      if (this.connectionState === "open" || this.connectionState === "connecting") {
-        return;
-      }
-      const authParam = token ? ["token", token] : await buildWsAuthParam();
-      if (!authParam[1]) {
-        throw new Error(
-          "Session token not available \u2014 page must be served by the Hermes dashboard server"
-        );
-      }
-      await super.connect(
-        buildHermesWebSocketUrl({
-          authParam,
-          basePath: HERMES_BASE_PATH,
-          path: "/api/ws"
-        })
-      );
-    }
-  };
-
-  // src/store.ts
-  function asSlashDirective(raw) {
-    if (!raw || typeof raw !== "object") return null;
-    const r = raw;
-    const str = (v) => typeof v === "string" ? v : void 0;
-    switch (r.type) {
-      case "exec":
-      case "plugin":
-        return { type: r.type, output: str(r.output) };
-      case "alias":
-        return typeof r.target === "string" ? { type: "alias", target: r.target } : null;
-      case "skill":
-        return typeof r.name === "string" ? { type: "skill", name: r.name, message: str(r.message) } : null;
-      case "send":
-        return typeof r.message === "string" ? { type: "send", message: r.message, notice: str(r.notice) } : null;
-      case "prefill":
-        return { type: "prefill", message: str(r.message), notice: str(r.notice) };
-      default:
-        return null;
-    }
-  }
-  var IGNORED_EVENT_TYPES = /* @__PURE__ */ new Set([
-    "gateway.ready",
-    "session.info",
-    "tool.progress",
-    "skin.changed"
-  ]);
-  function parseToolArgs(raw) {
-    if (!raw) return void 0;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return raw;
-    }
-  }
-  function parseTodoList(raw) {
-    let data = raw;
-    if (typeof raw === "string") {
-      try {
-        data = JSON.parse(raw);
-      } catch {
-        return null;
-      }
-    }
-    if (!data || typeof data !== "object") return null;
-    const todos = data.todos;
-    if (!Array.isArray(todos)) return null;
-    return todos.filter((t) => !!t && typeof t === "object").map((t) => ({
-      id: String(t.id ?? ""),
-      content: String(t.content ?? ""),
-      status: String(t.status ?? "pending")
-    }));
-  }
-  function latestTodosFromHistory(messages) {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
-      if (m.role === "tool" && m.tool_name === "todo") {
-        const todos = parseTodoList(m.content);
-        if (todos) return todos;
-      }
-    }
-    return null;
-  }
-  function stringifyToolResult(result) {
-    if (result == null) return void 0;
-    if (typeof result === "string") return result;
-    try {
-      return JSON.stringify(result, null, 2);
-    } catch {
-      return String(result);
-    }
-  }
-  function isErrorResult(result) {
-    if (typeof result === "string") {
-      return /^\s*(error[:\s]|错误[:：]|failed[:\s])/i.test(result);
-    }
-    if (result && typeof result === "object") {
-      const err = result.error;
-      return typeof err === "string" ? err.trim().length > 0 : Boolean(err);
-    }
-    return false;
-  }
-  function historyToChatMessages(msg, index) {
-    const base = {
-      timestamp: msg.timestamp ?? 0
-    };
-    const out = [];
-    const { text, images } = decodeMessageContentParts(msg.content);
-    if (msg.role === "tool") {
-      out.push({
-        ...base,
-        id: `h${index}`,
-        role: "tool",
-        text: "",
-        toolName: msg.tool_name ?? "tool",
-        toolRunning: false,
-        toolCallId: msg.tool_call_id,
-        toolResult: text || void 0
-      });
-      return out;
-    }
-    const reasoning = msg.reasoning || msg.reasoning_content || msg.reasoning_details || void 0;
-    out.push({
-      ...base,
-      id: `h${index}`,
-      role: msg.role,
-      text,
-      reasoning: msg.role === "assistant" ? reasoning : void 0,
-      images: images.length > 0 ? images : void 0
-    });
-    if (msg.role === "assistant" && msg.tool_calls) {
-      msg.tool_calls.forEach((tc, i) => {
-        out.push({
-          ...base,
-          id: `h${index}t${i}`,
-          role: "tool",
-          text: "",
-          toolName: tc.function?.name ?? "tool",
-          toolRunning: false,
-          toolCallId: tc.id,
-          toolArgs: parseToolArgs(tc.function?.arguments)
-        });
-      });
-    }
-    return out;
-  }
-  function mergeToolCards(messages) {
-    const byCallId = /* @__PURE__ */ new Map();
-    const out = [];
-    for (const m of messages) {
-      if (m.role === "tool" && m.toolCallId) {
-        const existing = byCallId.get(m.toolCallId);
-        if (existing) {
-          existing.toolResult = m.toolResult ?? existing.toolResult;
-          existing.toolArgs = existing.toolArgs ?? m.toolArgs;
-          continue;
-        }
-        byCallId.set(m.toolCallId, m);
-      }
-      out.push(m);
-    }
-    return out;
-  }
-  function systemMessage(text) {
-    return { id: messageId(), role: "system", text, timestamp: nowSeconds() };
-  }
-  var APPROVAL_CHOICE_LABELS = {
-    once: "\u5141\u8BB8\u4E00\u6B21",
-    session: "\u672C\u6B21\u4F1A\u8BDD\u5185\u5141\u8BB8",
-    always: "\u6C38\u4E45\u5141\u8BB8",
-    deny: "\u62D2\u7EDD"
-  };
-  var INITIAL_STATE = {
-    connState: "idle",
-    error: null,
-    newChatNonce: 0,
-    sessionReady: false,
-    loadingHistory: false,
-    generating: false,
-    statusText: null,
-    slashBusy: false,
-    pendingPrompt: null,
-    promptBusy: false,
-    todos: [],
-    messages: []
-  };
-  var BubbleChatStore = class _BubbleChatStore {
-    state = INITIAL_STATE;
-    listeners = /* @__PURE__ */ new Set();
-    gw = null;
-    /** Live gateway session id (session.create/resume result) — events and
-     *  prompt.submit/interrupt all key on this, NOT the stored resume id. */
-    liveSid = null;
-    /** Spec the page last attached, and the spec the lifecycle last started
-     *  for. Both serialise to the same key shape. */
-    attachedKey = null;
-    startedKey = null;
-    attachedSpec = null;
-    /** Monotonic token: only the latest session lifecycle run may commit. */
-    sessionReq = 0;
-    /** Assistant bubble currently receiving deltas. */
-    streamingMsgId = null;
-    /** tool_call_id → rendered tool-card message id. */
-    toolCards = /* @__PURE__ */ new Map();
-    /** Streaming delta 合帧：delta 以 20-50/s 到达，逐条 emit 会让订阅方
-     *  （页面根组件）同频重渲染，长对话下足以触发 Firefox 的「此网页拖慢了
-     *  您的 Firefox」警告。message.delta / reasoning.delta 的文本累积同步
-     *  进 state（后续 delta 和 message.complete 读到的都是最新全文），但
-     *  订阅通知合并到每个时间片最多一次，中间帧直接丢弃。 */
-    streamFlushTimer = null;
-    streamDirty = false;
-    static STREAM_FLUSH_MS = 33;
-    /* ---------------------------------------------------------------- */
-    /*  Role context (sidebar two-level role UI)                         */
-    /* ---------------------------------------------------------------- */
-    /** Role the NEXT new chat is created under (a profile id; "" = default).
-     *  Staged by the role view's 新建小对话 button, read by the create branch
-     *  of the session lifecycle. Creation-time only — never applied to a
-     *  live/resumed session (prompt caching is sacred). */
-    newChatRole = "";
-    /** Optional per-chat model pick from the role view's dropdown, with the
-     *  provider slug resolved from the model.options payload (sending model
-     *  without its provider makes the gateway resolve the model against the
-     *  profile's DEFAULT provider → "API 没有找到" for foreign model ids). */
-    newChatModel = "";
-    newChatProvider = "";
-    /** Role that owns the session being RESUMED ("" = default/management).
-     *  Set when the user picks a row inside a role view; role sessions live
-     *  in their own profile's state.db, so resume must bind that profile. */
-    resumeRole = "";
-    /** 新建小对话 (role view): stage the creation context and force the
-     *  attach effect to spawn a fresh session. The page clears ?resume. */
-    startNewChatInRole = (role, model = "", provider = "") => {
-      this.newChatRole = role;
-      this.newChatModel = model;
-      this.newChatProvider = provider;
-      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
-    };
-    /** A plain fresh chat keeps the last staged role context (the role view
-     *  the user is standing in) — same as picking 新建小对话 without
-     *  touching the model dropdown. */
-    bumpNewChatNonce = () => {
-      this.emit({ newChatNonce: this.state.newChatNonce + 1 });
-    };
-    /** Session picked inside a role view: bind that role for the resume. */
-    bindResumeRole = (role) => {
-      this.resumeRole = role;
-    };
-    /** model.options RPC for the role view's model dropdown; null when the
-     *  socket isn't open or the call fails (dropdown degrades to 默认 only).
-     *  Cached for the page's lifetime — the catalog is disk-cached server
-     *  side, and a failed fetch is not cached so the next open retries. */
-    modelOptionsPromise = null;
-    getModelOptions = () => {
-      if (!this.modelOptionsPromise) {
-        this.modelOptionsPromise = this.fetchModelOptions().catch(() => {
-          this.modelOptionsPromise = null;
-          return null;
-        });
-      }
-      return this.modelOptionsPromise;
-    };
-    fetchModelOptions = async () => {
-      const gw = this.gw;
-      if (!gw || this.state.connState !== "open") return null;
-      try {
-        return await gw.request("model.options", {});
-      } catch {
-        return null;
-      }
-    };
-    /* ---------------------------------------------------------------- */
-    /*  Subscription (useSyncExternalStore contract)                     */
-    /* ---------------------------------------------------------------- */
-    subscribe = (fn) => {
-      this.listeners.add(fn);
-      return () => this.listeners.delete(fn);
-    };
-    getSnapshot = () => this.state;
-    /** Watchdog: while generating, any silence longer than this surfaces a
-     *  status hint instead of looking like the turn vanished (429 storms,
-     *  dead turns with no terminal event — seen in production). */
-    watchdogTimer = null;
-    static WATCHDOG_MS = 45e3;
-    armWatchdog() {
-      if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
-      this.watchdogTimer = setTimeout(() => {
-        this.watchdogTimer = null;
-        if (!this.state.generating) return;
-        this.emit({
-          statusText: "\u7B49\u5F85\u54CD\u5E94\u65F6\u95F4\u8F83\u957F\u2014\u2014\u53EF\u80FD\u88AB\u9650\u6D41\u6216\u56DE\u5408\u5F02\u5E38\uFF0C\u53EF\u70B9\u6D88\u606F\u7684\u91CD\u8BD5"
-        });
-      }, _BubbleChatStore.WATCHDOG_MS);
-    }
-    disarmWatchdog() {
-      if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
-      this.watchdogTimer = null;
-    }
-    emit(partial) {
-      this.state = { ...this.state, ...partial };
-      if (partial.generating === true) this.armWatchdog();
-      if (partial.generating === false) this.disarmWatchdog();
-      for (const fn of this.listeners) {
-        try {
-          fn();
-        } catch {
-        }
-      }
-    }
-    patchMessages(patch) {
-      this.emit({ messages: patch(this.state.messages) });
-    }
-    patchStreamingBubble(patch) {
-      const id = this.streamingMsgId;
-      if (!id) return;
-      this.patchMessages((prev) => prev.map((m) => m.id === id ? patch(m) : m));
-    }
-    /** 同步累积 streaming 气泡内容，但不立即通知订阅者——通知由合帧
-     *  定时器按 STREAM_FLUSH_MS 节奏发出（见字段注释）。 */
-    patchStreamingBubbleDeferred(patch) {
-      const id = this.streamingMsgId;
-      if (!id) return;
-      this.state = {
-        ...this.state,
-        messages: this.state.messages.map((m) => m.id === id ? patch(m) : m)
-      };
-      this.streamDirty = true;
-      if (!this.streamFlushTimer) {
-        this.streamFlushTimer = setTimeout(() => {
-          this.streamFlushTimer = null;
-          if (!this.streamDirty) return;
-          this.streamDirty = false;
-          this.emit({});
-        }, _BubbleChatStore.STREAM_FLUSH_MS);
-      }
-    }
-    /** 回合收尾（complete/error）前调用：丢弃挂起的合帧通知——紧随其后
-     *  的常规 emit 已携带最终累积状态。 */
-    cancelStreamFlush() {
-      if (this.streamFlushTimer) clearTimeout(this.streamFlushTimer);
-      this.streamFlushTimer = null;
-      this.streamDirty = false;
-    }
-    /* ---------------------------------------------------------------- */
-    /*  Gateway lifecycle (connect once, reconnect on demand)            */
-    /* ---------------------------------------------------------------- */
-    ensureGateway() {
-      if (!this.gw) {
-        const gw = new GatewayClient();
-        this.gw = gw;
-        gw.onState((connState) => {
-          this.emit({ connState });
-          if (connState === "open") {
-            this.maybeStartSession();
-          } else if (connState === "closed" || connState === "error") {
-            this.startedKey = null;
-          }
-        });
-        gw.onAny((ev) => this.handleEvent(ev));
-        queueMicrotask(() => this.connectGateway());
-      }
-      return this.gw;
-    }
-    /** (Re)connect the socket — also the error banner's 重新连接 action. */
-    connectGateway = () => {
-      const gw = this.ensureGateway();
-      this.emit({ error: null });
-      gw.connect().catch((e) => {
-        this.emit({ error: e.message || "WebSocket \u8FDE\u63A5\u5931\u8D25" });
-      });
-    };
-    /* ---------------------------------------------------------------- */
-    /*  Session attach + lifecycle                                       */
-    /* ---------------------------------------------------------------- */
-    static keyOf(spec, nonce) {
-      return `${spec.profile}${spec.resume ?? ""}${nonce}`;
-    }
-    /**
-     * Attach the page to a conversation spec. Idempotent: re-attaching the
-     * same key (e.g. a tab-switch remount) is a no-op, so the live session
-     * and its messages survive. A changed key resets the per-session render
-     * state and starts the lifecycle once the socket is open.
-     */
-    attach = (spec) => {
-      this.ensureGateway();
-      const key = _BubbleChatStore.keyOf(spec, this.state.newChatNonce);
-      if (key === this.attachedKey) return;
-      this.attachedKey = key;
-      this.attachedSpec = spec;
-      this.sessionReq += 1;
-      this.liveSid = null;
-      this.streamingMsgId = null;
-      this.toolCards.clear();
-      this.emit({
-        sessionReady: false,
-        loadingHistory: false,
-        generating: false,
-        statusText: null,
-        pendingPrompt: null,
-        promptBusy: false,
-        todos: [],
-        messages: []
-      });
-      this.maybeStartSession();
-    };
-    /** Run the session lifecycle when the socket is open and the attached
-     *  spec hasn't been started yet. */
-    maybeStartSession() {
-      const spec = this.attachedSpec;
-      if (!spec || this.state.connState !== "open") return;
-      const key = this.attachedKey;
-      if (!key || key === this.startedKey) return;
-      this.startedKey = key;
-      const gw = this.gw;
-      if (!gw) return;
-      const myReq = ++this.sessionReq;
-      const isCurrent = () => this.sessionReq === myReq;
-      this.liveSid = null;
-      this.streamingMsgId = null;
-      this.toolCards.clear();
-      this.emit({
-        sessionReady: false,
-        generating: false,
-        statusText: null,
-        pendingPrompt: null,
-        promptBusy: false,
-        todos: [],
-        messages: []
-      });
-      if (spec.resume) {
-        void this.runResumeLifecycle(gw, spec, spec.resume, isCurrent);
-      } else {
-        const createProfile = spec.profile || this.newChatRole;
-        gw.request("session.create", {
-          source: "dashboard",
-          ...createProfile ? { profile: createProfile } : {},
-          ...this.newChatModel ? {
-            model: this.newChatModel,
-            ...this.newChatProvider ? { provider: this.newChatProvider } : {}
-          } : {}
-        }).then((res) => {
-          if (!isCurrent()) return;
-          this.liveSid = res.session_id;
-          this.emit({ sessionReady: true });
-        }).catch((e) => {
-          if (!isCurrent()) return;
-          this.emit({ error: e.message || "\u4F1A\u8BDD\u521B\u5EFA\u5931\u8D25" });
-        });
-      }
-    }
-    /** History REST load + live session.resume, binding the owning profile.
-     *  Role sessions live in their own profile's state.db, so a resume that
-     *  binds the wrong profile comes back "session not found" — look up the
-     *  owner via the plugin backend and retry once (also covers a page
-     *  reload, where the in-memory role binding is gone). */
-    async runResumeLifecycle(gw, spec, resumeId, isCurrent) {
-      this.emit({ loadingHistory: true });
-      const attempt = async (profile) => {
-        const [hist, resumed] = await Promise.all([
-          api.getSessionMessages(resumeId, profile),
-          gw.request("session.resume", {
-            session_id: resumeId,
-            ...profile ? { profile } : {}
-          })
-        ]);
-        return { hist, resumed, profile };
-      };
-      try {
-        let result;
-        const firstProfile = this.resumeRole || spec.profile;
-        try {
-          result = await attempt(firstProfile);
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          if (!/session not found/i.test(msg)) throw e;
-          const owner = await lookupSessionProfile(resumeId);
-          const ownerProfile = owner === "default" ? "" : owner ?? "";
-          if (!owner || ownerProfile === firstProfile) throw e;
-          result = await attempt(ownerProfile);
-        }
-        if (!isCurrent()) return;
-        this.resumeRole = result.profile;
-        this.liveSid = result.resumed.session_id;
-        this.emit({
-          messages: mergeToolCards(
-            result.hist.messages.flatMap(historyToChatMessages)
-          ),
-          // Hydrate the todo panel from the latest todo tool row (stored
-          // results carry the full list as JSON).
-          todos: latestTodosFromHistory(result.hist.messages) ?? [],
-          // A session resumed mid-turn keeps its busy indicator.
-          generating: result.resumed.running === true,
-          sessionReady: true
-        });
-      } catch (e) {
-        if (!isCurrent()) return;
-        const msg = e instanceof Error ? e.message : String(e);
-        this.emit({ error: msg || "\u4F1A\u8BDD\u6062\u590D\u5931\u8D25" });
-      } finally {
-        if (isCurrent()) this.emit({ loadingHistory: false });
-      }
-    }
-    /* ---------------------------------------------------------------- */
-    /*  Gateway event handling                                           */
-    /* ---------------------------------------------------------------- */
-    handleEvent(ev) {
-      if (ev.session_id !== this.liveSid) return;
-      if (this.state.generating) this.armWatchdog();
-      const payload = ev.payload ?? {};
-      switch (ev.type) {
-        case "message.start": {
-          const id = messageId();
-          this.streamingMsgId = id;
-          this.patchMessages((prev) => [
-            ...prev,
-            { id, role: "assistant", text: "", timestamp: nowSeconds(), streaming: true }
-          ]);
-          this.emit({ generating: true });
-          break;
-        }
-        case "message.delta": {
-          const text = typeof payload.text === "string" ? payload.text : "";
-          if (!text) break;
-          if (!this.streamingMsgId) {
-            const id = messageId();
-            this.streamingMsgId = id;
-            this.patchMessages((prev) => [
-              ...prev,
-              { id, role: "assistant", text, timestamp: nowSeconds(), streaming: true }
-            ]);
-            break;
-          }
-          this.patchStreamingBubbleDeferred((m) => ({ ...m, text: m.text + text }));
-          break;
-        }
-        case "reasoning.delta":
-        case "thinking.delta": {
-          const text = typeof payload.text === "string" ? payload.text : "";
-          if (!text || !this.streamingMsgId) break;
-          this.patchStreamingBubbleDeferred((m) => ({
-            ...m,
-            reasoning: (m.reasoning ?? "") + text
-          }));
-          break;
-        }
-        case "reasoning.available": {
-          const text = typeof payload.text === "string" ? payload.text : "";
-          if (!text) break;
-          const fill = (m) => m.reasoning ? m : { ...m, reasoning: text };
-          if (this.streamingMsgId) {
-            this.patchStreamingBubble(fill);
-            break;
-          }
-          this.patchMessages((prev) => {
-            for (let i = prev.length - 1; i >= 0; i--) {
-              if (prev[i].role === "assistant") {
-                return prev.map((m, j) => j === i ? fill(m) : m);
-              }
-            }
-            return prev;
-          });
-          break;
-        }
-        case "message.complete": {
-          const finalText = typeof payload.text === "string" ? payload.text : null;
-          this.cancelStreamFlush();
-          this.patchStreamingBubble((m) => ({
-            ...m,
-            // The complete payload is authoritative; keep accumulated
-            // deltas when the final text is empty (e.g. interrupted turn).
-            text: finalText ? finalText : m.text,
-            streaming: false
-          }));
-          this.streamingMsgId = null;
-          this.emit({ generating: false, statusText: null });
-          break;
-        }
-        case "tool.start": {
-          const toolId = typeof payload.tool_id === "string" ? payload.tool_id : "";
-          const name = typeof payload.name === "string" ? payload.name : "tool";
-          const context = typeof payload.context === "string" && payload.context ? payload.context : void 0;
-          const preview = typeof payload.preview === "string" && payload.preview ? payload.preview : void 0;
-          const id = messageId();
-          if (toolId) this.toolCards.set(toolId, id);
-          this.patchMessages((prev) => [
-            ...prev,
-            {
-              id,
-              role: "tool",
-              text: "",
-              toolName: name,
-              toolRunning: true,
-              toolCallId: toolId || void 0,
-              toolContext: context,
-              toolResult: preview,
-              timestamp: nowSeconds()
-            }
-          ]);
-          break;
-        }
-        case "tool.complete": {
-          const toolId = typeof payload.tool_id === "string" ? payload.tool_id : "";
-          const name = typeof payload.name === "string" ? payload.name : "";
-          if (name === "todo") {
-            const todos = parseTodoList(payload.todos ?? payload.result);
-            if (todos) this.emit({ todos });
-          }
-          const mid = this.toolCards.get(toolId);
-          if (mid) {
-            const resultText = stringifyToolResult(payload.result);
-            const failed = isErrorResult(payload.result);
-            const duration = typeof payload.duration_s === "number" ? payload.duration_s : void 0;
-            const args = payload.args;
-            this.patchMessages(
-              (prev) => prev.map(
-                (m) => m.id === mid ? {
-                  ...m,
-                  toolRunning: false,
-                  toolArgs: args ?? m.toolArgs,
-                  toolResult: resultText ?? m.toolResult,
-                  toolError: failed,
-                  toolDuration: duration
-                } : m
-              )
-            );
-            this.toolCards.delete(toolId);
-          }
-          break;
-        }
-        case "tool.generating": {
-          const name = typeof payload.name === "string" ? payload.name : "tool";
-          this.emit({ statusText: `\u6B63\u5728\u8C03\u7528 ${name}\u2026` });
-          break;
-        }
-        case "status.update": {
-          const text = typeof payload.text === "string" ? payload.text.trim() : "";
-          this.emit({ statusText: text || null });
-          break;
-        }
-        case "error": {
-          const message = typeof payload.message === "string" ? payload.message : "\u672A\u77E5\u9519\u8BEF";
-          this.cancelStreamFlush();
-          this.patchStreamingBubble((m) => ({ ...m, streaming: false }));
-          this.streamingMsgId = null;
-          this.patchMessages((prev) => [...prev, systemMessage(`\u9519\u8BEF\uFF1A${message}`)]);
-          this.emit({ generating: false, statusText: null });
-          break;
-        }
-        case "approval.request": {
-          this.emit({
-            pendingPrompt: {
-              kind: "approval",
-              command: typeof payload.command === "string" ? payload.command : "",
-              description: typeof payload.description === "string" && payload.description ? payload.description : "\u5371\u9669\u64CD\u4F5C",
-              allowPermanent: payload.allow_permanent !== false,
-              smartDenied: payload.smart_denied === true
-            },
-            statusText: "\u7B49\u5F85\u5BA1\u6279\u2026"
-          });
-          break;
-        }
-        case "clarify.request": {
-          const requestId = typeof payload.request_id === "string" ? payload.request_id : "";
-          if (!requestId) break;
-          this.emit({
-            pendingPrompt: {
-              kind: "clarify",
-              requestId,
-              question: typeof payload.question === "string" ? payload.question : "",
-              choices: Array.isArray(payload.choices) ? payload.choices.filter((c) => typeof c === "string") : null
-            },
-            statusText: "\u7B49\u5F85\u4F60\u7684\u56DE\u7B54\u2026"
-          });
-          break;
-        }
-        default: {
-          if (IGNORED_EVENT_TYPES.has(ev.type)) break;
-          this.patchMessages((prev) => [...prev, systemMessage(`[${ev.type}]`)]);
-        }
-      }
-    }
-    /* ---------------------------------------------------------------- */
-    /*  Actions                                                          */
-    /* ---------------------------------------------------------------- */
-    sys(text) {
-      this.patchMessages((prev) => [...prev, systemMessage(text)]);
-    }
-    /** Plain prompt.submit path: user bubble + generating state. */
-    submitPrompt(text, images) {
-      const gw = this.gw;
-      const sid = this.liveSid;
-      if (!gw || !sid || !text) return;
-      this.patchMessages((prev) => [
-        ...prev,
-        {
-          id: messageId(),
-          role: "user",
-          text,
-          // Echo the just-attached images in the user's own bubble (the
-          // gateway's image.attach emits no event, so nothing else would
-          // show them until a history reload).
-          images: images && images.length > 0 ? images : void 0,
-          timestamp: nowSeconds()
-        }
-      ]);
-      this.emit({ generating: true });
-      gw.request("prompt.submit", { session_id: sid, text }).catch((e) => {
-        this.emit({ generating: false });
-        this.sys(`\u53D1\u9001\u5931\u8D25\uFF1A${e.message || "\u672A\u77E5\u9519\u8BEF"}`);
-      });
-    }
-    /**
-     * Slash command path. prompt.submit does NOT parse leading slashes (the
-     * text would reach the LLM verbatim), so "/..." messages go to slash.exec
-     * instead. The response is either {output, warning?} (rendered as a
-     * system bubble) or a command.dispatch directive: exec/plugin render
-     * output, send/skill submit `message` as a normal turn (the turn's
-     * message.start/… events arrive on their own), prefill (/undo) refills
-     * the composer, alias re-executes the target.
-     *
-     * `/new` is handled by the PAGE (it owns the URL/nonce); the store only
-     * sees commands that execute over the wire. `onPrefill` refills the
-     * composer (page-local UI state).
-     */
-    async runSlash(text, onPrefill, depth = 0) {
-      const gw = this.gw;
-      const sid = this.liveSid;
-      if (!gw || !sid) return;
-      const m = /^\/(\S*)\s*(.*)$/.exec(text);
-      const name = (m?.[1] ?? "").toLowerCase();
-      const arg = (m?.[2] ?? "").trim();
-      if (!name) {
-        this.sys("\u7A7A\u547D\u4EE4");
-        return;
-      }
-      this.emit({ slashBusy: true });
-      try {
-        const raw = await gw.request("slash.exec", {
-          session_id: sid,
-          command: text
-        });
-        const d = asSlashDirective(raw);
-        if (!d) {
-          const r = raw ?? {};
-          const body = r.output?.trim() ? r.output : `/${name}\uFF1A\u65E0\u8F93\u51FA`;
-          this.sys(r.warning ? `\u8B66\u544A\uFF1A${r.warning}
-${body}` : body);
-          return;
-        }
-        switch (d.type) {
-          case "exec":
-          case "plugin":
-            this.sys(d.output?.trim() ? d.output : "(\u65E0\u8F93\u51FA)");
-            break;
-          case "alias":
-            if (depth >= 3) {
-              this.sys("\u547D\u4EE4\u522B\u540D\u5D4C\u5957\u8FC7\u6DF1");
-              break;
-            }
-            await this.runSlash(`/${d.target}${arg ? ` ${arg}` : ""}`, onPrefill, depth + 1);
-            break;
-          case "skill": {
-            const msgText = d.message?.trim() ?? "";
-            if (!msgText) {
-              this.sys(`/${name}\uFF1A\u6280\u80FD\u8F7D\u8377\u7F3A\u5C11\u6D88\u606F\u5185\u5BB9`);
-              break;
-            }
-            this.sys(`\u26A1 \u52A0\u8F7D\u6280\u80FD\uFF1A${d.name}`);
-            this.submitPrompt(msgText);
-            break;
-          }
-          case "send": {
-            if (d.notice?.trim()) this.sys(d.notice);
-            const msgText = d.message.trim();
-            if (!msgText) {
-              this.sys(`/${name}\uFF1A\u7A7A\u6D88\u606F`);
-              break;
-            }
-            this.submitPrompt(msgText);
-            break;
-          }
-          case "prefill":
-            if (d.notice?.trim()) this.sys(d.notice);
-            if (d.message) onPrefill(d.message);
-            break;
-        }
-      } catch (e) {
-        this.sys(`\u547D\u4EE4\u5931\u8D25\uFF1A${e instanceof Error ? e.message : String(e)}`);
-      } finally {
-        this.emit({ slashBusy: false });
-      }
-    }
-    /** Composer send. `onNew` handles /new client-side (page owns the URL);
-     *  `onPrefill` refills the composer for /undo. */
-    send = (text, images, hooks) => {
-      if (!this.gw || !this.liveSid || !text) return;
-      const firstToken = text.split(/\s/, 1)[0];
-      const isSlashCommand = firstToken.startsWith("/") && !firstToken.slice(1).includes("/");
-      if (isSlashCommand) {
-        this.patchMessages((prev) => [
-          ...prev,
-          {
-            id: messageId(),
-            role: "user",
-            text,
-            images: images && images.length > 0 ? images : void 0,
-            timestamp: nowSeconds()
-          }
-        ]);
-        if (/^\/new(?:\s|$)/.test(text)) {
-          hooks.onNew();
-          return;
-        }
-        void this.runSlash(text, hooks.onPrefill);
-        return;
-      }
-      this.submitPrompt(text, images);
-    };
-    interrupt = () => {
-      const gw = this.gw;
-      const sid = this.liveSid;
-      if (!gw || !sid) return;
-      this.emit({ pendingPrompt: null, statusText: null });
-      gw.request("session.interrupt", { session_id: sid }).catch(() => {
-      });
-    };
-    /** PendingPromptCard answer: clarify — empty answer means "skip". */
-    answerClarify = (answer) => {
-      const gw = this.gw;
-      const cur = this.state.pendingPrompt;
-      if (!gw || !cur || cur.kind !== "clarify") return;
-      this.emit({ pendingPrompt: null, statusText: null, promptBusy: true });
-      gw.request("clarify.respond", { request_id: cur.requestId, answer }).then(
-        () => this.sys(
-          answer ? `\u2753 ${cur.question}
-\u2705 ${answer}` : `\u2753 ${cur.question}
-\uFF08\u5DF2\u8DF3\u8FC7\uFF09`
-        )
-      ).catch((e) => this.sys(`\u56DE\u7B54\u63D0\u4EA4\u5931\u8D25\uFF1A${e.message || "\u672A\u77E5\u9519\u8BEF"}`)).finally(() => this.emit({ promptBusy: false }));
-    };
-    /** PendingPromptCard answer: approval — choice ∈ once|session|always|deny. */
-    answerApproval = (choice) => {
-      const gw = this.gw;
-      const sid = this.liveSid;
-      const cur = this.state.pendingPrompt;
-      if (!gw || !sid || !cur || cur.kind !== "approval") return;
-      this.emit({ pendingPrompt: null, statusText: null, promptBusy: true });
-      gw.request("approval.respond", { session_id: sid, choice }).then(
-        () => this.sys(
-          `\u{1F6E1}\uFE0F \u5BA1\u6279\uFF1A${cur.description} \u2192 ${APPROVAL_CHOICE_LABELS[choice] ?? choice}`
-        )
-      ).catch((e) => this.sys(`\u5BA1\u6279\u63D0\u4EA4\u5931\u8D25\uFF1A${e.message || "\u672A\u77E5\u9519\u8BEF"}`)).finally(() => this.emit({ promptBusy: false }));
-    };
-    /** Bubble "retry": resubmit a user message's text (for the latest
-     * assistant reply, the user text that prompted it). Interrupts the
-     * current turn first when one is still streaming. */
-    retryMessage = (msg, hooks) => {
-      const gw = this.gw;
-      const sid = this.liveSid;
-      if (!gw || !sid) return;
-      const messages = this.state.messages;
-      let text = msg.role === "user" ? msg.text : "";
-      if (msg.role !== "user") {
-        const idx = messages.findIndex((m) => m.id === msg.id);
-        for (let i = idx - 1; i >= 0; i--) {
-          if (messages[i].role === "user" && messages[i].text.trim()) {
-            text = messages[i].text;
-            break;
-          }
-        }
-      }
-      text = text.trim();
-      if (!text) {
-        this.sys("\u6CA1\u6709\u53EF\u91CD\u8BD5\u7684\u7528\u6237\u6D88\u606F");
-        return;
-      }
-      void (async () => {
-        if (this.state.generating) {
-          await gw.request("session.interrupt", { session_id: sid }).catch(() => {
-          });
-        }
-        this.send(text, void 0, hooks);
-      })();
-    };
-    /** Attach an already-uploaded image to the live session. The gateway
-     *  queues it in session.attached_images and the next prompt.submit turn
-     *  picks it up (this is the same path the TUI's /image command uses). */
-    attachImage = async (path) => {
-      const gw = this.gw;
-      const sid = this.liveSid;
-      if (!gw || !sid) throw new Error("\u4F1A\u8BDD\u672A\u5C31\u7EEA");
-      await gw.request("image.attach", { session_id: sid, path });
-    };
-  };
-  var bubbleChatStore = new BubbleChatStore();
 
   // src/RoleSidebar.tsx
   var persistedOpenRole = null;
@@ -6244,7 +6419,10 @@ ${body}` : body);
                 children: /* @__PURE__ */ jsx(PanelLeft, {})
               }
             ) }),
-            /* @__PURE__ */ jsx("span", { className: "ml-auto", children: /* @__PURE__ */ jsx(ChatBackgroundPicker, { bg: chatBg, profile: scopedProfile, avatar: agentAvatar }) })
+            /* @__PURE__ */ jsxs("span", { className: "ml-auto flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(ChatModelBadge, {}),
+              /* @__PURE__ */ jsx(ChatBackgroundPicker, { bg: chatBg, profile: scopedProfile, avatar: agentAvatar })
+            ] })
           ] }),
           state.error && /* @__PURE__ */ jsxs("div", { className: "flex shrink-0 items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive", children: [
             /* @__PURE__ */ jsx(CircleAlert, { className: "h-3.5 w-3.5 shrink-0" }),
@@ -6359,6 +6537,7 @@ lucide-react/dist/esm/icons/circle-question-mark.js:
 lucide-react/dist/esm/icons/circle-slash.js:
 lucide-react/dist/esm/icons/circle.js:
 lucide-react/dist/esm/icons/copy.js:
+lucide-react/dist/esm/icons/cpu.js:
 lucide-react/dist/esm/icons/file-text.js:
 lucide-react/dist/esm/icons/file.js:
 lucide-react/dist/esm/icons/folder.js:

@@ -189,6 +189,9 @@
 .hermes-bubble-chat .max-h-64 {
   max-height: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 64);
 }
+.hermes-bubble-chat .max-h-96 {
+  max-height: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 96);
+}
 .hermes-bubble-chat .max-h-\[80vh\] {
   max-height: 80vh;
 }
