@@ -7,10 +7,11 @@
  * 提示词 → profile + ROLE.md).
  *
  * Level 2 (角色视图): tapping a role swaps the sidebar to that role's own
- * panel — header (← back to the role list, name, description), a 提示词
- * editor (the role's ROLE.md as one textarea), a 技能列表 editor (enabled
+ * panel — header (← back to the role list, name, description), collapsible
+ * editors for 提示词 (ROLE.md), 记忆 (MEMORY.md) and 技能列表 (enabled
  * skills as plain text, one name per line, with a read-only 可用技能参考
- * pick list), a 新建小对话 button with an optional model dropdown, and the
+ * pick list) — all collapsed by default and lazily loaded on first expand —
+ * a 新建小对话 button with an optional model dropdown, and the
  * role's own 小对话列表 (sessions of that profile only). New chats created
  * here inherit the role naturally — no picker dialog anywhere.
  *
@@ -18,7 +19,15 @@
  * (the plugin route unmounts on tab switches) restore the same view.
  */
 
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   ArrowLeft,
   Bot,
@@ -458,6 +467,65 @@ function BaseFilesSection() {
   );
 }
 
+/**
+ * 可折叠区块壳：头部常驻（chevron + 标题 + 右侧操作），内容仅在展开时渲染。
+ * 角色视图的提示词/记忆/技能列表量大，默认折叠省位置；头部保留保存按钮，
+ * 折叠时通过小圆点提示有未保存修改。
+ */
+function CollapsibleSection({
+  title,
+  badge,
+  open,
+  onToggle,
+  dirty,
+  actions,
+  children,
+}: {
+  title: string;
+  badge?: string;
+  open: boolean;
+  onToggle: () => void;
+  dirty?: boolean;
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mx-2 mb-2 rounded-lg border border-current/10 p-2">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 rounded px-1 py-0.5 text-xs font-medium text-text-secondary hover:text-foreground"
+        >
+          <ChevronDown
+            className={cn(
+              "h-3 w-3 shrink-0 transition-transform",
+              !open && "-rotate-90",
+            )}
+          />
+          <span className="shrink-0">{title}</span>
+          {badge && (
+            <span className="truncate text-[0.625rem] font-normal text-text-tertiary">
+              {badge}
+            </span>
+          )}
+          {dirty && (
+            <span
+              className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning"
+              title="有未保存的修改"
+            />
+          )}
+        </button>
+        {actions && (
+          <span className="flex shrink-0 items-center gap-1.5">{actions}</span>
+        )}
+      </div>
+      {open && <div className="pt-1.5">{children}</div>}
+    </div>
+  );
+}
+
 function RoleView({
   role,
   roles,
@@ -482,10 +550,12 @@ function RoleView({
   /** Profile id passed to session.create / session lists ("" = default). */
   const profileId = isDefault ? "" : role;
 
-  /* ---------------- 提示词（ROLE.md） ---------------- */
+  /* ---------------- 提示词（ROLE.md，折叠 + 首次展开才加载） ---------------- */
   const [prompt, setPrompt] = useState<{ text: string; dirty: boolean } | null>(null);
   const [promptBusy, setPromptBusy] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [promptOpen, setPromptOpen] = useState(false);
+  const promptLoadedRef = useRef(false);
 
   /* ---------------- 技能列表（启用技能，纯文本） ---------------- */
   const [skills, setSkills] = useState<RoleSkillsPayload | null>(null);
@@ -495,39 +565,74 @@ function RoleView({
   const [skillsError, setSkillsError] = useState<string | null>(null);
   const [skillsUnmatched, setSkillsUnmatched] = useState<string[]>([]);
   const [refOpen, setRefOpen] = useState(false);
+  const [skillsOpen, setSkillsOpen] = useState(false);
+  const skillsLoadedRef = useRef(false);
 
+  /* ---------------- 记忆（memories/MEMORY.md，volatile 层） ---------------- */
+  const [memory, setMemory] = useState<{ text: string; dirty: boolean } | null>(null);
+  const [memoryBusy, setMemoryBusy] = useState(false);
+  const [memoryError, setMemoryError] = useState<string | null>(null);
+  const [memoryOpen, setMemoryOpen] = useState(false);
+  const memoryLoadedRef = useRef(false);
+
+  // 切换角色：三个折叠区全部收起并清空，下次展开时重新拉取。
   useEffect(() => {
-    let live = true;
     setPrompt(null);
     setPromptError(null);
+    setPromptOpen(false);
+    promptLoadedRef.current = false;
     setSkills(null);
     setSkillsText(null);
     setSkillsDirty(false);
     setSkillsError(null);
     setSkillsUnmatched([]);
-    fetchRolePrompt(role)
-      .then((res) => {
-        if (live) setPrompt({ text: res.content, dirty: false });
-      })
-      .catch((e: Error) => {
-        if (live) setPromptError(e.message || "读取失败");
-      });
-    fetchRoleSkills(role)
-      .then((payload) => {
-        if (!live) return;
-        setSkills(payload);
-        // Whitelist mode: show the raw file (comments preserved). Legacy
-        // disabled mode: one enabled name per line.
-        setSkillsText(payload.content ?? payload.enabled.join("\n"));
-        setSkillsUnmatched(payload.unmatched ?? []);
-      })
-      .catch((e: Error) => {
-        if (live) setSkillsError(e.message || "读取失败");
-      });
-    return () => {
-      live = false;
-    };
+    setRefOpen(false);
+    setSkillsOpen(false);
+    skillsLoadedRef.current = false;
+    setMemory(null);
+    setMemoryError(null);
+    setMemoryOpen(false);
+    memoryLoadedRef.current = false;
   }, [role]);
+
+  const togglePrompt = useCallback(() => {
+    const open = !promptOpen;
+    setPromptOpen(open);
+    if (open && !promptLoadedRef.current) {
+      promptLoadedRef.current = true;
+      fetchRolePrompt(role)
+        .then((res) => setPrompt({ text: res.content, dirty: false }))
+        .catch((e: Error) => setPromptError(e.message || "读取失败"));
+    }
+  }, [promptOpen, role]);
+
+  const toggleSkills = useCallback(() => {
+    const open = !skillsOpen;
+    setSkillsOpen(open);
+    if (open && !skillsLoadedRef.current) {
+      skillsLoadedRef.current = true;
+      fetchRoleSkills(role)
+        .then((payload) => {
+          setSkills(payload);
+          // Whitelist mode: show the raw file (comments preserved). Legacy
+          // disabled mode: one enabled name per line.
+          setSkillsText(payload.content ?? payload.enabled.join("\n"));
+          setSkillsUnmatched(payload.unmatched ?? []);
+        })
+        .catch((e: Error) => setSkillsError(e.message || "读取失败"));
+    }
+  }, [skillsOpen, role]);
+
+  const toggleMemory = useCallback(() => {
+    const open = !memoryOpen;
+    setMemoryOpen(open);
+    if (open && !memoryLoadedRef.current) {
+      memoryLoadedRef.current = true;
+      fetchRoleMemory(role)
+        .then((res) => setMemory({ text: res.content, dirty: false }))
+        .catch((e: Error) => setMemoryError(e.message || "读取失败"));
+    }
+  }, [memoryOpen, role]);
 
   const savePrompt = useCallback(async () => {
     if (!prompt) return;
@@ -544,27 +649,7 @@ function RoleView({
     }
   }, [prompt, role, onRolesChanged]);
 
-  /* ---------------- 记忆（memories/MEMORY.md，volatile 层） ---------------- */
-  const [memory, setMemory] = useState<{ text: string; dirty: boolean } | null>(null);
-  const [memoryBusy, setMemoryBusy] = useState(false);
-  const [memoryError, setMemoryError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    setMemory(null);
-    setMemoryError(null);
-    fetchRoleMemory(role)
-      .then((res) => {
-        if (live) setMemory({ text: res.content, dirty: false });
-      })
-      .catch((e: Error) => {
-        if (live) setMemoryError(e.message || "读取失败");
-      });
-    return () => {
-      live = false;
-    };
-  }, [role]);
-
+  /* ---------------- 记忆保存 ---------------- */
   const saveMemory = useCallback(async () => {
     if (!memory) return;
     setMemoryBusy(true);
@@ -674,20 +759,22 @@ function RoleView({
         <BaseFilesSection />
       ) : (
       /* 提示词（ROLE.md） */
-      <div className="mx-2 mb-2 rounded-lg border border-current/10 p-2">
-        <div className="flex items-center justify-between gap-2 pb-1.5">
-          <span className="text-xs font-medium">提示词</span>
-          <span className="flex items-center gap-1.5">
-            <span className="text-[0.625rem] text-text-tertiary">ROLE.md</span>
-            <Button
-              size="sm"
-              disabled={!prompt?.dirty || promptBusy}
-              onClick={() => void savePrompt()}
-            >
-              {promptBusy ? "保存中…" : "保存"}
-            </Button>
-          </span>
-        </div>
+      <CollapsibleSection
+        title="提示词"
+        badge="ROLE.md"
+        open={promptOpen}
+        onToggle={togglePrompt}
+        dirty={prompt?.dirty}
+        actions={
+          <Button
+            size="sm"
+            disabled={!prompt?.dirty || promptBusy}
+            onClick={() => void savePrompt()}
+          >
+            {promptBusy ? "保存中…" : "保存"}
+          </Button>
+        }
+      >
         {prompt === null ? (
           <div className="flex items-center gap-2 px-1 py-2 text-xs text-text-secondary">
             <Spinner /> 加载提示词…
@@ -707,24 +794,26 @@ function RoleView({
             {promptError}
           </div>
         )}
-      </div>
+      </CollapsibleSection>
       )}
 
       {/* 记忆（memories/MEMORY.md，volatile 层） */}
-      <div className="mx-2 mb-2 rounded-lg border border-current/10 p-2">
-        <div className="flex items-center justify-between gap-2 pb-1.5">
-          <span className="text-xs font-medium">记忆</span>
-          <span className="flex items-center gap-1.5">
-            <span className="text-[0.625rem] text-text-tertiary">MEMORY.md</span>
-            <Button
-              size="sm"
-              disabled={!memory?.dirty || memoryBusy}
-              onClick={() => void saveMemory()}
-            >
-              {memoryBusy ? "保存中…" : "保存"}
-            </Button>
-          </span>
-        </div>
+      <CollapsibleSection
+        title="记忆"
+        badge="MEMORY.md"
+        open={memoryOpen}
+        onToggle={toggleMemory}
+        dirty={memory?.dirty}
+        actions={
+          <Button
+            size="sm"
+            disabled={!memory?.dirty || memoryBusy}
+            onClick={() => void saveMemory()}
+          >
+            {memoryBusy ? "保存中…" : "保存"}
+          </Button>
+        }
+      >
         {memory === null ? (
           <div className="flex items-center gap-2 px-1 py-2 text-xs text-text-secondary">
             <Spinner /> 加载记忆…
@@ -744,29 +833,33 @@ function RoleView({
             {memoryError}
           </div>
         )}
-      </div>
+      </CollapsibleSection>
 
       {/* 技能列表（启用技能，每行一个；# 为注释） */}
-      <div className="mx-2 mb-2 rounded-lg border border-current/10 p-2">
-        <div className="flex items-center justify-between gap-2 pb-1.5">
-          <span className="text-xs font-medium">技能列表</span>
-          <span className="flex items-center gap-1.5">
-            {skills && (
-              <span className="text-[0.625rem] text-text-tertiary">
-                启用 {skills.enabled.length} 个技能
-                {skills.mode === "whitelist" && skills.whitelist_file === false &&
-                  "（名单文件未建，保存后创建）"}
-              </span>
-            )}
-            <Button
-              size="sm"
-              disabled={!skillsDirty || skillsBusy}
-              onClick={() => void saveSkills()}
-            >
-              {skillsBusy ? "保存中…" : "保存"}
-            </Button>
-          </span>
-        </div>
+      <CollapsibleSection
+        title="技能列表"
+        badge={
+          skills
+            ? `启用 ${skills.enabled.length} 个技能${
+                skills.mode === "whitelist" && skills.whitelist_file === false
+                  ? "（名单文件未建，保存后创建）"
+                  : ""
+              }`
+            : "启用技能名单"
+        }
+        open={skillsOpen}
+        onToggle={toggleSkills}
+        dirty={skillsDirty}
+        actions={
+          <Button
+            size="sm"
+            disabled={!skillsDirty || skillsBusy}
+            onClick={() => void saveSkills()}
+          >
+            {skillsBusy ? "保存中…" : "保存"}
+          </Button>
+        }
+      >
         {skillsText === null ? (
           <div className="flex items-center gap-2 px-1 py-2 text-xs text-text-secondary">
             <Spinner /> 加载技能…
@@ -837,7 +930,7 @@ function RoleView({
             )}
           </div>
         )}
-      </div>
+      </CollapsibleSection>
 
       {/* 模型下拉（可选，默认 = 当前配置；仅作用于下一次新建小对话） */}
       <div className="mx-2 mb-2">

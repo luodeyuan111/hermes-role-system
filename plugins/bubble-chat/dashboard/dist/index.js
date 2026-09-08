@@ -5507,6 +5507,51 @@ ${body}` : body);
       }) })
     ] });
   }
+  function CollapsibleSection({
+    title,
+    badge,
+    open,
+    onToggle,
+    dirty,
+    actions,
+    children
+  }) {
+    return /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: onToggle,
+            "aria-expanded": open,
+            className: "flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 rounded px-1 py-0.5 text-xs font-medium text-text-secondary hover:text-foreground",
+            children: [
+              /* @__PURE__ */ jsx(
+                ChevronDown,
+                {
+                  className: cn(
+                    "h-3 w-3 shrink-0 transition-transform",
+                    !open && "-rotate-90"
+                  )
+                }
+              ),
+              /* @__PURE__ */ jsx("span", { className: "shrink-0", children: title }),
+              badge && /* @__PURE__ */ jsx("span", { className: "truncate text-[0.625rem] font-normal text-text-tertiary", children: badge }),
+              dirty && /* @__PURE__ */ jsx(
+                "span",
+                {
+                  className: "h-1.5 w-1.5 shrink-0 rounded-full bg-warning",
+                  title: "\u6709\u672A\u4FDD\u5B58\u7684\u4FEE\u6539"
+                }
+              )
+            ]
+          }
+        ),
+        actions && /* @__PURE__ */ jsx("span", { className: "flex shrink-0 items-center gap-1.5", children: actions })
+      ] }),
+      open && /* @__PURE__ */ jsx("div", { className: "pt-1.5", children })
+    ] });
+  }
   function RoleView({
     role,
     roles,
@@ -5523,6 +5568,8 @@ ${body}` : body);
     const [prompt, setPrompt] = useState(null);
     const [promptBusy, setPromptBusy] = useState(false);
     const [promptError, setPromptError] = useState(null);
+    const [promptOpen, setPromptOpen] = useState(false);
+    const promptLoadedRef = useRef(false);
     const [skills, setSkills] = useState(null);
     const [skillsText, setSkillsText] = useState(null);
     const [skillsDirty, setSkillsDirty] = useState(false);
@@ -5530,32 +5577,59 @@ ${body}` : body);
     const [skillsError, setSkillsError] = useState(null);
     const [skillsUnmatched, setSkillsUnmatched] = useState([]);
     const [refOpen, setRefOpen] = useState(false);
+    const [skillsOpen, setSkillsOpen] = useState(false);
+    const skillsLoadedRef = useRef(false);
+    const [memory, setMemory] = useState(null);
+    const [memoryBusy, setMemoryBusy] = useState(false);
+    const [memoryError, setMemoryError] = useState(null);
+    const [memoryOpen, setMemoryOpen] = useState(false);
+    const memoryLoadedRef = useRef(false);
     useEffect(() => {
-      let live = true;
       setPrompt(null);
       setPromptError(null);
+      setPromptOpen(false);
+      promptLoadedRef.current = false;
       setSkills(null);
       setSkillsText(null);
       setSkillsDirty(false);
       setSkillsError(null);
       setSkillsUnmatched([]);
-      fetchRolePrompt(role).then((res) => {
-        if (live) setPrompt({ text: res.content, dirty: false });
-      }).catch((e) => {
-        if (live) setPromptError(e.message || "\u8BFB\u53D6\u5931\u8D25");
-      });
-      fetchRoleSkills(role).then((payload) => {
-        if (!live) return;
-        setSkills(payload);
-        setSkillsText(payload.content ?? payload.enabled.join("\n"));
-        setSkillsUnmatched(payload.unmatched ?? []);
-      }).catch((e) => {
-        if (live) setSkillsError(e.message || "\u8BFB\u53D6\u5931\u8D25");
-      });
-      return () => {
-        live = false;
-      };
+      setRefOpen(false);
+      setSkillsOpen(false);
+      skillsLoadedRef.current = false;
+      setMemory(null);
+      setMemoryError(null);
+      setMemoryOpen(false);
+      memoryLoadedRef.current = false;
     }, [role]);
+    const togglePrompt = useCallback(() => {
+      const open = !promptOpen;
+      setPromptOpen(open);
+      if (open && !promptLoadedRef.current) {
+        promptLoadedRef.current = true;
+        fetchRolePrompt(role).then((res) => setPrompt({ text: res.content, dirty: false })).catch((e) => setPromptError(e.message || "\u8BFB\u53D6\u5931\u8D25"));
+      }
+    }, [promptOpen, role]);
+    const toggleSkills = useCallback(() => {
+      const open = !skillsOpen;
+      setSkillsOpen(open);
+      if (open && !skillsLoadedRef.current) {
+        skillsLoadedRef.current = true;
+        fetchRoleSkills(role).then((payload) => {
+          setSkills(payload);
+          setSkillsText(payload.content ?? payload.enabled.join("\n"));
+          setSkillsUnmatched(payload.unmatched ?? []);
+        }).catch((e) => setSkillsError(e.message || "\u8BFB\u53D6\u5931\u8D25"));
+      }
+    }, [skillsOpen, role]);
+    const toggleMemory = useCallback(() => {
+      const open = !memoryOpen;
+      setMemoryOpen(open);
+      if (open && !memoryLoadedRef.current) {
+        memoryLoadedRef.current = true;
+        fetchRoleMemory(role).then((res) => setMemory({ text: res.content, dirty: false })).catch((e) => setMemoryError(e.message || "\u8BFB\u53D6\u5931\u8D25"));
+      }
+    }, [memoryOpen, role]);
     const savePrompt = useCallback(async () => {
       if (!prompt) return;
       setPromptBusy(true);
@@ -5570,22 +5644,6 @@ ${body}` : body);
         setPromptBusy(false);
       }
     }, [prompt, role, onRolesChanged]);
-    const [memory, setMemory] = useState(null);
-    const [memoryBusy, setMemoryBusy] = useState(false);
-    const [memoryError, setMemoryError] = useState(null);
-    useEffect(() => {
-      let live = true;
-      setMemory(null);
-      setMemoryError(null);
-      fetchRoleMemory(role).then((res) => {
-        if (live) setMemory({ text: res.content, dirty: false });
-      }).catch((e) => {
-        if (live) setMemoryError(e.message || "\u8BFB\u53D6\u5931\u8D25");
-      });
-      return () => {
-        live = false;
-      };
-    }, [role]);
     const saveMemory = useCallback(async () => {
       if (!memory) return;
       setMemoryBusy(true);
@@ -5669,153 +5727,160 @@ ${body}` : body);
       ] }),
       isDefault ? /* @__PURE__ */ jsx(BaseFilesSection, {}) : (
         /* 提示词（ROLE.md） */
-        /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
-          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 pb-1.5", children: [
-            /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: "\u63D0\u793A\u8BCD" }),
-            /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5", children: [
-              /* @__PURE__ */ jsx("span", { className: "text-[0.625rem] text-text-tertiary", children: "ROLE.md" }),
-              /* @__PURE__ */ jsx(
-                Button,
+        /* @__PURE__ */ jsxs(
+          CollapsibleSection,
+          {
+            title: "\u63D0\u793A\u8BCD",
+            badge: "ROLE.md",
+            open: promptOpen,
+            onToggle: togglePrompt,
+            dirty: prompt?.dirty,
+            actions: /* @__PURE__ */ jsx(
+              Button,
+              {
+                size: "sm",
+                disabled: !prompt?.dirty || promptBusy,
+                onClick: () => void savePrompt(),
+                children: promptBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+              }
+            ),
+            children: [
+              prompt === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+                /* @__PURE__ */ jsx(Spinner, {}),
+                " \u52A0\u8F7D\u63D0\u793A\u8BCD\u2026"
+              ] }) : /* @__PURE__ */ jsx(
+                "textarea",
                 {
-                  size: "sm",
-                  disabled: !prompt?.dirty || promptBusy,
-                  onClick: () => void savePrompt(),
-                  children: promptBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+                  value: prompt.text,
+                  onChange: (e) => setPrompt({ text: e.target.value, dirty: true }),
+                  "aria-label": "\u63D0\u793A\u8BCD\uFF08ROLE.md\uFF09",
+                  placeholder: "# \u89D2\u8272\u540D\n\n\u63CF\u8FF0\u4E0E\u63D0\u793A\u8BCD\u2026",
+                  rows: 6,
+                  className: textareaCls
                 }
-              )
-            ] })
-          ] }),
-          prompt === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
-            /* @__PURE__ */ jsx(Spinner, {}),
-            " \u52A0\u8F7D\u63D0\u793A\u8BCD\u2026"
-          ] }) : /* @__PURE__ */ jsx(
-            "textarea",
-            {
-              value: prompt.text,
-              onChange: (e) => setPrompt({ text: e.target.value, dirty: true }),
-              "aria-label": "\u63D0\u793A\u8BCD\uFF08ROLE.md\uFF09",
-              placeholder: "# \u89D2\u8272\u540D\n\n\u63CF\u8FF0\u4E0E\u63D0\u793A\u8BCD\u2026",
-              rows: 6,
-              className: textareaCls
-            }
-          ),
-          promptError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: promptError })
-        ] })
+              ),
+              promptError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: promptError })
+            ]
+          }
+        )
       ),
-      /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 pb-1.5", children: [
-          /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: "\u8BB0\u5FC6" }),
-          /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsx("span", { className: "text-[0.625rem] text-text-tertiary", children: "MEMORY.md" }),
-            /* @__PURE__ */ jsx(
-              Button,
-              {
-                size: "sm",
-                disabled: !memory?.dirty || memoryBusy,
-                onClick: () => void saveMemory(),
-                children: memoryBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
-              }
-            )
-          ] })
-        ] }),
-        memory === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
-          /* @__PURE__ */ jsx(Spinner, {}),
-          " \u52A0\u8F7D\u8BB0\u5FC6\u2026"
-        ] }) : /* @__PURE__ */ jsx(
-          "textarea",
-          {
-            value: memory.text,
-            onChange: (e) => setMemory({ text: e.target.value, dirty: true }),
-            "aria-label": "\u8BB0\u5FC6\uFF08MEMORY.md\uFF09",
-            placeholder: "\u8BE5\u89D2\u8272\u7684\u957F\u671F\u8BB0\u5FC6\u2026",
-            rows: 5,
-            className: textareaCls
-          }
-        ),
-        memoryError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: memoryError })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2 rounded-lg border border-current/10 p-2", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2 pb-1.5", children: [
-          /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: "\u6280\u80FD\u5217\u8868" }),
-          /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1.5", children: [
-            skills && /* @__PURE__ */ jsxs("span", { className: "text-[0.625rem] text-text-tertiary", children: [
-              "\u542F\u7528 ",
-              skills.enabled.length,
-              " \u4E2A\u6280\u80FD",
-              skills.mode === "whitelist" && skills.whitelist_file === false && "\uFF08\u540D\u5355\u6587\u4EF6\u672A\u5EFA\uFF0C\u4FDD\u5B58\u540E\u521B\u5EFA\uFF09"
-            ] }),
-            /* @__PURE__ */ jsx(
-              Button,
-              {
-                size: "sm",
-                disabled: !skillsDirty || skillsBusy,
-                onClick: () => void saveSkills(),
-                children: skillsBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
-              }
-            )
-          ] })
-        ] }),
-        skillsText === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
-          /* @__PURE__ */ jsx(Spinner, {}),
-          " \u52A0\u8F7D\u6280\u80FD\u2026"
-        ] }) : /* @__PURE__ */ jsx(
-          "textarea",
-          {
-            value: skillsText,
-            onChange: (e) => {
-              setSkillsText(e.target.value);
-              setSkillsDirty(true);
-            },
-            "aria-label": "\u542F\u7528\u7684\u6280\u80FD\u5217\u8868",
-            placeholder: "\u6BCF\u884C\u4E00\u4E2A\u6280\u80FD\u540D\n# \u4E95\u53F7\u5F00\u5934\u4E3A\u6CE8\u91CA",
-            rows: 5,
-            className: textareaCls
-          }
-        ),
-        skillsUnmatched.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-1.5 rounded-lg border border-warning/30 bg-warning/10 px-2 py-1 text-xs text-warning wrap-break-word", children: [
-          "\u672A\u5339\u914D\uFF08\u5DF2\u5FFD\u7565\uFF09\uFF1A",
-          skillsUnmatched.join("\u3001")
-        ] }),
-        skillsError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: skillsError }),
-        skills && skills.available.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-1.5", children: [
-          /* @__PURE__ */ jsxs(
-            "button",
+      /* @__PURE__ */ jsxs(
+        CollapsibleSection,
+        {
+          title: "\u8BB0\u5FC6",
+          badge: "MEMORY.md",
+          open: memoryOpen,
+          onToggle: toggleMemory,
+          dirty: memory?.dirty,
+          actions: /* @__PURE__ */ jsx(
+            Button,
             {
-              type: "button",
-              onClick: () => setRefOpen((v) => !v),
-              "aria-expanded": refOpen,
-              className: "flex w-full cursor-pointer items-center gap-1 rounded px-1 py-1 text-[0.6875rem] text-text-tertiary hover:text-foreground",
-              children: [
-                /* @__PURE__ */ jsx(
-                  ChevronDown,
-                  {
-                    className: cn("h-3 w-3 shrink-0 transition-transform", !refOpen && "-rotate-90")
-                  }
-                ),
-                "\u53EF\u7528\u6280\u80FD\u53C2\u8003\uFF08",
-                skills.available.length,
-                "\uFF09"
-              ]
+              size: "sm",
+              disabled: !memory?.dirty || memoryBusy,
+              onClick: () => void saveMemory(),
+              children: memoryBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
             }
           ),
-          refOpen && /* @__PURE__ */ jsx("div", { className: "max-h-40 overflow-y-auto rounded-lg border border-current/10 py-0.5", children: skills.available.map((s) => /* @__PURE__ */ jsxs(
-            "div",
+          children: [
+            memory === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+              /* @__PURE__ */ jsx(Spinner, {}),
+              " \u52A0\u8F7D\u8BB0\u5FC6\u2026"
+            ] }) : /* @__PURE__ */ jsx(
+              "textarea",
+              {
+                value: memory.text,
+                onChange: (e) => setMemory({ text: e.target.value, dirty: true }),
+                "aria-label": "\u8BB0\u5FC6\uFF08MEMORY.md\uFF09",
+                placeholder: "\u8BE5\u89D2\u8272\u7684\u957F\u671F\u8BB0\u5FC6\u2026",
+                rows: 5,
+                className: textareaCls
+              }
+            ),
+            memoryError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: memoryError })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        CollapsibleSection,
+        {
+          title: "\u6280\u80FD\u5217\u8868",
+          badge: skills ? `\u542F\u7528 ${skills.enabled.length} \u4E2A\u6280\u80FD${skills.mode === "whitelist" && skills.whitelist_file === false ? "\uFF08\u540D\u5355\u6587\u4EF6\u672A\u5EFA\uFF0C\u4FDD\u5B58\u540E\u521B\u5EFA\uFF09" : ""}` : "\u542F\u7528\u6280\u80FD\u540D\u5355",
+          open: skillsOpen,
+          onToggle: toggleSkills,
+          dirty: skillsDirty,
+          actions: /* @__PURE__ */ jsx(
+            Button,
             {
-              className: "truncate px-2 py-0.5 text-[0.6875rem] text-text-secondary",
-              title: s.description ? `${s.name} \u2014 ${s.description}` : s.name,
-              children: [
-                s.name,
-                s.source !== "role" && /* @__PURE__ */ jsx("span", { className: "ml-1 rounded bg-midground/10 px-1 py-px text-[0.625rem] text-text-tertiary", children: s.source === "shared" ? "\u5168\u5C40" : "\u5927\u5E93" }),
-                s.description && /* @__PURE__ */ jsxs("span", { className: "text-text-tertiary", children: [
-                  " \u2014 ",
-                  s.description.length > 60 ? `${s.description.slice(0, 60)}\u2026` : s.description
-                ] })
-              ]
-            },
-            `${s.source}:${s.name}`
-          )) })
-        ] })
-      ] }),
+              size: "sm",
+              disabled: !skillsDirty || skillsBusy,
+              onClick: () => void saveSkills(),
+              children: skillsBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58"
+            }
+          ),
+          children: [
+            skillsText === null ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-1 py-2 text-xs text-text-secondary", children: [
+              /* @__PURE__ */ jsx(Spinner, {}),
+              " \u52A0\u8F7D\u6280\u80FD\u2026"
+            ] }) : /* @__PURE__ */ jsx(
+              "textarea",
+              {
+                value: skillsText,
+                onChange: (e) => {
+                  setSkillsText(e.target.value);
+                  setSkillsDirty(true);
+                },
+                "aria-label": "\u542F\u7528\u7684\u6280\u80FD\u5217\u8868",
+                placeholder: "\u6BCF\u884C\u4E00\u4E2A\u6280\u80FD\u540D\n# \u4E95\u53F7\u5F00\u5934\u4E3A\u6CE8\u91CA",
+                rows: 5,
+                className: textareaCls
+              }
+            ),
+            skillsUnmatched.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-1.5 rounded-lg border border-warning/30 bg-warning/10 px-2 py-1 text-xs text-warning wrap-break-word", children: [
+              "\u672A\u5339\u914D\uFF08\u5DF2\u5FFD\u7565\uFF09\uFF1A",
+              skillsUnmatched.join("\u3001")
+            ] }),
+            skillsError && /* @__PURE__ */ jsx("div", { className: "mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive wrap-break-word", children: skillsError }),
+            skills && skills.available.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-1.5", children: [
+              /* @__PURE__ */ jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setRefOpen((v) => !v),
+                  "aria-expanded": refOpen,
+                  className: "flex w-full cursor-pointer items-center gap-1 rounded px-1 py-1 text-[0.6875rem] text-text-tertiary hover:text-foreground",
+                  children: [
+                    /* @__PURE__ */ jsx(
+                      ChevronDown,
+                      {
+                        className: cn("h-3 w-3 shrink-0 transition-transform", !refOpen && "-rotate-90")
+                      }
+                    ),
+                    "\u53EF\u7528\u6280\u80FD\u53C2\u8003\uFF08",
+                    skills.available.length,
+                    "\uFF09"
+                  ]
+                }
+              ),
+              refOpen && /* @__PURE__ */ jsx("div", { className: "max-h-40 overflow-y-auto rounded-lg border border-current/10 py-0.5", children: skills.available.map((s) => /* @__PURE__ */ jsxs(
+                "div",
+                {
+                  className: "truncate px-2 py-0.5 text-[0.6875rem] text-text-secondary",
+                  title: s.description ? `${s.name} \u2014 ${s.description}` : s.name,
+                  children: [
+                    s.name,
+                    s.source !== "role" && /* @__PURE__ */ jsx("span", { className: "ml-1 rounded bg-midground/10 px-1 py-px text-[0.625rem] text-text-tertiary", children: s.source === "shared" ? "\u5168\u5C40" : "\u5927\u5E93" }),
+                    s.description && /* @__PURE__ */ jsxs("span", { className: "text-text-tertiary", children: [
+                      " \u2014 ",
+                      s.description.length > 60 ? `${s.description.slice(0, 60)}\u2026` : s.description
+                    ] })
+                  ]
+                },
+                `${s.source}:${s.name}`
+              )) })
+            ] })
+          ]
+        }
+      ),
       /* @__PURE__ */ jsx("div", { className: "mx-2 mb-2", children: /* @__PURE__ */ jsxs(
         "select",
         {
