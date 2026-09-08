@@ -38,6 +38,8 @@ gateway:
     prompt_caching_enabled: "프롬프트 캐싱: 활성화됨"
     warning_prefix:         "경고: {warning}"
     saved_global:           "config.yaml에 저장됨 (`--global`)"
+    saved_global_path:      "프로필 기본값으로 저장됨: {path} (`--global`)"
+    saved_global_profile:   "프로필 `{profile}`의 기본값으로 저장됨: {path} (`--global`)"
     session_only_hint:      "_(세션 한정 — 영구 저장하려면 `--global`을 추가하세요)_"
     current_label:          "현재: `{model}` ({provider})"
     current_tag:            " (현재)"

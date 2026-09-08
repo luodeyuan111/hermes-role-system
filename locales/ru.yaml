@@ -38,6 +38,8 @@ gateway:
     prompt_caching_enabled: "Кеширование промптов: включено"
     warning_prefix:         "Предупреждение: {warning}"
     saved_global:           "Сохранено в config.yaml (`--global`)"
+    saved_global_path:      "Сохранено как значение по умолчанию профиля: {path} (`--global`)"
+    saved_global_profile:   "Сохранено как значение по умолчанию для профиля `{profile}`: {path} (`--global`)"
     session_only_hint:      "_(только для этого сеанса — добавьте `--global`, чтобы сохранить)_"
     current_label:          "Текущая: `{model}` на {provider}"
     current_tag:            " (текущая)"

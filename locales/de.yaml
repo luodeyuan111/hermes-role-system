@@ -38,6 +38,8 @@ gateway:
     prompt_caching_enabled: "Prompt-Caching: aktiviert"
     warning_prefix:         "Warnung: {warning}"
     saved_global:           "In config.yaml gespeichert (`--global`)"
+    saved_global_path:      "Als Profil-Standard gespeichert: {path} (`--global`)"
+    saved_global_profile:   "Als Standard für Profil `{profile}` gespeichert: {path} (`--global`)"
     session_only_hint:      "_(nur für diese Sitzung — `--global` ergänzen, um zu speichern)_"
     current_label:          "Aktuell: `{model}` bei {provider}"
     current_tag:            " (aktuell)"

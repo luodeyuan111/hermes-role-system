@@ -38,6 +38,8 @@ gateway:
     prompt_caching_enabled: "Prompt önbelleği: etkin"
     warning_prefix:         "Uyarı: {warning}"
     saved_global:           "config.yaml'a kaydedildi (`--global`)"
+    saved_global_path:      "Profil varsayılanı olarak kaydedildi: {path} (`--global`)"
+    saved_global_profile:   "`{profile}` profili için varsayılan olarak kaydedildi: {path} (`--global`)"
     session_only_hint:      "_(yalnızca bu oturum — kalıcı yapmak için `--global` ekleyin)_"
     current_label:          "Geçerli: `{model}` ({provider})"
     current_tag:            " (geçerli)"
