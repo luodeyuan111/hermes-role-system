@@ -32,6 +32,22 @@
 
 显式加载（`skill_view` / `--skills` / cron `skills:`）永远不受名单限制。
 
+## 角色资产归位（skill 归角色，memory 不存清单）
+
+角色资产的「正确家」（2026-09-08 起生效，机制经 `tests/tools/test_skill_profile_homing.py` 固化）：
+
+- **角色私有 skill 落 `profiles/<角色>/skills/`**——`skill_manage create` 在命名 profile 下天然落本地目录，不会漏进共享池根目录；与共享池同名即覆盖（本地赢），这是角色定制全局 skill 的正规途径
+- **memory 只放角色偏好/事实**，不存「skill 资产台账」这类静态清单——清单会腐化且挤占 memory 上限
+- **查资产走实时接口**：`skills_list` / dashboard 资产视图，不查 memory 台账
+
+## Skill 治理模式（default profile，2026-09-08 起）
+
+QQ 渠道（default profile）skill 生成失控的治理组合，均为 per-profile config 开关（`~/.hermes/config.yaml` 的 `skills:` 段）：
+
+- `write_approval: true` — skill 写入（create/edit/patch/delete/write_file/remove_file）一律先暂存待批，落 `pending/skills/<id>.json`；模型收到一句可操作提示，洛用 `/skills pending` / `/skills approve <id>` 放行（gateway/CLI 同 handler）
+- `create_staging: true` — 新建 skill 落 `~/.hermes/skills/staging/<name>/` 隔离区（excluded discovery root，不进 offer 索引/skills_list/skill_view），curation 评审后人工 promote 进分类目录；staging 中的 skill 仍可 edit/patch/write_file/delete（继续创作或拒绝）；staged create 自动标记 `created_by=agent` 供 curator 管理
+- skillsmith 等技能创作角色**保持两开关关闭**（白名单放行），日常建 skill 不受阻
+
 ## Dashboard UI（bubble-chat 插件）
 
 CherryStudio 式两级会话栏：
@@ -50,6 +66,7 @@ CherryStudio 式两级会话栏：
 | `pre_api_request` hook 从只读改为可改写 messages（`{"messages":...}` / `{"append_system":...}`） | `agent/conversation_loop.py`、`hermes_cli/plugins.py` |
 | ROLE.md 角色层 + 命名 profile 共享根目录 SOUL 底座 | `agent/system_prompt.py` |
 | 技能四层解析（共享池按引用）+ 白名单过滤 + 共享池写护栏 | `agent/skill_utils.py`、`agent/prompt_builder.py`、`tools/` |
+| skill 治理：write_approval 门控 + create_staging 隔离区 | `tools/write_approval.py`、`tools/skill_manager_tool.py`、`agent/skill_utils.py` |
 | `hermes skills pool show/check/apply` 三层池 CLI | `hermes_cli/skills_pool.py` |
 | tui_gateway 进程内 profile 作用域修复（重建型入口绑 scope） | `tui_gateway/server.py` |
 | 两级角色会话栏 + 角色管理端点 | `plugins/bubble-chat/dashboard/`、`web/src/App.tsx` |
