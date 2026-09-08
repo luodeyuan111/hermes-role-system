@@ -129,6 +129,12 @@
     background-color: color-mix(in oklab, var(--success, #4ade80) 15%, transparent);
   }
 }
+.hermes-asset-view .bg-warning\/15 {
+  background-color: var(--warning, #ffbd38);
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(in oklab, var(--warning, #ffbd38) 15%, transparent);
+  }
+}
 .hermes-asset-view .p-4 {
   padding: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 4);
 }
@@ -225,6 +231,9 @@
     color-mix(in srgb, var(--midground-base) 65%, transparent)
   );
   }
+}
+.hermes-asset-view .text-warning {
+  color: var(--warning, #ffbd38);
 }
 main:has(.hermes-asset-view) > div > div:has(.hermes-asset-view) {
   flex: 1 1 0%;
