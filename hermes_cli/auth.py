@@ -628,6 +628,36 @@ ZAI_ENDPOINTS = [
     ("coding-cn",     "https://open.bigmodel.cn/api/coding/paas/v4", ["glm-5.2", "glm-5.1", "glm-5v-turbo", "glm-4.7"], "China (Coding Plan)"),
 ]
 
+# endpoint id -> (base_url, label); the addressable names for
+# ``model.zai_endpoint`` in config.yaml (R5.3).
+ZAI_ENDPOINT_BY_ID: Dict[str, Dict[str, str]] = {
+    ep_id: {"base_url": base_url, "label": label}
+    for ep_id, base_url, _probe_models, label in ZAI_ENDPOINTS
+}
+
+
+def get_configured_zai_endpoint_id() -> str:
+    """Return the explicit Z.AI endpoint id from ``model.zai_endpoint``.
+
+    Empty string when unset.  Unknown values are returned as-is so callers
+    can warn about them; lookup happens against ``ZAI_ENDPOINT_BY_ID``.
+    """
+    try:
+        from hermes_cli.config import load_config
+
+        model_cfg = (load_config() or {}).get("model")
+        if isinstance(model_cfg, dict):
+            return str(model_cfg.get("zai_endpoint") or "").strip().lower()
+    except Exception:
+        pass
+    return ""
+
+
+def resolve_zai_endpoint_base_url(endpoint_id: str) -> str:
+    """Map a ``model.zai_endpoint`` id to its base URL ('' when unknown)."""
+    entry = ZAI_ENDPOINT_BY_ID.get((endpoint_id or "").strip().lower())
+    return entry["base_url"] if entry else ""
+
 
 def detect_zai_endpoint(api_key: str, timeout: float = 8.0) -> Optional[Dict[str, str]]:
     """Probe z.ai endpoints to find one that accepts this API key.
@@ -668,13 +698,32 @@ def detect_zai_endpoint(api_key: str, timeout: float = 8.0) -> Optional[Dict[str
 
 
 def _resolve_zai_base_url(api_key: str, default_url: str, env_override: str) -> str:
-    """Return the correct Z.AI base URL by probing endpoints.
+    """Return the correct Z.AI base URL for this credential.
 
-    If the user has explicitly set GLM_BASE_URL, that always wins.
-    Otherwise, probe the candidate endpoints to find one that accepts the
-    key.  The detected endpoint is cached in provider state (auth.json) keyed
-    on a hash of the API key so subsequent starts skip the probe.
+    Resolution order (most explicit first):
+
+    1. ``model.zai_endpoint`` in config.yaml — a NAMED endpoint id
+       (``global`` / ``cn`` / ``coding-global`` / ``coding-cn``).  When set,
+       the mapped base URL is used directly and the 200-probe is skipped
+       entirely: switching between the Coding Plan and metered nodes is an
+       explicit, visible config change that a stale ``GLM_BASE_URL`` in
+       .env must not silently veto (R5.3).  ``hermes doctor`` reports when
+       both are set and disagree.
+    2. ``GLM_BASE_URL`` env override (legacy escape hatch).
+    3. Probe the candidate endpoints to find one that accepts the key.  The
+       detected endpoint is cached in provider state (auth.json) keyed on a
+       hash of the API key so subsequent starts skip the probe.
     """
+    endpoint_id = get_configured_zai_endpoint_id()
+    if endpoint_id:
+        mapped = resolve_zai_endpoint_base_url(endpoint_id)
+        if mapped:
+            return mapped
+        logger.warning(
+            "Z.AI: model.zai_endpoint=%r is not a known endpoint id (%s); ignoring",
+            endpoint_id, ", ".join(sorted(ZAI_ENDPOINT_BY_ID)),
+        )
+
     if env_override:
         return env_override
 
