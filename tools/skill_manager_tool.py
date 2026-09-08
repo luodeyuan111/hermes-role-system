@@ -167,6 +167,32 @@ def _skills_dir() -> Path:
         return configured
     return get_hermes_home() / "skills"
 
+
+def _create_staging_enabled() -> bool:
+    """Return whether new skills should be quarantined under ``staging/``.
+
+    Reads ``skills.create_staging`` from the active profile's config.yaml
+    (default False — creates land directly in the skills pool). When on,
+    ``skill_manage(action='create')`` writes to ``<skills>/staging/<name>/``
+    instead of a category directory; ``staging/`` is an excluded discovery
+    root (``agent.skill_utils.EXCLUDED_SKILL_DIRS``), so the skill is
+    invisible to the offer index, ``skills_list`` and ``skill_view`` until a
+    curator promotes it. Per-profile switch: the governance mode enables it
+    on the default profile (QQ channel) while skill-authoring profiles
+    (skillsmith) keep it off.
+    """
+    try:
+        from hermes_cli.config import load_config, cfg_get
+        cfg = load_config()
+        raw = cfg_get(cfg, "skills", "create_staging", default=False)
+    except Exception:
+        return False
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        return raw.strip().lower() in {"on", "true", "yes", "1", "enabled"}
+    return False
+
 MAX_NAME_LENGTH = 64
 MAX_DESCRIPTION_LENGTH = 1024
 
@@ -602,6 +628,25 @@ def _find_skill(name: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+def _find_skill_or_staged(name: str) -> Optional[Dict[str, Any]]:
+    """``_find_skill`` plus the active profile's own ``staging/`` quarantine.
+
+    Staged skills are excluded from discovery (offer index, ``skills_list``,
+    ``skill_view``) but must stay mutable: authoring (``write_file``),
+    correction (``edit``/``patch``) and curation rejection (``delete``) all
+    need to work while a skill waits for promotion. Only the ACTIVE
+    profile's staging is searched — cross-profile mutation rules are
+    unchanged.
+    """
+    found = _find_skill(name)
+    if found:
+        return found
+    staged_md = _skills_dir() / "staging" / name / "SKILL.md"
+    if staged_md.is_file():
+        return {"path": staged_md.parent}
+    return None
+
+
 def _find_skill_in_other_profiles(name: str) -> List[Tuple[str, Path]]:
     """Look for ``name`` under SKILL.md across OTHER Hermes profiles.
 
@@ -851,8 +896,26 @@ def _create_skill(name: str, content: str, category: str = None) -> Dict[str, An
                 "error": f"A skill named '{name}' already exists at {existing['path']}."
             }
 
+    # Governance quarantine: with skills.create_staging on, new skills land
+    # flat under staging/ (an excluded discovery root) and stay invisible to
+    # the agent until a curator promotes them into a category directory.
+    staged = _create_staging_enabled()
+    if staged:
+        staged_md = _skills_dir() / "staging" / name / "SKILL.md"
+        if staged_md.exists():
+            return {
+                "success": False,
+                "error": (
+                    f"A skill named '{name}' is already waiting in staging "
+                    f"({staged_md.parent}). Promote or remove it first."
+                ),
+            }
+
     # Create the skill directory
-    skill_dir = _resolve_skill_dir(name, category)
+    if staged:
+        skill_dir = _skills_dir() / "staging" / name
+    else:
+        skill_dir = _resolve_skill_dir(name, category)
     skill_dir.mkdir(parents=True, exist_ok=True)
 
     # Write SKILL.md atomically
@@ -882,6 +945,14 @@ def _create_skill(name: str, content: str, category: str = None) -> Dict[str, An
         "skill_md": str(skill_md),
         "_change": {"description": _desc},
     }
+    if staged:
+        result["message"] = (
+            f"Skill '{name}' created in staging (skills.create_staging is on). "
+            "It is NOT visible to the agent yet — a curator must review and "
+            "promote it into a category directory before it can be offered "
+            "or loaded."
+        )
+        result["_staged"] = True
     if category:
         result["category"] = category
     result["hint"] = (
@@ -901,7 +972,7 @@ def _edit_skill(name: str, content: str) -> Dict[str, Any]:
     if err:
         return {"success": False, "error": err}
 
-    existing = _find_skill(name)
+    existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
     shared_guard = _shared_pool_mutation_guard(existing["path"])
@@ -964,7 +1035,7 @@ def _patch_skill(
     if new_string is None:
         return {"success": False, "error": "new_string is required for 'patch'. Use an empty string to delete matched text."}
 
-    existing = _find_skill(name)
+    existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
 
@@ -1075,7 +1146,7 @@ def _delete_skill(name: str, absorbed_into: Optional[str] = None) -> Dict[str, A
         target must exist on disk. Validated here so the model can't claim an
         umbrella that doesn't exist.
     """
-    existing = _find_skill(name)
+    existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
     shared_guard = _shared_pool_mutation_guard(existing["path"])
@@ -1195,7 +1266,7 @@ def _write_file(name: str, file_path: str, file_content: str) -> Dict[str, Any]:
     if err:
         return {"success": False, "error": err}
 
-    existing = _find_skill(name)
+    existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name, " Create it first with action='create'.")}
     shared_guard = _shared_pool_mutation_guard(existing["path"])
@@ -1242,7 +1313,7 @@ def _remove_file(name: str, file_path: str) -> Dict[str, Any]:
     if err:
         return {"success": False, "error": err}
 
-    existing = _find_skill(name)
+    existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
 
@@ -1450,7 +1521,10 @@ def skill_manage(
             from tools.skill_usage import bump_patch, forget, mark_agent_created
             from tools.skill_provenance import is_background_review
             if action == "create":
-                if is_background_review():
+                # Skills quarantined into staging/ are by definition pending
+                # curation, so the curator manages them like review-fork
+                # creations even when the fork marker is absent.
+                if is_background_review() or result.get("_staged"):
                     mark_agent_created(name)
             elif action in {"patch", "edit", "write_file", "remove_file"}:
                 bump_patch(name)

@@ -30,6 +30,11 @@ EXCLUDED_SKILL_DIRS = frozenset(
         ".github",
         ".hub",
         ".archive",
+        # Quarantine for agent-generated skills pending curation
+        # (skills.create_staging). Not an active discovery root: staged
+        # skills become visible only after a curator promotes them into a
+        # category directory.
+        "staging",
         ".venv",
         "venv",
         "node_modules",
