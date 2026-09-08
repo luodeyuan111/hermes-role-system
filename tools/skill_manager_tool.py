@@ -1539,6 +1539,24 @@ def skill_manage(
                     forget(name)
         except Exception:
             pass
+        # 底座资产变更留痕（R1.4）：谁（profile/origin）、何时、对哪个
+        # skill 做了什么，追加到 <default root>/logs/asset-changes.jsonl，
+        # `hermes request audit` 可查。staged=True 表示本次写是经过审批
+        # 门控（/skills approve）回放进来的。与 telemetry 同理 best-effort，
+        # 留痕失败绝不阻断工具。
+        try:
+            from tools.asset_audit import append_asset_change
+            from tools.skill_provenance import get_current_write_origin
+            append_asset_change(
+                kind="skill_change",
+                action=action,
+                skill=name,
+                origin=get_current_write_origin(),
+                staged=_skill_gate_bypass.get(),
+                summary=str(result.get("message") or "")[:200],
+            )
+        except Exception:
+            pass
 
     return json.dumps(result, ensure_ascii=False)
 

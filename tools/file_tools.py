@@ -792,6 +792,22 @@ def _is_expected_write_exception(exc: Exception) -> bool:
     return False
 
 
+def _audit_cross_profile_write(tool: str, paths: list) -> None:
+    """R1.4 留痕：cross_profile=True 显式放行的跨 profile 写。
+
+    追加到 <default root>/logs/asset-changes.jsonl（`hermes request audit`
+    可查）。只在调用方显式传 cross_profile=True 且写成功时调用；
+    best-effort，留痕失败绝不阻断工具。
+    """
+    try:
+        from tools.asset_audit import append_asset_change
+
+        for p in paths:
+            append_asset_change(kind="cross_profile_write", tool=tool, path=str(p))
+    except Exception:
+        pass
+
+
 _file_ops_lock = threading.Lock()
 _file_ops_cache: dict = {}
 # Per-task last-known CWD — preserved across env re-creation so
@@ -1706,6 +1722,8 @@ def write_file_tool(path: str, content: str, task_id: str = "default",
                 result_dict["_warning"] = stale_warning
             if not result_dict.get("error"):
                 _mark_verification_stale(task_id, [path], session_id=session_id)
+                if cross_profile:
+                    _audit_cross_profile_write("write_file", [path])
             _update_read_timestamp(path, task_id)
             return json.dumps(result_dict, ensure_ascii=False)
 
@@ -1738,6 +1756,8 @@ def write_file_tool(path: str, content: str, task_id: str = "default",
             _update_read_timestamp(path, task_id)
             if not result_dict.get("error"):
                 file_state.note_write(task_id, _resolved)
+                if cross_profile:
+                    _audit_cross_profile_write("write_file", [_resolved])
         return json.dumps(result_dict, ensure_ascii=False)
     except Exception as e:
         if _is_expected_write_exception(e):
@@ -1901,6 +1921,8 @@ def patch_tool(mode: str = "replace", path: str = None, old_string: str = None,
                 _reset_patch_failures(task_id, [
                     _r for _r in (_path_to_resolved.get(_p) for _p in _paths_to_check) if _r
                 ])
+                if cross_profile:
+                    _audit_cross_profile_write("patch", _resolved_modified)
         # Hint when old_string not found — saves iterations where the agent
         # retries with stale content instead of re-reading the file.
         # Suppressed when patch_replace already attached a rich "Did you mean?"
