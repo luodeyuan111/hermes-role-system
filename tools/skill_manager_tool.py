@@ -858,7 +858,10 @@ def _shared_pool_mutation_guard(skill_dir: Path) -> Optional[Dict[str, Any]]:
             f"'{skill_dir}' lives in the shared default-profile skills pool, "
             "which is read-only from a named profile. Switch to the default "
             "profile to modify it, or create a same-named local override in "
-            "this profile instead."
+            "this profile instead. "
+            "如需修改底座资产：在会话内向用户说明需求并请求审批，"
+            "或通过 `hermes request create --kind skill --title \"...\"` "
+            "提交资产申请单走审批流程（`hermes request list` 查看进度）。"
         ),
     }
 
@@ -1534,6 +1537,24 @@ def skill_manage(
                 # status`/`restore` still see it. Only a hard delete forgets.
                 if not result.get("_archived"):
                     forget(name)
+        except Exception:
+            pass
+        # 底座资产变更留痕（R1.4）：谁（profile/origin）、何时、对哪个
+        # skill 做了什么，追加到 <default root>/logs/asset-changes.jsonl，
+        # `hermes request audit` 可查。staged=True 表示本次写是经过审批
+        # 门控（/skills approve）回放进来的。与 telemetry 同理 best-effort，
+        # 留痕失败绝不阻断工具。
+        try:
+            from tools.asset_audit import append_asset_change
+            from tools.skill_provenance import get_current_write_origin
+            append_asset_change(
+                kind="skill_change",
+                action=action,
+                skill=name,
+                origin=get_current_write_origin(),
+                staged=_skill_gate_bypass.get(),
+                summary=str(result.get("message") or "")[:200],
+            )
         except Exception:
             pass
 

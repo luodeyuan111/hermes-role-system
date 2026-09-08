@@ -75,6 +75,10 @@
   function fetchActiveProfile() {
     return fetchJSON(`${HERMES_BASE_PATH}/api/profiles/active`);
   }
+  function fetchAssetRequests(status) {
+    const query = status ? `?status=${encodeURIComponent(status)}` : "";
+    return fetchJSON(`${HERMES_BASE_PATH}/api/plugins/asset-view/requests${query}`);
+  }
 
   // src/shims/jsx-runtime.ts
   var React2 = window.__HERMES_PLUGIN_SDK__?.React;
@@ -117,10 +121,17 @@
     const ref = `${job.script ?? ""} ${job.prompt ?? ""}`;
     return ref.includes(script.filename) || ref.includes(script.path);
   }
+  var REQUEST_STATUS_LABEL = {
+    pending: "\u5F85\u5BA1\u6279",
+    approved: "\u5DF2\u6279\u51C6",
+    rejected: "\u5DF2\u62D2\u7EDD",
+    done: "\u5DF2\u5B8C\u6210"
+  };
   function AssetViewPage() {
     const [profiles, setProfiles] = useState([]);
     const [selectedProfile, setSelectedProfile] = useState("");
     const [data, setData] = useState(null);
+    const [requests, setRequests] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
     useEffect(() => {
@@ -128,6 +139,7 @@
         setProfiles(plist.profiles || []);
         setSelectedProfile(active.current || active.active || "default");
       }).catch((e) => setError(`\u52A0\u8F7D profile \u5217\u8868\u5931\u8D25\uFF1A${e}`));
+      fetchAssetRequests().then((r) => setRequests(r.requests || [])).catch(() => setRequests([]));
     }, []);
     const load = useCallback((profile) => {
       if (!profile) return;
@@ -262,7 +274,26 @@
             `${script.scope}-${script.profile}-${script.filename}`
           )) })
         ] })
-      ] })
+      ] }),
+      /* @__PURE__ */ jsx(Section, { title: "\u8D44\u4EA7\u7533\u8BF7", count: requests.length, children: requests.length === 0 ? /* @__PURE__ */ jsx(EmptyHint, { text: "\u6CA1\u6709\u8D44\u4EA7\u7533\u8BF7\u5355\uFF08\u89D2\u8272\u53EF\u901A\u8FC7 `hermes request create` \u63D0\u4EA4\uFF09" }) : /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+        requests.map((r) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+          /* @__PURE__ */ jsx(
+            "span",
+            {
+              className: cn(
+                "inline-block rounded px-1.5 py-0.5 text-[11px] leading-none",
+                r.status === "pending" ? "bg-warning/15 text-warning" : r.status === "approved" ? "bg-success/15 text-success" : "bg-midground/15 text-text-tertiary"
+              ),
+              children: REQUEST_STATUS_LABEL[r.status] || r.status
+            }
+          ),
+          /* @__PURE__ */ jsx("span", { className: "rounded bg-midground/15 px-1.5 py-0.5 text-[11px] text-text-secondary", children: r.kind }),
+          /* @__PURE__ */ jsx("span", { className: "font-medium text-text-primary", children: r.title }),
+          /* @__PURE__ */ jsx("span", { className: "text-xs text-text-secondary", children: r.profile }),
+          /* @__PURE__ */ jsx("span", { className: "text-xs text-text-tertiary", children: (r.created_at || "").slice(0, 10) })
+        ] }, r.id)),
+        /* @__PURE__ */ jsx("p", { className: "pt-1 text-xs text-text-tertiary", children: "\u5BA1\u6279\uFF1A`hermes request approve <id>` / `reject <id>` / `done <id>`" })
+      ] }) })
     ] });
   }
 

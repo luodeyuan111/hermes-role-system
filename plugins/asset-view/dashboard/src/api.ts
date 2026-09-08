@@ -83,3 +83,19 @@ export function fetchProfiles(): Promise<{ profiles: ProfileInfo[] }> {
 export function fetchActiveProfile(): Promise<{ active: string; current: string }> {
   return fetchJSON(`${HERMES_BASE_PATH}/api/profiles/active`);
 }
+
+export interface AssetRequestInfo {
+  id: string;
+  profile: string;
+  kind: "skill" | "tool" | "mcp" | "other";
+  title: string;
+  status: "pending" | "approved" | "rejected" | "done";
+  created_at: string;
+  updated_at: string;
+  body?: string;
+}
+
+export function fetchAssetRequests(status?: string): Promise<{ requests: AssetRequestInfo[] }> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : "";
+  return fetchJSON(`${HERMES_BASE_PATH}/api/plugins/asset-view/requests${query}`);
+}

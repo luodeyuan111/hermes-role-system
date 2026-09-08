@@ -6,8 +6,9 @@ Mounted at /api/plugins/asset-view/ by the dashboard plugin system (see
 Read-only endpoints backing the 资产总览 page's workflow 区块: the toolsets /
 MCP / cron data comes from the host's own ``/api/tools/toolsets``,
 ``/api/mcp/servers`` and ``/api/cron/jobs`` endpoints; this module only adds
-the one piece the host does not already expose — the ``scripts/tools/``
-self-built script inventory (R2.2/R2.4, 展示不管理).
+the pieces the host does not already expose — the ``scripts/tools/``
+self-built script inventory (R2.2/R2.4, 展示不管理) and the 角色资产申请单
+列表 (R1.3, ``GET /requests``, 审批仍走 CLI `hermes request`).
 """
 
 from __future__ import annotations
@@ -104,3 +105,22 @@ def list_scripts(profile: Optional[str] = None) -> Dict[str, Any]:
     # artifacts (the fetch_arxiv.py 范式的「输出目录」一环).
     output_root = str(default_home / "cron" / "output")
     return {"scripts": scripts, "cron_output_root": output_root}
+
+
+@router.get("/requests")
+def list_asset_requests(status: Optional[str] = None) -> Dict[str, Any]:
+    """角色资产申请单列表（R1.3，只读展示；审批走 CLI `hermes request`）。
+
+    申请单落盘在 default root 共享的 ``asset-requests/`` 目录，dashboard
+    展示全量（跨 profile），``?status=pending`` 过滤待审。body 截断到
+    500 字符，全文用 `hermes request show <id>` 看。
+    """
+    from hermes_cli import asset_requests
+
+    entries = asset_requests.list_requests(status=status or None)
+    for entry in entries:
+        body = entry.get("body") or ""
+        entry["body"] = body[:500]
+        # path 是宿主机绝对路径，对网页端没有意义且泄露目录结构。
+        entry.pop("path", None)
+    return {"requests": entries}

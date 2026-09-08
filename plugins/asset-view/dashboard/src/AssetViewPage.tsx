@@ -7,6 +7,8 @@
  *   ③ cron 列表（带 profile 标注）
  *   ④ workflow 区块：cron + scripts/tools 自建脚本结合展示
  *     （fetch_arxiv.py 范式：script + cron + 输出目录）
+ *   ⑤ 资产申请区块：角色资产申请单列表（R1.3，跨 profile 共享，
+ *     审批走 CLI `hermes request`）
  *
  * 只读展示，不做管理操作（管理仍走 CLI `hermes tools` / 设置页）。
  */
@@ -14,11 +16,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchActiveProfile,
+  fetchAssetRequests,
   fetchCronJobs,
   fetchMcpServers,
   fetchProfiles,
   fetchScripts,
   fetchToolsets,
+  type AssetRequestInfo,
   type CronJobInfo,
   type McpServerInfo,
   type ProfileInfo,
@@ -72,14 +76,24 @@ function jobUsesScript(job: CronJobInfo, script: ScriptInfo): boolean {
   return ref.includes(script.filename) || ref.includes(script.path);
 }
 
+/** 申请单状态的中文展示。 */
+const REQUEST_STATUS_LABEL: Record<string, string> = {
+  pending: "待审批",
+  approved: "已批准",
+  rejected: "已拒绝",
+  done: "已完成",
+};
+
 export default function AssetViewPage() {
   const [profiles, setProfiles] = useState<ProfileInfo[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<string>("");
   const [data, setData] = useState<PageData | null>(null);
+  const [requests, setRequests] = useState<AssetRequestInfo[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
 
   // 初始化：profile 列表 + 默认选中当前活动 profile。
+  // 资产申请单是跨 profile 共享的（落盘在 default root），只加载一次。
   useEffect(() => {
     Promise.all([fetchProfiles(), fetchActiveProfile()])
       .then(([plist, active]) => {
@@ -87,6 +101,9 @@ export default function AssetViewPage() {
         setSelectedProfile(active.current || active.active || "default");
       })
       .catch((e) => setError(`加载 profile 列表失败：${e}`));
+    fetchAssetRequests()
+      .then((r) => setRequests(r.requests || []))
+      .catch(() => setRequests([]));
   }, []);
 
   const load = useCallback((profile: string) => {
@@ -293,6 +310,41 @@ export default function AssetViewPage() {
           </Section>
         </>
       )}
+
+      {/* ⑤ 资产申请（R1.3）：跨 profile 共享的申请单列表，只读；审批走 CLI */}
+      <Section title="资产申请" count={requests.length}>
+        {requests.length === 0 ? (
+          <EmptyHint text="没有资产申请单（角色可通过 `hermes request create` 提交）" />
+        ) : (
+          <div className="space-y-1">
+            {requests.map((r) => (
+              <div key={r.id} className="flex items-center gap-2 text-sm">
+                <span
+                  className={cn(
+                    "inline-block rounded px-1.5 py-0.5 text-[11px] leading-none",
+                    r.status === "pending"
+                      ? "bg-warning/15 text-warning"
+                      : r.status === "approved"
+                        ? "bg-success/15 text-success"
+                        : "bg-midground/15 text-text-tertiary",
+                  )}
+                >
+                  {REQUEST_STATUS_LABEL[r.status] || r.status}
+                </span>
+                <span className="rounded bg-midground/15 px-1.5 py-0.5 text-[11px] text-text-secondary">
+                  {r.kind}
+                </span>
+                <span className="font-medium text-text-primary">{r.title}</span>
+                <span className="text-xs text-text-secondary">{r.profile}</span>
+                <span className="text-xs text-text-tertiary">{(r.created_at || "").slice(0, 10)}</span>
+              </div>
+            ))}
+            <p className="pt-1 text-xs text-text-tertiary">
+              审批：`hermes request approve &lt;id&gt;` / `reject &lt;id&gt;` / `done &lt;id&gt;`
+            </p>
+          </div>
+        )}
+      </Section>
     </div>
   );
 }

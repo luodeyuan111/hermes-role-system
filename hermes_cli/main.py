@@ -13008,6 +13008,36 @@ def main():
     fallback_parser.set_defaults(func=cmd_fallback)
 
     # =========================================================================
+    # request command — 角色资产申请（R1.3）+ 底座资产变更留痕（R1.4）
+    # =========================================================================
+    from hermes_cli.request_cmd import cmd_request
+
+    request_parser = subparsers.add_parser(
+        "request",
+        help="角色资产申请单（create/list/show/approve/reject/done）与变更留痕（audit）",
+        description=(
+            "角色资产申请：命名 profile 的角色想给底座（default profile）添加 "
+            "skill/tool/MCP 时提交申请单，落盘到 <default root>/asset-requests/，"
+            "洛审批后由洛或 skillsmith 人工执行。audit 子命令查询底座资产变更留痕。"
+        ),
+    )
+    request_subparsers = request_parser.add_subparsers(dest="request_command")
+    request_create = request_subparsers.add_parser("create", help="创建申请单（角色在会话内调用）")
+    request_create.add_argument("--kind", required=True, choices=["skill", "tool", "mcp", "other"])
+    request_create.add_argument("--title", required=True, help="一句话说明要什么")
+    request_create.add_argument("--body", default="", help="申请理由与需求描述（markdown）")
+    request_list = request_subparsers.add_parser("list", aliases=["ls"], help="列出申请单（新的在前）")
+    request_list.add_argument("--status", choices=["pending", "approved", "rejected", "done"], default=None)
+    request_show = request_subparsers.add_parser("show", help="查看申请单全文")
+    request_show.add_argument("id")
+    for _action in ("approve", "reject", "done"):
+        _p = request_subparsers.add_parser(_action, help=f"审批流转：{_action}")
+        _p.add_argument("id")
+    request_audit = request_subparsers.add_parser("audit", help="底座资产变更留痕（谁、何时、改了什么）")
+    request_audit.add_argument("--limit", type=int, default=50)
+    request_parser.set_defaults(func=cmd_request)
+
+    # =========================================================================
     # secrets command — external secret managers (Bitwarden, 1Password)
     # =========================================================================
     secrets_parser = subparsers.add_parser(
