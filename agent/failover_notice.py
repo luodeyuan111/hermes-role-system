@@ -28,21 +28,27 @@ def describe_failover_cause(reason: "Optional[FailoverReason]") -> str:
 
     Used inside fallback-switch notices; ``reason`` is None at call sites
     that activate the chain without a classified error (legacy paths).
+
+    Matches on the enum VALUE (string), not member identity: the test
+    suite contains module-reload tests that can produce a duplicate
+    ``FailoverReason`` class, and identity-keyed lookups silently miss
+    in that situation.
     """
-    if reason is None:
+    value = getattr(reason, "value", None)
+    if not isinstance(value, str) or not value:
         return "request failed after retries"
     return {
-        FailoverReason.rate_limit: "rate limit / quota throttling (HTTP 429)",
-        FailoverReason.upstream_rate_limit: "upstream model rate-limited (HTTP 429)",
-        FailoverReason.billing: "plan or credits exhausted (billing)",
-        FailoverReason.auth: "credential rejected (HTTP 401/403)",
-        FailoverReason.auth_permanent: "credential rejected (HTTP 401/403), refresh failed",
-        FailoverReason.overloaded: "provider overloaded (HTTP 503/529)",
-        FailoverReason.server_error: "provider server error (HTTP 5xx)",
-        FailoverReason.timeout: "connection/read timeout",
-        FailoverReason.model_not_found: "model not available (HTTP 404)",
-        FailoverReason.context_overflow: "context overflow",
-    }.get(reason, "request failed after retries")
+        "rate_limit": "rate limit / quota throttling (HTTP 429)",
+        "upstream_rate_limit": "upstream model rate-limited (HTTP 429)",
+        "billing": "plan or credits exhausted (billing)",
+        "auth": "credential rejected (HTTP 401/403)",
+        "auth_permanent": "credential rejected (HTTP 401/403), refresh failed",
+        "overloaded": "provider overloaded (HTTP 503/529)",
+        "server_error": "provider server error (HTTP 5xx)",
+        "timeout": "connection/read timeout",
+        "model_not_found": "model not available (HTTP 404)",
+        "context_overflow": "context overflow",
+    }.get(value, "request failed after retries")
 
 
 def provider_display_label(provider: str, base_url: str = "") -> str:

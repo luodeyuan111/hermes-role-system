@@ -38,6 +38,8 @@ gateway:
     prompt_caching_enabled: "提示快取：已啟用"
     warning_prefix:         "警告：{warning}"
     saved_global:           "已儲存到 config.yaml（`--global`）"
+    saved_global_path:      "已儲存為 profile 預設值：{path}（`--global`）"
+    saved_global_profile:   "已儲存為 profile `{profile}` 的預設值：{path}（`--global`）"
     session_only_hint:      "_（僅本次工作階段有效 — 加上 `--global` 可永久儲存）_"
     current_label:          "目前：`{model}`（{provider}）"
     current_tag:            "（目前）"

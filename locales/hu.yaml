@@ -38,6 +38,8 @@ gateway:
     prompt_caching_enabled: "Prompt-gyorsítótárazás: bekapcsolva"
     warning_prefix:         "Figyelmeztetés: {warning}"
     saved_global:           "Mentve a config.yaml fájlba (`--global`)"
+    saved_global_path:      "Mentve profil alapértelmezettként: {path} (`--global`)"
+    saved_global_profile:   "Mentve a(z) `{profile}` profil alapértelmezettként: {path} (`--global`)"
     session_only_hint:      "_(csak ehhez a munkamenethez — add hozzá a `--global` opciót a megőrzéshez)_"
     current_label:          "Aktuális: `{model}` ezen: {provider}"
     current_tag:            " (aktuális)"
