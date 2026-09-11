@@ -28,6 +28,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from typing import Optional
 
+from hermes_cli.cli_agent_setup_mixin import cli_session_platform
 from hermes_cli.fallback_config import get_fallback_chain
 
 
@@ -398,7 +399,7 @@ def _run_agent(
         model=effective_model,
         enabled_toolsets=toolsets_list,
         quiet_mode=True,
-        platform="cli",
+        platform=cli_session_platform(),
         session_db=session_db,
         credential_pool=runtime.get("credential_pool"),
         fallback_model=_fb or None,

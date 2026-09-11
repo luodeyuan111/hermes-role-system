@@ -14,9 +14,20 @@ loaded) so this module never imports ``cli`` at import time -> no import cycle.
 
 from __future__ import annotations
 
+import os
 import sys
 
 from rich.markup import escape as _escape
+
+
+def cli_session_platform() -> str:
+    """Platform tag for CLI/oneshot agent sessions.
+
+    Defaults to ``"cli"``; ``HERMES_PLATFORM`` lets launchers (e.g.
+    ``scripts/call_role.py``) tag the session as another conversation type
+    so ``platform_hints.<type>`` applies in the stable prompt layer.
+    """
+    return os.environ.get("HERMES_PLATFORM") or "cli"
 
 
 class CLIAgentSetupMixin:
@@ -369,7 +380,7 @@ class CLIAgentSetupMixin:
                 provider_data_collection=self._provider_data_collection,
                 openrouter_min_coding_score=self._openrouter_min_coding_score,
                 session_id=self.session_id,
-                platform="cli",
+                platform=cli_session_platform(),
                 session_db=self._session_db,
                 clarify_callback=self._clarify_callback,
                 reasoning_callback=self._current_reasoning_callback(),
