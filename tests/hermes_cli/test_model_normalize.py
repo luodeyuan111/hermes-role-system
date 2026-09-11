@@ -232,6 +232,30 @@ class TestDeepseekVSeriesPassThrough:
         assert result == "deepseek-v4-flash"
 
 
+# ── DeepSeek flash short-ID pass-through (bug: deepseek-flash folded to chat) ──
+
+class TestDeepseekFlashShortIdPassThrough:
+    """``deepseek-flash`` is the official current short ID for V4.1 Flash
+    (listed in the models.dev ``deepseek`` catalog). It does not match the
+    V-series pattern, so without explicit handling it was folded into
+    ``deepseek-chat`` and the /model switch marker announced a downgrade.
+    """
+
+    @pytest.mark.parametrize("model", [
+        "deepseek-flash",
+        "deepseek/deepseek-flash",            # vendor-prefixed
+        "DeepSeek-Flash",                     # case-insensitive
+        "deepseek-flash-20260901",            # dated variant
+    ])
+    def test_flash_short_id_passes_through(self, model):
+        expected = model.split("/", 1)[-1].lower()
+        assert _normalize_for_deepseek(model) == expected
+
+    def test_deepseek_provider_preserves_flash(self):
+        result = normalize_model_for_provider("deepseek-flash", "deepseek")
+        assert result == "deepseek-flash"
+
+
 # ── DeepSeek regressions (existing behaviour still holds) ──────────────
 
 class TestDeepseekCanonicalAndReasonerMapping:

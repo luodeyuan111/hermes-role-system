@@ -267,6 +267,7 @@ DEFAULT_CONTEXT_LENGTHS = {
     # https://api-docs.deepseek.com/zh-cn/quick_start/pricing
     "deepseek-v4-pro": 1_000_000,
     "deepseek-v4-flash": 1_000_000,
+    "deepseek-flash": 1_000_000,
     "deepseek-chat": 1_000_000,
     "deepseek-reasoner": 1_000_000,
     "deepseek": 128000,

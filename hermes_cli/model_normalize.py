@@ -13,8 +13,9 @@ Different LLM providers expect model identifiers in different formats:
   ``claude-sonnet-4-6``.
 - **OpenCode Go** preserves dots in model names: ``minimax-m2.7``.
 - **DeepSeek** accepts ``deepseek-chat`` (V3), ``deepseek-reasoner``
-  (R1-family), and the first-class V-series IDs (``deepseek-v4-pro``,
-  ``deepseek-v4-flash``, and any future ``deepseek-v<N>-*``).  Older
+  (R1-family), the first-class V-series IDs (``deepseek-v4-pro``,
+  ``deepseek-v4-flash``, and any future ``deepseek-v<N>-*``), and the
+  current official short ID ``deepseek-flash`` (V4.1 Flash).  Older
   Hermes revisions folded every non-reasoner input into
   ``deepseek-chat``, which on aggregators routes to V3 — so a user
   picking V4 Pro was silently downgraded.
@@ -118,8 +119,8 @@ _LOWERCASE_MODEL_PROVIDERS: frozenset[str] = frozenset({
 # ---------------------------------------------------------------------------
 # DeepSeek special handling
 # ---------------------------------------------------------------------------
-# DeepSeek's API only recognises exactly two model identifiers.  We map
-# common aliases and patterns to the canonical names.
+# DeepSeek's API recognises a small set of canonical model identifiers.
+# We map common aliases and patterns to the canonical names.
 
 _DEEPSEEK_REASONER_KEYWORDS: frozenset[str] = frozenset({
     "reasoner",
@@ -134,6 +135,7 @@ _DEEPSEEK_CANONICAL_MODELS: frozenset[str] = frozenset({
     "deepseek-reasoner",   # R1-family reasoning model
     "deepseek-v4-pro",     # V4 Pro — first-class model ID
     "deepseek-v4-flash",   # V4 Flash — first-class model ID
+    "deepseek-flash",      # V4.1 Flash — current official short ID
 })
 
 # First-class V-series IDs (``deepseek-v4-pro``, ``deepseek-v4-flash``,
@@ -144,15 +146,24 @@ _DEEPSEEK_CANONICAL_MODELS: frozenset[str] = frozenset({
 # of ``deepseek-chat`` and must not be folded into it.
 _DEEPSEEK_V_SERIES_RE = re.compile(r"^deepseek-v\d+([-.].+)?$")
 
+# First-class short-ID family (``deepseek-flash`` = V4.1 Flash, and dated
+# variants like ``deepseek-flash-20260901``). Listed in the official
+# models.dev ``deepseek`` catalog, so it must not be folded into
+# ``deepseek-chat``.
+_DEEPSEEK_FLASH_RE = re.compile(r"^deepseek-flash([-.].+)?$")
+
 
 def _normalize_for_deepseek(model_name: str) -> str:
     """Map a model input to a DeepSeek-accepted identifier.
 
     Rules:
     - Already a known canonical (``deepseek-chat``/``deepseek-reasoner``/
-      ``deepseek-v4-pro``/``deepseek-v4-flash``) -> pass through.
+      ``deepseek-v4-pro``/``deepseek-v4-flash``/``deepseek-flash``)
+      -> pass through.
     - Matches the V-series pattern ``deepseek-v<digit>...`` -> pass through
       (covers future ``deepseek-v5-*`` and dated variants without a release).
+    - Matches the short-ID pattern ``deepseek-flash...`` -> pass through
+      (covers dated variants like ``deepseek-flash-20260901``).
     - Contains a reasoner keyword (r1, think, reasoning, cot, reasoner)
       -> ``deepseek-reasoner``.
     - Everything else -> ``deepseek-chat``.
@@ -170,6 +181,10 @@ def _normalize_for_deepseek(model_name: str) -> str:
 
     # V-series first-class IDs (v4-pro, v4-flash, future v5-*, dated variants)
     if _DEEPSEEK_V_SERIES_RE.match(bare):
+        return bare
+
+    # Short-ID family (deepseek-flash = V4.1 Flash, dated variants)
+    if _DEEPSEEK_FLASH_RE.match(bare):
         return bare
 
     # Check for reasoner-like keywords anywhere in the name
@@ -443,7 +458,7 @@ def normalize_model_for_provider(model_input: str, target_provider: str) -> str:
             return name.split("/", 1)[1]
         return stripped
 
-    # --- DeepSeek: map to one of two canonical names ---
+    # --- DeepSeek: map to a canonical DeepSeek identifier ---
     if provider == "deepseek":
         bare = _strip_matching_provider_prefix(name, provider)
         if "/" in bare:
