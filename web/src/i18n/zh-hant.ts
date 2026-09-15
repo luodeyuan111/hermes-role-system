@@ -293,6 +293,7 @@ export const zhHant: Translations = {
     defaultBadge: "預設",
     hasEnv: "env",
     model: "模型",
+    modelInheritBase: "繼承底座預設",
     skills: "技能",
     rename: "重新命名",
     editSoul: "編輯 SOUL.md",

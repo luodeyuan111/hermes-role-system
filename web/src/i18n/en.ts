@@ -355,6 +355,7 @@ export const en: Translations = {
     descriptionOptional: "Description (optional)",
     modelOptional: "Model (optional)",
     modelInherit: "Inherit from clone / default",
+    modelInheritBase: "Inherits the base default",
     modelLoading: "Loading models…",
     modelNone: "No authenticated providers — set a key first",
     editModel: "Change model",

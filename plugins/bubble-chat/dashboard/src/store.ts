@@ -48,6 +48,11 @@ interface SessionResumeResult {
   session_id: string;
   resumed?: string;
   running?: boolean;
+  /** Both resume paths carry an info snapshot (cold: _lazy_resume_info,
+   *  live-reuse: _fallback_session_info). The live-reuse path emits NO
+   *  session.info event, so this is the badge's only hydration source when
+   *  switching back to a still-live session. */
+  info?: { model?: string; provider?: string };
 }
 
 /** model.options RPC payload (subset the new-chat picker reads). */
@@ -382,6 +387,8 @@ class BubbleChatStore {
     this.newChatRole = role;
     this.newChatModel = model;
     this.newChatProvider = provider;
+    // Role switch changes which config "当前配置" resolves to.
+    this.invalidateModelOptions();
     this.emit({ newChatNonce: this.state.newChatNonce + 1 });
   };
 
@@ -421,6 +428,8 @@ class BubbleChatStore {
       if (/agent is running|未知|unknown model|not found|无法|失败/i.test(output)) {
         return output.trim() || "切换失败";
       }
+      // The session's model changed — any cached model.options scope is stale.
+      this.invalidateModelOptions();
       this.emit({
         sessionModel: model,
         sessionProvider: provider,
@@ -434,25 +443,47 @@ class BubbleChatStore {
 
   /** model.options RPC for the role view's model dropdown; null when the
    *  socket isn't open or the call fails (dropdown degrades to 默认 only).
-   *  Cached for the page's lifetime — the catalog is disk-cached server
-   *  side, and a failed fetch is not cached so the next open retries. */
-  private modelOptionsPromise: Promise<ModelOptionsPayload | null> | null = null;
+   *  Cached per scope — a live session id wins (the agent's own state is
+   *  authoritative), otherwise the role/profile whose config the picker
+   *  should reflect (a named role's config.yaml model.default differs from
+   *  the gateway's global one). A failed fetch is not cached so the next
+   *  open retries. */
+  private readonly modelOptionsPromises = new Map<
+    string,
+    Promise<ModelOptionsPayload | null>
+  >();
 
-  getModelOptions = (): Promise<ModelOptionsPayload | null> => {
-    if (!this.modelOptionsPromise) {
-      this.modelOptionsPromise = this.fetchModelOptions().catch(() => {
-        this.modelOptionsPromise = null;
+  /** Drop the cached options: role switch, /model switch and session.create
+   *  all change what "当前配置" resolves to, so stale entries must go. */
+  private invalidateModelOptions(): void {
+    this.modelOptionsPromises.clear();
+  }
+
+  getModelOptions = (profile = ""): Promise<ModelOptionsPayload | null> => {
+    const sid = this.liveSid;
+    const key = sid ? `sid:${sid}` : `profile:${profile}`;
+    let cached = this.modelOptionsPromises.get(key);
+    if (!cached) {
+      cached = this.fetchModelOptions(profile).catch(() => {
+        this.modelOptionsPromises.delete(key);
         return null;
       });
+      this.modelOptionsPromises.set(key, cached);
     }
-    return this.modelOptionsPromise;
+    return cached;
   };
 
-  fetchModelOptions = async (): Promise<ModelOptionsPayload | null> => {
+  fetchModelOptions = async (
+    profile = "",
+  ): Promise<ModelOptionsPayload | null> => {
     const gw = this.gw;
     if (!gw || this.state.connState !== "open") return null;
     try {
-      return await gw.request<ModelOptionsPayload>("model.options", {});
+      const sid = this.liveSid;
+      return await gw.request<ModelOptionsPayload>(
+        "model.options",
+        sid ? { session_id: sid } : profile ? { profile } : {},
+      );
     } catch {
       return null;
     }
@@ -684,10 +715,19 @@ class BubbleChatStore {
           this.liveSid = res.session_id;
           // Show the creation-time pick immediately; session.info confirms
           // (or fills in the profile default) once the agent is built.
+          const pickedModel = this.newChatModel;
+          const pickedProvider = this.newChatProvider;
+          // The pick is consumed by this creation — clearing it keeps a
+          // role-view model choice from sticking to the next plain 新对话.
+          // The staged role stays (a plain new chat inherits the role view
+          // the user is standing in).
+          this.newChatModel = "";
+          this.newChatProvider = "";
+          this.invalidateModelOptions();
           this.emit({
             sessionReady: true,
-            sessionModel: this.newChatModel,
-            sessionProvider: this.newChatProvider,
+            sessionModel: pickedModel,
+            sessionProvider: pickedProvider,
           });
         })
         .catch((e: Error) => {
@@ -737,6 +777,7 @@ class BubbleChatStore {
       // (and the role badge context) bind correctly.
       this.resumeRole = result.profile;
       this.liveSid = result.resumed.session_id;
+      const info = result.resumed.info;
       this.emit({
         messages: mergeToolCards(
           result.hist.messages.flatMap(historyToChatMessages),
@@ -747,6 +788,15 @@ class BubbleChatStore {
         // A session resumed mid-turn keeps its busy indicator.
         generating: result.resumed.running === true,
         sessionReady: true,
+        // Hydrate the model badge from the resume snapshot — the live-reuse
+        // path never emits session.info, so without this the badge stayed
+        // at "默认模型" after switching back to a live session.
+        ...(info && (info.model || info.provider)
+          ? {
+              sessionModel: info.model || "",
+              sessionProvider: info.provider || "",
+            }
+          : {}),
       });
     } catch (e) {
       if (!isCurrent()) return;

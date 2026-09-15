@@ -1830,6 +1830,7 @@
       this.newChatRole = role;
       this.newChatModel = model;
       this.newChatProvider = provider;
+      this.invalidateModelOptions();
       this.emit({ newChatNonce: this.state.newChatNonce + 1 });
     };
     /** A plain fresh chat keeps the last staged role context (the role view
@@ -1861,6 +1862,7 @@
         if (/agent is running|未知|unknown model|not found|无法|失败/i.test(output)) {
           return output.trim() || "\u5207\u6362\u5931\u8D25";
         }
+        this.invalidateModelOptions();
         this.emit({
           sessionModel: model,
           sessionProvider: provider,
@@ -1873,23 +1875,39 @@
     };
     /** model.options RPC for the role view's model dropdown; null when the
      *  socket isn't open or the call fails (dropdown degrades to 默认 only).
-     *  Cached for the page's lifetime — the catalog is disk-cached server
-     *  side, and a failed fetch is not cached so the next open retries. */
-    modelOptionsPromise = null;
-    getModelOptions = () => {
-      if (!this.modelOptionsPromise) {
-        this.modelOptionsPromise = this.fetchModelOptions().catch(() => {
-          this.modelOptionsPromise = null;
+     *  Cached per scope — a live session id wins (the agent's own state is
+     *  authoritative), otherwise the role/profile whose config the picker
+     *  should reflect (a named role's config.yaml model.default differs from
+     *  the gateway's global one). A failed fetch is not cached so the next
+     *  open retries. */
+    modelOptionsPromises = /* @__PURE__ */ new Map();
+    /** Drop the cached options: role switch, /model switch and session.create
+     *  all change what "当前配置" resolves to, so stale entries must go. */
+    invalidateModelOptions() {
+      this.modelOptionsPromises.clear();
+    }
+    getModelOptions = (profile = "") => {
+      const sid = this.liveSid;
+      const key = sid ? `sid:${sid}` : `profile:${profile}`;
+      let cached = this.modelOptionsPromises.get(key);
+      if (!cached) {
+        cached = this.fetchModelOptions(profile).catch(() => {
+          this.modelOptionsPromises.delete(key);
           return null;
         });
+        this.modelOptionsPromises.set(key, cached);
       }
-      return this.modelOptionsPromise;
+      return cached;
     };
-    fetchModelOptions = async () => {
+    fetchModelOptions = async (profile = "") => {
       const gw = this.gw;
       if (!gw || this.state.connState !== "open") return null;
       try {
-        return await gw.request("model.options", {});
+        const sid = this.liveSid;
+        return await gw.request(
+          "model.options",
+          sid ? { session_id: sid } : profile ? { profile } : {}
+        );
       } catch {
         return null;
       }
@@ -2070,10 +2088,15 @@
         }).then((res) => {
           if (!isCurrent()) return;
           this.liveSid = res.session_id;
+          const pickedModel = this.newChatModel;
+          const pickedProvider = this.newChatProvider;
+          this.newChatModel = "";
+          this.newChatProvider = "";
+          this.invalidateModelOptions();
           this.emit({
             sessionReady: true,
-            sessionModel: this.newChatModel,
-            sessionProvider: this.newChatProvider
+            sessionModel: pickedModel,
+            sessionProvider: pickedProvider
           });
         }).catch((e) => {
           if (!isCurrent()) return;
@@ -2114,6 +2137,7 @@
         if (!isCurrent()) return;
         this.resumeRole = result.profile;
         this.liveSid = result.resumed.session_id;
+        const info = result.resumed.info;
         this.emit({
           messages: mergeToolCards(
             result.hist.messages.flatMap(historyToChatMessages)
@@ -2123,7 +2147,14 @@
           todos: latestTodosFromHistory(result.hist.messages) ?? [],
           // A session resumed mid-turn keeps its busy indicator.
           generating: result.resumed.running === true,
-          sessionReady: true
+          sessionReady: true,
+          // Hydrate the model badge from the resume snapshot — the live-reuse
+          // path never emits session.info, so without this the badge stayed
+          // at "默认模型" after switching back to a live session.
+          ...info && (info.model || info.provider) ? {
+            sessionModel: info.model || "",
+            sessionProvider: info.provider || ""
+          } : {}
         });
       } catch (e) {
         if (!isCurrent()) return;
@@ -5975,13 +6006,13 @@ ${t.sessions.confirmDeleteMessage}`
     const [model, setModel] = useState("");
     useEffect(() => {
       let live = true;
-      bubbleChatStore.getModelOptions().then((payload) => {
+      bubbleChatStore.getModelOptions(profileId).then((payload) => {
         if (live && payload) setModelOptions(payload);
       });
       return () => {
         live = false;
       };
-    }, []);
+    }, [profileId]);
     const modelGroups = useMemo(() => {
       const groups = [];
       for (const p of modelOptions?.providers ?? []) {
@@ -6185,7 +6216,7 @@ ${t.sessions.confirmDeleteMessage}`
           onChange: (e) => setModel(e.target.value),
           onFocus: () => {
             if (!modelOptions) {
-              bubbleChatStore.getModelOptions().then((p) => p && setModelOptions(p));
+              bubbleChatStore.getModelOptions(profileId).then((p) => p && setModelOptions(p));
             }
           },
           "aria-label": "\u65B0\u5BF9\u8BDD\u6A21\u578B",
@@ -6195,7 +6226,11 @@ ${t.sessions.confirmDeleteMessage}`
             "px-2.5 py-1.5 text-xs text-text-secondary focus:border-current/30 focus:outline-none"
           ),
           children: [
-            /* @__PURE__ */ jsx("option", { value: "", children: "\u6A21\u578B\uFF1A\u9ED8\u8BA4\uFF08\u5F53\u524D\u914D\u7F6E\uFF09" }),
+            /* @__PURE__ */ jsxs("option", { value: "", children: [
+              "\u6A21\u578B\uFF1A\u9ED8\u8BA4\uFF08",
+              info?.model || modelOptions?.model || "\u5F53\u524D\u914D\u7F6E",
+              "\uFF09"
+            ] }),
             modelGroups.map((g) => /* @__PURE__ */ jsx("optgroup", { label: g.label, children: g.models.map((m) => /* @__PURE__ */ jsx("option", { value: m, children: m }, `${g.label}/${m}`)) }, g.label))
           ]
         }

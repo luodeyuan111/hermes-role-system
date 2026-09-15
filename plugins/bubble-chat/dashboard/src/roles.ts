@@ -20,6 +20,10 @@ export interface RoleInfo {
   is_default: boolean;
   /** True only for the default profile — the 全局底座 every role builds on. */
   is_base?: boolean;
+  /** The role's own config.yaml model.default / model.provider (omitted
+   *  when unset or unreadable). */
+  model?: string;
+  provider?: string;
 }
 
 export interface RoleBaseFile {

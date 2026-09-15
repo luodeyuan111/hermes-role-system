@@ -290,6 +290,7 @@ export const zh: Translations = {
     defaultBadge: "默认",
     hasEnv: "已配置 env",
     model: "模型",
+    modelInheritBase: "继承底座默认",
     skills: "技能",
     rename: "重命名",
     editSoul: "编辑 SOUL.md",

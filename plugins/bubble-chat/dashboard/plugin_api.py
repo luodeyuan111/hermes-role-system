@@ -116,12 +116,37 @@ def _effective_skill_count(name: str, home: Path) -> int:
     return len(_build_disabled_payload(name, home)["enabled"])
 
 
+def _role_model_defaults(home: Path) -> Dict[str, str]:
+    """The role's own ``model.default``/``model.provider`` from its
+    config.yaml, for the role view's model dropdown label. Best-effort:
+    any read trouble simply omits the fields rather than breaking the
+    roles list."""
+    try:
+        model_cfg = _load_role_config_lenient(home).get("model")
+    except Exception:
+        return {}
+    # Older configs can carry a bare string instead of a mapping.
+    if isinstance(model_cfg, str):
+        model = model_cfg.strip()
+        return {"model": model} if model else {}
+    if not isinstance(model_cfg, dict):
+        return {}
+    out: Dict[str, str] = {}
+    model = str(model_cfg.get("default") or model_cfg.get("name") or "").strip()
+    provider = str(model_cfg.get("provider") or "").strip()
+    if model:
+        out["model"] = model
+    if provider:
+        out["provider"] = provider
+    return out
+
+
 def _role_entry(name: str, home: Path, meta_description: str) -> Dict[str, Any]:
     # The default profile is special-cased as the 全局底座 (Velya/global
     # base): it has no ROLE.md of its own — its SOUL/AGENTS/USER files are
     # the shared foundation every named role builds on.
     if name == "default":
-        return {
+        entry: Dict[str, Any] = {
             "name": "default",
             "display_name": "Velya · 全局底座",
             "description": "所有角色共享的人格与规则底座，改动对所有角色生效",
@@ -129,15 +154,18 @@ def _role_entry(name: str, home: Path, meta_description: str) -> Dict[str, Any]:
             "is_default": True,
             "is_base": True,
         }
-    display_name, description = _parse_role_md(home / "ROLE.md")
-    return {
-        "name": name,
-        "display_name": display_name or name,
-        "description": description or meta_description,
-        "skill_count": _effective_skill_count(name, home),
-        "is_default": False,
-        "is_base": False,
-    }
+    else:
+        display_name, description = _parse_role_md(home / "ROLE.md")
+        entry = {
+            "name": name,
+            "display_name": display_name or name,
+            "description": description or meta_description,
+            "skill_count": _effective_skill_count(name, home),
+            "is_default": False,
+            "is_base": False,
+        }
+    entry.update(_role_model_defaults(home))
+    return entry
 
 
 def _build_roles() -> List[Dict[str, Any]]:

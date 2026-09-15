@@ -297,6 +297,7 @@ export default function ProfilesPage() {
       descriptionOptional: p.descriptionOptional ?? "Description (optional)",
       modelOptional: p.modelOptional ?? "Model (optional)",
       modelInherit: p.modelInherit ?? "Inherit from clone / default",
+      modelInheritBase: p.modelInheritBase ?? "Inherits the base default",
       modelLoading: p.modelLoading ?? "Loading models…",
       modelNone:
         p.modelNone ?? "No authenticated providers — set a key first",
@@ -1205,10 +1206,10 @@ export default function ProfilesPage() {
                       </div>
 
                       <div className="mt-auto flex flex-col gap-0.5 pt-1 text-xs text-muted-foreground">
-                        {p.model && (
+                        {(p.model || !p.is_default) && (
                           <span className="truncate">
-                            {t.profiles.model}: {p.model}
-                            {p.provider ? ` (${p.provider})` : ""}
+                            {t.profiles.model}: {p.model || L.modelInheritBase}
+                            {p.model && p.provider ? ` (${p.provider})` : ""}
                           </span>
                         )}
 

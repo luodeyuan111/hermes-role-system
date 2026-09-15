@@ -1018,13 +1018,15 @@ def _profile_home(profile: str | None) -> Path | None:
 
 
 def _profile_scoped(handler):
-    """Bind ``params['profile']``'s HERMES_HOME around a pet RPC handler.
+    """Bind ``params['profile']``'s HERMES_HOME around an RPC handler.
 
     Pets are per-profile: ``display.pet.*`` lives in the profile's config.yaml and
     sprites install under its ``pets/`` dir (both resolve via ``get_hermes_home``).
     The desktop sends ``profile`` on pet calls so config + pets dir resolve to the
     focused profile even in app-global remote mode, where one backend serves every
-    profile. No-op for the launch profile (own-profile backends already resolve it).
+    profile. model.options takes the same param so a picker can reflect a named
+    profile's configured default instead of the launch profile's. No-op for the
+    launch profile (own-profile backends already resolve it).
     """
 
     def wrapper(rid, params):
@@ -13069,6 +13071,7 @@ def _(rid, params: dict) -> dict:
 
 
 @method("model.options")
+@_profile_scoped
 def _(rid, params: dict) -> dict:
     try:
         from hermes_cli.inventory import build_models_payload, load_picker_context

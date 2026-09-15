@@ -410,6 +410,7 @@ export interface Translations {
     descriptionOptional?: string;
     modelOptional?: string;
     modelInherit?: string;
+    modelInheritBase?: string;
     modelLoading?: string;
     modelNone?: string;
     editModel?: string;

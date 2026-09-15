@@ -691,13 +691,13 @@ function RoleView({
 
   useEffect(() => {
     let live = true;
-    store.getModelOptions().then((payload) => {
+    store.getModelOptions(profileId).then((payload) => {
       if (live && payload) setModelOptions(payload);
     });
     return () => {
       live = false;
     };
-  }, []);
+  }, [profileId]);
 
   const modelGroups = useMemo(() => {
     const groups: { label: string; models: string[] }[] = [];
@@ -939,7 +939,7 @@ function RoleView({
           onChange={(e) => setModel(e.target.value)}
           onFocus={() => {
             if (!modelOptions) {
-              store.getModelOptions().then((p) => p && setModelOptions(p));
+              store.getModelOptions(profileId).then((p) => p && setModelOptions(p));
             }
           }}
           aria-label="新对话模型"
@@ -949,7 +949,9 @@ function RoleView({
             "px-2.5 py-1.5 text-xs text-text-secondary focus:border-current/30 focus:outline-none",
           )}
         >
-          <option value="">模型：默认（当前配置）</option>
+          <option value="">
+            模型：默认（{info?.model || modelOptions?.model || "当前配置"}）
+          </option>
           {modelGroups.map((g) => (
             <optgroup key={g.label} label={g.label}>
               {g.models.map((m) => (
