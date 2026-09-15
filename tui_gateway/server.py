@@ -2003,6 +2003,29 @@ def _cwd_for_session_key(session_key: str) -> str:
     return ""
 
 
+def _profile_name_from_home(home) -> str:
+    """Reverse-map a session's ``profile_home`` to its profile name.
+
+    "" means the launch/default profile — matching gateway/run.py, which
+    only fills ``profile`` for named-profile sessions. The value is bridged
+    onto tool subprocess env (``HERMES_SESSION_PROFILE``) so launchers like
+    scripts/call_role.py can tell which role commissioned the call.
+    """
+    if not home:
+        return ""
+    try:
+        from hermes_cli.profiles import _get_profiles_root
+
+        home_path = Path(home).resolve()
+        if home_path == Path(_hermes_home).resolve():
+            return ""
+        if home_path.parent == _get_profiles_root().resolve():
+            return home_path.name
+    except Exception:
+        pass
+    return ""
+
+
 def _set_session_context(
     session_key: str,
     cwd: str | None = None,
@@ -2018,16 +2041,19 @@ def _set_session_context(
         # it instead of falling back to the gateway launch dir.
         resolved = cwd if cwd is not None else _cwd_for_session_key(session_key)
         source = _resolve_session_platform()
+        profile_name = ""
         with _sessions_lock:
             for sess in list(_sessions.values()):
                 if sess.get("session_key") == session_key:
                     source = _session_source(sess)
+                    profile_name = _profile_name_from_home(sess.get("profile_home"))
                     break
         return set_session_vars(
             session_key=session_key,
             source=source,
             cwd=resolved,
             ui_session_id=ui_session_id,
+            profile=profile_name,
         )
     except Exception:
         return []

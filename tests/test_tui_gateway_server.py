@@ -9284,3 +9284,55 @@ def test_get_usage_clamps_post_compression_sentinel():
     usage = server._get_usage(agent)
     assert "context_used" not in usage
     assert "context_percent" not in usage
+
+
+class TestProfileNameBinding:
+    """_set_session_context must fill HERMES_SESSION_PROFILE from the
+    session's profile_home so tool subprocesses (e.g. scripts/call_role.py)
+    can identify which role commissioned the call."""
+
+    def _bind(self, monkeypatch, tmp_path, session):
+        import hermes_cli.profiles as profiles_mod
+        from gateway.session_context import get_session_env
+
+        profiles_root = tmp_path / ".hermes" / "profiles"
+        monkeypatch.setattr(profiles_mod, "_get_profiles_root", lambda: profiles_root)
+        monkeypatch.setattr(server, "_hermes_home", str(tmp_path / ".hermes"))
+        sid, key = "prof-sid", "prof-key"
+        server._sessions[sid] = {"session_key": key, **session}
+        tokens = server._set_session_context(key)
+        try:
+            return get_session_env("HERMES_SESSION_PROFILE")
+        finally:
+            server._clear_session_context(tokens)
+            server._sessions.pop(sid, None)
+
+    def test_named_profile_session_binds_profile_name(self, monkeypatch, tmp_path):
+        role_home = tmp_path / ".hermes" / "profiles" / "skillsmith"
+        role_home.mkdir(parents=True)
+        bound = self._bind(monkeypatch, tmp_path, {"profile_home": str(role_home)})
+        assert bound == "skillsmith"
+
+    def test_launch_profile_session_binds_empty(self, monkeypatch, tmp_path):
+        # Launch/default profile: no profile_home → "" (matches gateway/run.py,
+        # which only fills profile for named-profile sessions).
+        bound = self._bind(monkeypatch, tmp_path, {})
+        assert bound == ""
+
+
+class TestProfileNameFromHome:
+    def test_named_profile(self, monkeypatch, tmp_path):
+        import hermes_cli.profiles as profiles_mod
+
+        profiles_root = tmp_path / ".hermes" / "profiles"
+        monkeypatch.setattr(profiles_mod, "_get_profiles_root", lambda: profiles_root)
+        monkeypatch.setattr(server, "_hermes_home", str(tmp_path / ".hermes"))
+        assert server._profile_name_from_home(profiles_root / "coder") == "coder"
+
+    def test_launch_home_is_empty(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(server, "_hermes_home", str(tmp_path / ".hermes"))
+        assert server._profile_name_from_home(tmp_path / ".hermes") == ""
+
+    def test_none_and_garbage(self):
+        assert server._profile_name_from_home(None) == ""
+        assert server._profile_name_from_home("/nonexistent/xyz") == ""

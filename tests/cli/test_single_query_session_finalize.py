@@ -268,3 +268,34 @@ def test_quiet_single_query_main_finalizes_while_preserving_exit_code(monkeypatc
     assert ("claim", "cli", True) in calls
     assert ("run", "hello", []) in calls
     assert calls[-1] == ("finalize", "quiet-session")
+
+
+class TestSuppressSingleQueryDisplayCallbacks:
+    """-Q quiet single-query: stdout must stay machine-readable.
+
+    Regression for the cross-role call_role channel: the quiet branch used
+    to leave reasoning_callback wired, so the Reasoning box (~97% of bytes)
+    polluted stdout for every -Q automation caller.
+    """
+
+    def _agent(self):
+        return SimpleNamespace(
+            quiet_mode=False,
+            suppress_status_output=False,
+            stream_delta_callback=lambda *_a: None,
+            tool_gen_callback=lambda *_a: None,
+            reasoning_callback=lambda *_a: None,
+        )
+
+    def test_reasoning_callback_cleared(self):
+        agent = self._agent()
+        cli._suppress_single_query_display_callbacks(agent)
+        assert agent.reasoning_callback is None
+
+    def test_all_display_callbacks_cleared(self):
+        agent = self._agent()
+        cli._suppress_single_query_display_callbacks(agent)
+        assert agent.stream_delta_callback is None
+        assert agent.tool_gen_callback is None
+        assert agent.quiet_mode is True
+        assert agent.suppress_status_output is True

@@ -1211,6 +1211,27 @@ def _emit_interrupted_session_end(cli, *, reason: str = "keyboard_interrupt") ->
         pass
 
 
+def _suppress_single_query_display_callbacks(agent) -> None:
+    """Make ``-q ... -Q`` single-query output machine-readable.
+
+    Suppresses every display callback that decorates stdout (styled response
+    box, tool-gen status lines, reasoning box).  ``reasoning_callback`` must
+    be cleared too: ``chat_completion_helpers`` deliberately fires it in
+    non-streaming modes "so quiet still gets reasoning", and its CLI handler
+    (``_stream_reasoning_delta``) draws the Reasoning box straight onto
+    stdout — which used to make up ~97% of ``-Q`` output and broke the
+    "only the final response" contract automation relies on (call_role,
+    kanban workers).  Reasoning persistence is unaffected: it is stored on
+    the message, not via this display callback.  Interactive paths keep
+    their callback — this helper is only called on the quiet branch.
+    """
+    agent.quiet_mode = True
+    agent.suppress_status_output = True
+    agent.stream_delta_callback = None
+    agent.tool_gen_callback = None
+    agent.reasoning_callback = None
+
+
 def _notify_single_query_session_finalize(cli, *, reason: str = "shutdown") -> None:
     agent = getattr(cli, "agent", None)
     session_id = getattr(agent, "session_id", None) or getattr(cli, "session_id", None)
@@ -16328,13 +16349,7 @@ def main(
                         runtime_override=turn_route["runtime"],
                         request_overrides=turn_route.get("request_overrides"),
                     ):
-                        cli.agent.quiet_mode = True
-                        cli.agent.suppress_status_output = True
-                        # Suppress streaming display callbacks so stdout stays
-                        # machine-readable (no styled "Hermes" box, no tool-gen
-                        # status lines).  The response is printed once below.
-                        cli.agent.stream_delta_callback = None
-                        cli.agent.tool_gen_callback = None
+                        _suppress_single_query_display_callbacks(cli.agent)
                         try:
                             result = cli.agent.run_conversation(
                                 user_message=effective_query,
