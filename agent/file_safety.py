@@ -352,10 +352,10 @@ def raise_if_read_blocked(path: str) -> None:
 #
 # Hermes profiles are separate HERMES_HOME dirs under
 # ``<root>/profiles/<name>/``. Each profile has its own skills/, plugins/,
-# cron/, memories/. When an agent runs under one profile, writing into
-# ANOTHER profile's directories is almost always wrong — those skills /
-# plugins / cron jobs / memories affect a different session the user runs
-# from a different shell.
+# cron/, memories/, scripts/. When an agent runs under one profile, writing
+# into ANOTHER profile's directories is almost always wrong — those skills /
+# plugins / cron jobs / memories / workflow scripts affect a different
+# session the user runs from a different shell.
 #
 # Soft guard, NOT a security boundary: the agent runs as the same OS user
 # and has unrestricted terminal access, so this returns a warning the model
@@ -372,7 +372,10 @@ def raise_if_read_blocked(path: str) -> None:
 # Profile-scoped directories under HERMES_HOME / <root> / <root>/profiles/<X>/
 # that should be guarded. Adding a new area here extends the guard with no
 # other code change.
-PROFILE_SCOPED_AREAS = ("skills", "plugins", "cron", "memories")
+# ``scripts`` covers each role's workflow assets (scripts/tools/ + the cron
+# jobs that run them) — a script written into another profile's scripts/
+# changes that profile's workflows, not yours.
+PROFILE_SCOPED_AREAS = ("skills", "plugins", "cron", "memories", "scripts")
 
 
 def _resolve_active_profile_name() -> str:
@@ -402,7 +405,7 @@ def _resolve_active_profile_name() -> str:
 
 def classify_cross_profile_target(path: str) -> Optional[dict]:
     """Classify a write target as cross-profile if it lands in another
-    profile's scoped area (skills/plugins/cron/memories).
+    profile's scoped area (skills/plugins/cron/memories/scripts).
 
     Returns ``None`` when the target is outside Hermes scope, or is inside
     the ACTIVE profile, or doesn't hit a profile-scoped area. Otherwise
@@ -489,7 +492,7 @@ def get_cross_profile_warning(path: str) -> Optional[str]:
         f"after explicit user direction, retry the call with "
         f"``cross_profile=True``. (Defense-in-depth — not a security "
         f"boundary; the terminal tool can still bypass.) "
-        f"如需修改底座资产（default profile 的 skills/plugins/cron/memories）："
+        f"如需修改底座资产（default profile 的 skills/plugins/cron/memories/scripts）："
         f"在会话内向用户说明需求并请求审批（cross_profile=True 需用户明确授权），"
         f"或通过 `hermes request create --kind <skill|tool|mcp|other> --title \"...\"` "
         f"提交资产申请单走审批流程（`hermes request list` 查看进度）。"

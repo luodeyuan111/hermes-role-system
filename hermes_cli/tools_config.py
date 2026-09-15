@@ -1621,6 +1621,127 @@ def enabled_mcp_server_names(config: dict) -> Set[str]:
     }
 
 
+# ── Profile-level toolset trimming (tools.disabled) ─────────────────────
+#
+# ``<HERMES_HOME>/tools.disabled`` is a plain-text incremental denylist: one
+# toolset name per line, ``#`` comments and blank lines skipped, malformed
+# lines (whitespace or path separators) silently dropped. Absent file = no
+# trimming; present file (even empty) = only the listed toolsets are
+# disabled. It is deliberately a plain file with no write protection so the
+# agent can maintain it in-conversation (config.yaml has write guardrails) —
+# same rationale as ``skills.whitelist`` in agent/skill_utils.py.
+#
+# Semantics are an incremental BLACKLIST unioned with config.yaml's
+# ``agent.disabled_toolsets`` in ``_get_platform_tools`` — platform-level
+# enable/disable and profile-level trimming compose orthogonally (platform ∩
+# profile). Because the file lives under the active profile's HERMES_HOME,
+# each profile trims independently.
+#
+# Core protection: a listed toolset whose static tools overlap
+# ``_HERMES_CORE_TOOLS`` (toolsets.py) is NOT disabled — a warning is logged
+# instead — so an agent maintaining its own tools.disabled cannot cut the
+# base capabilities it needs to operate. Unknown names (MCP servers, plugin
+# toolsets) resolve to an empty static set and are never protected.
+# config.yaml's ``agent.disabled_toolsets`` is NOT subject to this
+# protection — explicit user config has final say.
+
+# path_str -> ((exists, mtime_ns, size), frozenset(names)). stat() is ~2us,
+# so the fast path never re-reads the file; a mid-session edit flips the
+# fingerprint and is picked up on the next call.
+_TOOLS_DISABLED_CACHE: Dict[str, tuple] = {}
+
+# Toolset names for which the core-protection warning already fired this
+# process — mirrors the _warned_invalid_platform_toolsets pattern below.
+_WARNED_CORE_PROTECTED_TOOLSETS: Set[str] = set()
+
+
+def get_tools_disabled() -> Set[str]:
+    """Read the profile-local tools.disabled denylist for the active home.
+
+    Returns the parsed name set (empty when the file is absent, unreadable,
+    or lists nothing). Cached on an ``(exists, mtime_ns, size)`` fingerprint
+    keyed by absolute path, so repeated calls cost one stat() and per-profile
+    homes never collide. Override-aware via ``get_hermes_home``.
+    """
+    try:
+        from hermes_constants import get_hermes_home
+
+        path = get_hermes_home() / "tools.disabled"
+    except Exception as e:  # never let trimming break tool resolution
+        logger.debug("tools.disabled: could not resolve path: %s", e)
+        return set()
+
+    try:
+        stat = path.stat()
+        fingerprint = (True, stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        fingerprint = (False, 0, 0)
+
+    cache_key = str(path)
+    cached = _TOOLS_DISABLED_CACHE.get(cache_key)
+    if cached is not None and cached[0] == fingerprint:
+        return set(cached[1])
+
+    names: Set[str] = set()
+    if fingerprint[0]:
+        try:
+            for raw_line in path.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if any(ch.isspace() for ch in line) or "/" in line or "\\" in line:
+                    logger.debug("tools.disabled: skipping malformed line %r", raw_line)
+                    continue
+                names.add(line)
+        except OSError as e:
+            logger.debug("tools.disabled: could not read %s: %s", path, e)
+            names = set()
+
+    _TOOLS_DISABLED_CACHE[cache_key] = (fingerprint, frozenset(names))
+    return names
+
+
+def _filter_core_protected_toolsets(disabled: Set[str]) -> Set[str]:
+    """Drop core toolsets from a tools.disabled name set (with a warning).
+
+    A toolset is core-protected when its statically resolved tools overlap
+    ``_HERMES_CORE_TOOLS`` — disabling it would remove base capabilities.
+    Names with no static definition (MCP servers, plugin toolsets) resolve
+    empty and pass through.
+    """
+    if not disabled:
+        return set()
+    from toolsets import resolve_toolset, _HERMES_CORE_TOOLS
+
+    core_tools = set(_HERMES_CORE_TOOLS)
+    allowed: Set[str] = set()
+    for name in disabled:
+        try:
+            static_tools = set(resolve_toolset(name, include_registry=False))
+        except Exception:
+            static_tools = set()
+        if static_tools and static_tools & core_tools:
+            if name not in _WARNED_CORE_PROTECTED_TOOLSETS:
+                _WARNED_CORE_PROTECTED_TOOLSETS.add(name)
+                logger.warning(
+                    "tools.disabled: %r is a core toolset (its tools are part "
+                    "of _HERMES_CORE_TOOLS) and was NOT disabled — core "
+                    "capabilities cannot be trimmed per-profile. Remove the "
+                    "line from tools.disabled or use agent.disabled_toolsets "
+                    "in config.yaml (explicit user config, unprotected).",
+                    name,
+                )
+            continue
+        allowed.add(name)
+    return allowed
+
+
+def _tools_disabled_cache_clear() -> None:
+    """Test hook — drop the fingerprint cache and the warned set."""
+    _TOOLS_DISABLED_CACHE.clear()
+    _WARNED_CORE_PROTECTED_TOOLSETS.clear()
+
+
 def _exempt_explicit_platform_native(
     default_off: Set[str], platform: str, *, explicitly_configured: bool
 ) -> None:
@@ -1907,8 +2028,14 @@ def _get_platform_tools(
     # last so it overrides everything above.
     agent_cfg = config.get("agent") or {}
     disabled_toolsets = agent_cfg.get("disabled_toolsets") or []
-    if disabled_toolsets:
-        disabled_set = {str(ts) for ts in disabled_toolsets}
+    disabled_set = {str(ts) for ts in disabled_toolsets} if disabled_toolsets else set()
+    # Union with the profile-local tools.disabled denylist (plain file under
+    # the active HERMES_HOME — per-profile trimming, orthogonal to platform
+    # config). Core toolsets listed there are protected (warning logged,
+    # kept enabled); config.yaml entries stay unprotected — explicit user
+    # config has final say.
+    disabled_set |= _filter_core_protected_toolsets(get_tools_disabled())
+    if disabled_set:
         enabled_toolsets -= disabled_set
 
     # #38798: if this platform was explicitly configured but every toolset name

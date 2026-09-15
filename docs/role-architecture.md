@@ -40,6 +40,23 @@
 - **memory 只放角色偏好/事实**，不存「skill 资产台账」这类静态清单——清单会腐化且挤占 memory 上限
 - **查资产走实时接口**：`skills_list` / dashboard 资产视图，不查 memory 台账
 
+## Tools / Workflow 分角色
+
+**Tools 裁剪：`profiles/<角色>/tools.disabled`**（纯文本增量黑名单，每行一个 toolset 名，`#` 注释、空行跳过、畸形行静默丢弃）：
+
+- 文件不存在 = 不裁剪；文件存在（含空文件）= 只禁用列出的项，不影响其他
+- 与平台级启停**正交组合**（平台 ∩ profile）：在 `hermes_cli/tools_config.py::_get_platform_tools()` 尾部与 config.yaml 的 `agent.disabled_toolsets` **取并集**后统一扣除，CLI / gateway / cron / dashboard API 全部自动继承
+- **核心保护**：静态工具与 `_HERMES_CORE_TOOLS`（toolsets.py）有交集的 toolset（browser、image_gen、terminal、file 等默认组合几乎全是）即使被列入也**不禁用**，只打 warning——防止 agent 自维护时砍了自己的基础能力。所以 tools.disabled 的实际作用是按角色裁掉**非 core 增量项**（插件 toolset、MCP server、用户显式开启的可选 toolset，如 shengsuan / spotify）
+- 与 config 的关系：`agent.disabled_toolsets`（config.yaml）是用户显式配置，**不受核心保护限制**，主权最高；tools.disabled 是 agent 会话内可自维护的纯文件（config.yaml 有写护栏），受核心保护。两者叠加生效
+- 落纯文件不落 config 的理由与 skills.whitelist 相同；读取带 (exists, mtime_ns, size) 指纹缓存，编辑后下一次解析即生效
+
+**Workflow 归属约定**：workflow 范式 = script（`scripts/tools/`）+ cron job + 输出目录（fetch_arxiv 模式）。
+
+- `profiles/<角色>/scripts/tools/` + 该角色名下的 cron job = **该角色的 workflow**；共享脚本放 default 家 `~/.hermes/scripts/tools/`
+- 跨 profile 写脚本被护栏拦：`agent/file_safety.py` 的 `PROFILE_SCOPED_AREAS` 含 `scripts`，写别的角色的 `scripts/` 会触发警告 + 审批指引（`cross_profile=True` 需用户明确授权）
+- cron 侧无需额外护栏：cron store 本来就 per-profile（#4707，`cronjob` 工具恒写当前 profile 的 `cron/jobs.json`，无跨 profile API）；路径层护栏覆盖对 cron 文件的直接写
+- **查看入口**：dashboard 资产总览（asset-view 插件）扫 default 家 + 各 profile 的 `scripts/tools/` 并与 cron job 按脚本文件名配对；Toolsets 区块的启用/已停用状态走 `/api/tools/toolsets?profile=`，自动反映 tools.disabled 裁剪
+
 ## Skill 治理模式（default profile，2026-09-08 起）
 
 QQ 渠道（default profile）skill 生成失控的治理组合，均为 per-profile config 开关（`~/.hermes/config.yaml` 的 `skills:` 段）：
@@ -67,6 +84,8 @@ CherryStudio 式两级会话栏：
 | ROLE.md 角色层 + 命名 profile 共享根目录 SOUL 底座 | `agent/system_prompt.py` |
 | 技能四层解析（共享池按引用）+ 白名单过滤 + 共享池写护栏 | `agent/skill_utils.py`、`agent/prompt_builder.py`、`tools/` |
 | skill 治理：write_approval 门控 + create_staging 隔离区 | `tools/write_approval.py`、`tools/skill_manager_tool.py`、`agent/skill_utils.py` |
+| profile 级 toolset 裁剪（tools.disabled 增量黑名单 + 核心保护） | `hermes_cli/tools_config.py` |
+| 跨 profile 写护栏扩展到 scripts/（workflow 资产归属） | `agent/file_safety.py` |
 | `hermes skills pool show/check/apply` 三层池 CLI | `hermes_cli/skills_pool.py` |
 | tui_gateway 进程内 profile 作用域修复（重建型入口绑 scope） | `tui_gateway/server.py` |
 | 两级角色会话栏 + 角色管理端点 | `plugins/bubble-chat/dashboard/`、`web/src/App.tsx` |

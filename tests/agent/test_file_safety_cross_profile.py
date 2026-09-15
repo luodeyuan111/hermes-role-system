@@ -1,7 +1,7 @@
 """Tests for the cross-Hermes-profile write guard in agent/file_safety.
 
 The guard fires when a tool tries to write into another Hermes profile's
-skills/plugins/cron/memories directory. It's a soft guard — defense in
+skills/plugins/cron/memories/scripts directory. It's a soft guard — defense in
 depth, NOT a security boundary — but it prevents the agent from silently
 corrupting a profile that belongs to a different session.
 
@@ -152,7 +152,7 @@ class TestClassifyCrossProfileTarget:
         assert result is not None
         assert result["target_profile"] == "coder"
 
-    @pytest.mark.parametrize("area", ["skills", "plugins", "cron", "memories"])
+    @pytest.mark.parametrize("area", ["skills", "plugins", "cron", "memories", "scripts"])
     def test_all_profile_scoped_areas_classified(self, fake_hermes, monkeypatch, area):
         _set_active_home(monkeypatch, fake_hermes["security_home"])
         from agent.file_safety import classify_cross_profile_target
@@ -160,6 +160,25 @@ class TestClassifyCrossProfileTarget:
         result = classify_cross_profile_target(str(target))
         assert result is not None
         assert result["area"] == area
+
+    def test_scripts_tools_workflow_asset_classified(self, fake_hermes, monkeypatch):
+        """Workflow scripts (scripts/tools/) are per-role assets — writing
+        another profile's script is a cross-profile event."""
+        _set_active_home(monkeypatch, fake_hermes["security_home"])
+        from agent.file_safety import classify_cross_profile_target
+        target = fake_hermes["coder_home"] / "scripts" / "tools" / "vision.py"
+        result = classify_cross_profile_target(str(target))
+        assert result is not None
+        assert result["active_profile"] == "hermes-security"
+        assert result["target_profile"] == "coder"
+        assert result["area"] == "scripts"
+
+    def test_own_profile_scripts_write_returns_none(self, fake_hermes, monkeypatch):
+        """A profile writing its own scripts/tools/ is in-scope, not guarded."""
+        _set_active_home(monkeypatch, fake_hermes["coder_home"])
+        from agent.file_safety import classify_cross_profile_target
+        target = fake_hermes["coder_home"] / "scripts" / "tools" / "vision.py"
+        assert classify_cross_profile_target(str(target)) is None
 
     def test_non_hermes_path_returns_none(self, fake_hermes, monkeypatch, tmp_path):
         _set_active_home(monkeypatch, fake_hermes["security_home"])
