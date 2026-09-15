@@ -1,8 +1,9 @@
 /**
  * 资产总览 — 数据访问层。
  *
- * toolsets / MCP / cron 直接打宿主的现成聚合 API（均支持 ?profile= 投影），
- * 自建脚本清单走本插件的后端 /api/plugins/asset-view/scripts。
+ * toolsets / MCP / cron / skills 直接打宿主的现成聚合 API（均支持
+ * ?profile= 投影），自建脚本清单与 skill 概况走本插件的后端
+ * /api/plugins/asset-view/scripts|skills。
  */
 
 import { fetchJSON, HERMES_BASE_PATH } from "./sdk";
@@ -46,6 +47,31 @@ export interface ScriptInfo {
   profile: string;
 }
 
+/** 宿主 /api/skills?profile= 的单条 skill（字段子集，够用即可）。 */
+export interface SkillInfo {
+  name: string;
+  description?: string;
+  enabled?: boolean;
+  provenance?: string;
+}
+
+export interface SkillWhitelistEntry {
+  name: string;
+  /** 归属：本地池（profile 家 skills/）/ 共享池（default 家）/ 未匹配。 */
+  origin: "local" | "shared" | "unmatched";
+}
+
+/** 本插件 /skills 端点的 profile skill 概况。 */
+export interface SkillOverview {
+  profile: string;
+  is_default: boolean;
+  whitelist_exists: boolean;
+  whitelist: SkillWhitelistEntry[];
+  local_pool: { name: string; description: string }[];
+  shared_refs: number;
+  shared_pool_size: number;
+}
+
 export interface ProfileInfo {
   name: string;
   is_default: boolean;
@@ -73,6 +99,18 @@ export function fetchCronJobs(profile: string): Promise<CronJobInfo[]> {
 export function fetchScripts(profile: string): Promise<{ scripts: ScriptInfo[]; cron_output_root: string }> {
   return fetchJSON(
     `${HERMES_BASE_PATH}/api/plugins/asset-view/scripts?profile=${encodeURIComponent(profile)}`,
+  );
+}
+
+export function fetchSkills(profile: string): Promise<SkillInfo[]> {
+  return fetchJSON(
+    `${HERMES_BASE_PATH}/api/skills?profile=${encodeURIComponent(profile)}`,
+  );
+}
+
+export function fetchSkillOverview(profile: string): Promise<SkillOverview> {
+  return fetchJSON(
+    `${HERMES_BASE_PATH}/api/plugins/asset-view/skills?profile=${encodeURIComponent(profile)}`,
   );
 }
 

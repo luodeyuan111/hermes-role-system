@@ -4,10 +4,12 @@
  * 一页看全当前 profile 的资产：
  *   ① toolsets 启停清单
  *   ② MCP servers
- *   ③ cron 列表（带 profile 标注）
- *   ④ workflow 区块：cron + scripts/tools 自建脚本结合展示
- *     （fetch_arxiv.py 范式：script + cron + 输出目录）
- *   ⑤ 资产申请区块：角色资产申请单列表（R1.3，跨 profile 共享，
+ *   ③ skills 概况（whitelist offer 面 + 本地/共享池归属）
+ *   ④ cron 列表（跟随选中 profile）
+ *   ⑤ workflow 区块：cron + scripts/tools 自建脚本结合展示
+ *     （fetch_arxiv.py 范式：script + cron + 输出目录；cron 与脚本同为
+ *     选中 profile 的投影，共享脚本可被该角色的 cron 引用）
+ *   ⑥ 资产申请区块：角色资产申请单列表（R1.3，跨 profile 共享，
  *     审批走 CLI `hermes request`）
  *
  * 只读展示，不做管理操作（管理仍走 CLI `hermes tools` / 设置页）。
@@ -21,12 +23,16 @@ import {
   fetchMcpServers,
   fetchProfiles,
   fetchScripts,
+  fetchSkillOverview,
+  fetchSkills,
   fetchToolsets,
   type AssetRequestInfo,
   type CronJobInfo,
   type McpServerInfo,
   type ProfileInfo,
   type ScriptInfo,
+  type SkillInfo,
+  type SkillOverview,
   type ToolsetInfo,
 } from "./api";
 import { cn } from "./sdk";
@@ -37,6 +43,8 @@ interface PageData {
   cronJobs: CronJobInfo[];
   scripts: ScriptInfo[];
   cronOutputRoot: string;
+  skills: SkillInfo[];
+  skillOverview: SkillOverview | null;
 }
 
 function Section(props: { title: string; count?: number; children: any }) {
@@ -110,20 +118,25 @@ export default function AssetViewPage() {
     if (!profile) return;
     setLoading(true);
     setError("");
-    // cron 用 all 聚合（带 profile 标注），其余按选中 profile 投影。
+    // 所有区块都跟随选中的 profile 投影（cron 不再跨 profile 聚合）；
+    // skills 概况失败不拖垮整页（旧版宿主没有该端点时降级为只隐藏概况行）。
     Promise.all([
       fetchToolsets(profile),
       fetchMcpServers(profile),
-      fetchCronJobs("all"),
+      fetchCronJobs(profile),
       fetchScripts(profile),
+      fetchSkills(profile).catch(() => [] as SkillInfo[]),
+      fetchSkillOverview(profile).catch(() => null),
     ])
-      .then(([toolsets, mcp, jobs, scripts]) => {
+      .then(([toolsets, mcp, jobs, scripts, skills, skillOverview]) => {
         setData({
           toolsets: Array.isArray(toolsets) ? toolsets : [],
           mcpServers: mcp.servers || [],
           cronJobs: Array.isArray(jobs) ? jobs : [],
           scripts: scripts.scripts || [],
           cronOutputRoot: scripts.cron_output_root || "",
+          skills: Array.isArray(skills) ? skills : [],
+          skillOverview,
         });
       })
       .catch((e) => setError(`加载资产数据失败：${e}`))
@@ -149,6 +162,16 @@ export default function AssetViewPage() {
     () => (data ? data.toolsets.filter((t) => !t.enabled) : []),
     [data],
   );
+
+  // 生效 skill 数：whitelist 存在时名单就是该角色的 offer 面（与角色页
+  // 「启用 N 个技能」同口径，未匹配项保留计数）；否则用宿主 /api/skills
+  // 的 enabled 计数（默认全量池 − disabled）。
+  const effectiveSkillCount = useMemo(() => {
+    if (!data) return 0;
+    const overview = data.skillOverview;
+    if (overview?.whitelist_exists) return overview.whitelist.length;
+    return data.skills.filter((s) => s.enabled !== false).length;
+  }, [data]);
 
   return (
     <div className="hermes-asset-view mx-auto w-full max-w-5xl space-y-4 p-6">
@@ -242,10 +265,70 @@ export default function AssetViewPage() {
             )}
           </Section>
 
-          {/* ③ Cron 列表（跨 profile 聚合，带 profile 标注） */}
+          {/* ③ Skills 概况：whitelist 名单（归属标注）+ 本地池 + 共享池引用数 */}
+          <Section title="Skills" count={effectiveSkillCount}>
+            {!data.skillOverview ? (
+              <EmptyHint text="skill 概况加载失败（其余区块不受影响）" />
+            ) : (
+              <div className="space-y-2">
+                {data.skillOverview.whitelist_exists ? (
+                  <div>
+                    <p className="mb-1 text-xs text-text-secondary">
+                      skills.whitelist（{data.skillOverview.whitelist.length} 项 offer 面）
+                    </p>
+                    {data.skillOverview.whitelist.length === 0 ? (
+                      <EmptyHint text="白名单为空 —— 该角色不加载任何 skill" />
+                    ) : (
+                      <div className="space-y-1">
+                        {data.skillOverview.whitelist.map((w) => (
+                          <div key={w.name} className="flex items-center gap-2 text-sm">
+                            <span className="font-medium text-text-primary">{w.name}</span>
+                            <span
+                              className={cn(
+                                "rounded px-1.5 py-0.5 text-[11px] leading-none",
+                                w.origin === "local"
+                                  ? "bg-success/15 text-success"
+                                  : w.origin === "shared"
+                                    ? "bg-midground/15 text-text-secondary"
+                                    : "bg-warning/15 text-warning",
+                              )}
+                            >
+                              {w.origin === "local"
+                                ? "本地"
+                                : w.origin === "shared"
+                                  ? "共享池"
+                                  : "未匹配"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <EmptyHint text="未设置 skills.whitelist —— 走默认全量池（本地 + 共享池，按 disabled 过滤）" />
+                )}
+                <p className="text-xs text-text-secondary">
+                  本地池（{data.skillOverview.profile}/skills/）：
+                  {data.skillOverview.local_pool.length === 0
+                    ? "无本地 skill"
+                    : `${data.skillOverview.local_pool.length} 个 —— ${data.skillOverview.local_pool
+                        .map((s) => s.name)
+                        .join("、")}`}
+                </p>
+                {!data.skillOverview.is_default && (
+                  <p className="text-xs text-text-secondary">
+                    共享池引用 {data.skillOverview.shared_refs} 项（共享池共{" "}
+                    {data.skillOverview.shared_pool_size} 个）
+                  </p>
+                )}
+              </div>
+            )}
+          </Section>
+
+          {/* ④ Cron 列表（跟随选中 profile） */}
           <Section title="Cron 任务" count={data.cronJobs.length}>
             {data.cronJobs.length === 0 ? (
-              <EmptyHint text="没有任何 profile 的 cron 任务" />
+              <EmptyHint text="该 profile 没有 cron 任务" />
             ) : (
               <div className="space-y-1">
                 {data.cronJobs.map((job) => (
@@ -269,7 +352,7 @@ export default function AssetViewPage() {
             )}
           </Section>
 
-          {/* ④ Workflow 区块：脚本 + 关联 cron + 输出目录 */}
+          {/* ⑤ Workflow 区块：脚本 + 关联 cron + 输出目录 */}
           <Section title="Workflows（script + cron + 输出目录）" count={workflows.length}>
             {data.cronOutputRoot && (
               <p className="mb-2 text-xs text-text-tertiary">
@@ -311,7 +394,7 @@ export default function AssetViewPage() {
         </>
       )}
 
-      {/* ⑤ 资产申请（R1.3）：跨 profile 共享的申请单列表，只读；审批走 CLI */}
+      {/* ⑥ 资产申请（R1.3）：跨 profile 共享的申请单列表，只读；审批走 CLI */}
       <Section title="资产申请" count={requests.length}>
         {requests.length === 0 ? (
           <EmptyHint text="没有资产申请单（角色可通过 `hermes request create` 提交）" />

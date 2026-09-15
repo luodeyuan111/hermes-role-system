@@ -69,6 +69,16 @@
       `${HERMES_BASE_PATH}/api/plugins/asset-view/scripts?profile=${encodeURIComponent(profile)}`
     );
   }
+  function fetchSkills(profile) {
+    return fetchJSON(
+      `${HERMES_BASE_PATH}/api/skills?profile=${encodeURIComponent(profile)}`
+    );
+  }
+  function fetchSkillOverview(profile) {
+    return fetchJSON(
+      `${HERMES_BASE_PATH}/api/plugins/asset-view/skills?profile=${encodeURIComponent(profile)}`
+    );
+  }
   function fetchProfiles() {
     return fetchJSON(`${HERMES_BASE_PATH}/api/profiles`);
   }
@@ -148,15 +158,19 @@
       Promise.all([
         fetchToolsets(profile),
         fetchMcpServers(profile),
-        fetchCronJobs("all"),
-        fetchScripts(profile)
-      ]).then(([toolsets, mcp, jobs, scripts]) => {
+        fetchCronJobs(profile),
+        fetchScripts(profile),
+        fetchSkills(profile).catch(() => []),
+        fetchSkillOverview(profile).catch(() => null)
+      ]).then(([toolsets, mcp, jobs, scripts, skills, skillOverview]) => {
         setData({
           toolsets: Array.isArray(toolsets) ? toolsets : [],
           mcpServers: mcp.servers || [],
           cronJobs: Array.isArray(jobs) ? jobs : [],
           scripts: scripts.scripts || [],
-          cronOutputRoot: scripts.cron_output_root || ""
+          cronOutputRoot: scripts.cron_output_root || "",
+          skills: Array.isArray(skills) ? skills : [],
+          skillOverview
         });
       }).catch((e) => setError(`\u52A0\u8F7D\u8D44\u4EA7\u6570\u636E\u5931\u8D25\uFF1A${e}`)).finally(() => setLoading(false));
     }, []);
@@ -176,6 +190,12 @@
       () => data ? data.toolsets.filter((t) => !t.enabled) : [],
       [data]
     );
+    const effectiveSkillCount = useMemo(() => {
+      if (!data) return 0;
+      const overview = data.skillOverview;
+      if (overview?.whitelist_exists) return overview.whitelist.length;
+      return data.skills.filter((s) => s.enabled !== false).length;
+    }, [data]);
     return /* @__PURE__ */ jsxs("div", { className: "hermes-asset-view mx-auto w-full max-w-5xl space-y-4 p-6", children: [
       /* @__PURE__ */ jsxs("header", { className: "flex flex-wrap items-center gap-3", children: [
         /* @__PURE__ */ jsxs("div", { children: [
@@ -232,7 +252,43 @@
           /* @__PURE__ */ jsx("span", { className: "rounded bg-midground/15 px-1.5 py-0.5 text-[11px] text-text-secondary", children: s.transport }),
           /* @__PURE__ */ jsx("span", { className: "truncate text-xs text-text-tertiary", children: s.url || s.command || "" })
         ] }, s.name)) }) }),
-        /* @__PURE__ */ jsx(Section, { title: "Cron \u4EFB\u52A1", count: data.cronJobs.length, children: data.cronJobs.length === 0 ? /* @__PURE__ */ jsx(EmptyHint, { text: "\u6CA1\u6709\u4EFB\u4F55 profile \u7684 cron \u4EFB\u52A1" }) : /* @__PURE__ */ jsx("div", { className: "space-y-1", children: data.cronJobs.map((job) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+        /* @__PURE__ */ jsx(Section, { title: "Skills", count: effectiveSkillCount, children: !data.skillOverview ? /* @__PURE__ */ jsx(EmptyHint, { text: "skill \u6982\u51B5\u52A0\u8F7D\u5931\u8D25\uFF08\u5176\u4F59\u533A\u5757\u4E0D\u53D7\u5F71\u54CD\uFF09" }) : /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          data.skillOverview.whitelist_exists ? /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsxs("p", { className: "mb-1 text-xs text-text-secondary", children: [
+              "skills.whitelist\uFF08",
+              data.skillOverview.whitelist.length,
+              " \u9879 offer \u9762\uFF09"
+            ] }),
+            data.skillOverview.whitelist.length === 0 ? /* @__PURE__ */ jsx(EmptyHint, { text: "\u767D\u540D\u5355\u4E3A\u7A7A \u2014\u2014 \u8BE5\u89D2\u8272\u4E0D\u52A0\u8F7D\u4EFB\u4F55 skill" }) : /* @__PURE__ */ jsx("div", { className: "space-y-1", children: data.skillOverview.whitelist.map((w) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+              /* @__PURE__ */ jsx("span", { className: "font-medium text-text-primary", children: w.name }),
+              /* @__PURE__ */ jsx(
+                "span",
+                {
+                  className: cn(
+                    "rounded px-1.5 py-0.5 text-[11px] leading-none",
+                    w.origin === "local" ? "bg-success/15 text-success" : w.origin === "shared" ? "bg-midground/15 text-text-secondary" : "bg-warning/15 text-warning"
+                  ),
+                  children: w.origin === "local" ? "\u672C\u5730" : w.origin === "shared" ? "\u5171\u4EAB\u6C60" : "\u672A\u5339\u914D"
+                }
+              )
+            ] }, w.name)) })
+          ] }) : /* @__PURE__ */ jsx(EmptyHint, { text: "\u672A\u8BBE\u7F6E skills.whitelist \u2014\u2014 \u8D70\u9ED8\u8BA4\u5168\u91CF\u6C60\uFF08\u672C\u5730 + \u5171\u4EAB\u6C60\uFF0C\u6309 disabled \u8FC7\u6EE4\uFF09" }),
+          /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-secondary", children: [
+            "\u672C\u5730\u6C60\uFF08",
+            data.skillOverview.profile,
+            "/skills/\uFF09\uFF1A",
+            data.skillOverview.local_pool.length === 0 ? "\u65E0\u672C\u5730 skill" : `${data.skillOverview.local_pool.length} \u4E2A \u2014\u2014 ${data.skillOverview.local_pool.map((s) => s.name).join("\u3001")}`
+          ] }),
+          !data.skillOverview.is_default && /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-secondary", children: [
+            "\u5171\u4EAB\u6C60\u5F15\u7528 ",
+            data.skillOverview.shared_refs,
+            " \u9879\uFF08\u5171\u4EAB\u6C60\u5171",
+            " ",
+            data.skillOverview.shared_pool_size,
+            " \u4E2A\uFF09"
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(Section, { title: "Cron \u4EFB\u52A1", count: data.cronJobs.length, children: data.cronJobs.length === 0 ? /* @__PURE__ */ jsx(EmptyHint, { text: "\u8BE5 profile \u6CA1\u6709 cron \u4EFB\u52A1" }) : /* @__PURE__ */ jsx("div", { className: "space-y-1", children: data.cronJobs.map((job) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
           /* @__PURE__ */ jsx(
             Badge,
             {

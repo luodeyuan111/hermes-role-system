@@ -9,6 +9,9 @@
 .hermes-asset-view .mt-1 {
   margin-top: calc(0.25rem * var(--theme-spacing-mul, 1));
 }
+.hermes-asset-view .mb-1 {
+  margin-bottom: calc(0.25rem * var(--theme-spacing-mul, 1));
+}
 .hermes-asset-view .mb-2 {
   margin-bottom: calc(calc(0.25rem * var(--theme-spacing-mul, 1)) * 2);
 }
