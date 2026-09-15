@@ -3654,7 +3654,7 @@ def save_config_value(key_path: str, value: any) -> bool:
         
         # Save back atomically while preserving comments, ordering, quotes, and
         # readable Unicode in user-edited config.yaml.
-        from utils import atomic_roundtrip_yaml_update
+        from utils import atomic_roundtrip_yaml_update, log_config_write
         atomic_roundtrip_yaml_update(config_path, key_path, value)
         
         # Enforce owner-only permissions on config files (contain API keys)
@@ -3663,10 +3663,53 @@ def save_config_value(key_path: str, value: any) -> bool:
         except (OSError, NotImplementedError):
             pass
         
+        log_config_write("set", key_path, value)
         return True
     except Exception as e:
         logger.error("Failed to save config: %s", e)
         return False
+
+
+def delete_config_value(key_path: str) -> bool:
+    """
+    Delete a key from the active config file at the specified key path.
+
+    Same file precedence as save_config_value(); a missing key is a no-op.
+    Used when a setting must be absent rather than nulled (e.g. clearing a
+    stale model.base_url after a cross-provider switch).
+    """
+    user_config_path = _hermes_home / 'config.yaml'
+    project_config_path = Path(__file__).parent / 'cli-config.yaml'
+    config_path = user_config_path if user_config_path.exists() else project_config_path
+
+    try:
+        from utils import atomic_roundtrip_yaml_delete, log_config_write
+        removed = atomic_roundtrip_yaml_delete(config_path, key_path)
+        if removed:
+            log_config_write("delete", key_path)
+        return removed
+    except Exception as e:
+        logger.error("Failed to delete config key %s: %s", key_path, e)
+        return False
+
+
+def _persist_model_switch_config(result) -> None:
+    """Persist a model switch as the config.yaml default (the --global tier).
+
+    Mirrors the gateway's _persist_model_switch_as_profile_default(): writes
+    the default/provider/base_url triple and clears stale inline endpoint
+    credentials, so a cross-provider switch can't leave the previous
+    provider's base_url behind to misroute the new model after a restart.
+    """
+    save_config_value("model.default", result.new_model)
+    save_config_value("model.provider", result.target_provider)
+    if result.base_url:
+        save_config_value("model.base_url", result.base_url)
+    else:
+        delete_config_value("model.base_url")
+    if str(result.target_provider or "").strip().lower() != "custom":
+        for stale_key in ("model.api_key", "model.api", "model.api_mode"):
+            delete_config_value(stale_key)
 
 
 
@@ -7953,9 +7996,7 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
         if result.warning_message:
             _cprint(f"    ⚠ {result.warning_message}")
         if persist_global:
-            save_config_value("model.default", result.new_model)
-            if result.provider_changed:
-                save_config_value("model.provider", result.target_provider)
+            _persist_model_switch_config(result)
             _cprint("    Saved to config.yaml (--global)")
         else:
             _cprint("    (session only — add --global to persist)")
@@ -8265,9 +8306,7 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
 
         # Persistence
         if persist_global:
-            save_config_value("model.default", result.new_model)
-            if result.provider_changed:
-                save_config_value("model.provider", result.target_provider)
+            _persist_model_switch_config(result)
             _cprint("    Saved to config.yaml")
         else:
             _cprint("    (session only — add --global to persist)")

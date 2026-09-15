@@ -58,6 +58,42 @@ class TestModelRoutingAudit:
         assert _find(findings, "ok", "registry default")
 
 
+class TestProviderAliasNormalization:
+    def test_alias_provider_cross_checked_against_canonical(self):
+        """Profiles commonly carry aliases ('kimi', 6 of 8 profiles in the
+        wild) that the registry doesn't key on — the audit must normalize
+        them instead of reporting 'not in the registry' and skipping the
+        wire-cross check."""
+        from hermes_cli.auth import PROVIDER_REGISTRY
+
+        canonical_url = PROVIDER_REGISTRY["kimi-coding"].inference_base_url
+        findings = audit_provider_config(
+            {"model": {"provider": "kimi", "base_url": canonical_url}},
+            {},
+        )
+        assert _find(findings, "ok", "hosts agree")
+        assert not _find(findings, "info", "not in the registry")
+
+    def test_alias_wire_cross_still_fails(self):
+        findings = audit_provider_config(
+            {"model": {"provider": "kimi", "base_url": "https://api.deepseek.com/v1"}},
+            {},
+        )
+        fails = _find(findings, "fail", "wire-cross")
+        assert fails, f"expected a wire-cross fail via the alias, got: {findings}"
+
+    def test_kimi_coding_plan_endpoint_is_coherent(self):
+        """kimi-coding is dual-endpoint: api.kimi.com/coding (Coding Plan)
+        and api.moonshot.ai/v1 are both legitimate homes — neither may be
+        flagged as a wire-cross."""
+        findings = audit_provider_config(
+            {"model": {"provider": "kimi", "base_url": "https://api.kimi.com/coding/v1"}},
+            {},
+        )
+        assert _find(findings, "ok", "hosts agree")
+        assert "fail" not in _levels(findings)
+
+
 class TestZaiThreeLayerAudit:
     def test_env_only_metered_pin_is_flagged(self):
         """THE acceptance case: GLM_BASE_URL in .env (metered) with no
@@ -125,6 +161,30 @@ class TestFallbackAudit:
         )
         assert _find(findings, "fail", "fallback_model")
 
+    def test_fallback_identical_to_primary_warns(self):
+        """A fallback equal to the primary (provider+model) degrades to
+        itself — no real fallback."""
+        findings = audit_provider_config(
+            {
+                "model": {"provider": "deepseek", "default": "deepseek-chat"},
+                "fallback_model": {"provider": "deepseek", "model": "deepseek-chat"},
+            },
+            {},
+        )
+        warns = _find(findings, "warn", "effectively no fallback")
+        assert warns, f"expected a fallback==primary warn, got: {findings}"
+        assert warns[0].fix
+
+    def test_fallback_different_model_does_not_warn(self):
+        findings = audit_provider_config(
+            {
+                "model": {"provider": "deepseek", "default": "deepseek-chat"},
+                "fallback_model": {"provider": "deepseek", "model": "deepseek-flash"},
+            },
+            {},
+        )
+        assert not _find(findings, "warn", "effectively no fallback")
+
     def test_no_fallback_means_no_silent_switch(self):
         """R5.1: without explicit fallback config the agent never silently
         switches providers — doctor must SAY so."""
@@ -150,6 +210,18 @@ class TestOverlayEnvAudit:
             {"DEEPSEEK_BASE_URL": "https://api.deepseek.com/v1"},
         )
         assert not _find(findings, "warn", "DEEPSEEK_BASE_URL")
+
+    def test_overlay_env_audit_resolves_provider_alias(self):
+        """Alias providers ('glm' -> 'zai') must get the overlay check too —
+        without normalization the registry lookup misses and the audit no-ops."""
+        findings = audit_provider_config(
+            {"model": {"provider": "glm", "base_url": METERED_CN}},
+            {"GLM_BASE_URL": "https://proxy.example.com/v4"},
+        )
+        warns = [w for w in _find(findings, "warn", "GLM_BASE_URL")
+                 if "disagrees with model.base_url" in w.text]
+        assert warns, f"expected the overlay-env disagreement warn via the alias, got: {findings}"
+        assert warns[0].fix
 
 
 class TestRobustness:

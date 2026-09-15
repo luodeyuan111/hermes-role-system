@@ -6828,10 +6828,11 @@ def atomic_config_write(config_path: Path, data: Any, **kwargs: Any) -> None:
     ``kwargs`` are forwarded verbatim to ``atomic_yaml_write``
     (``sort_keys``, ``default_flow_style``, ``extra_content``, ...).
     """
-    from utils import atomic_yaml_write
+    from utils import atomic_yaml_write, log_config_write
 
     require_readable_config_before_write(config_path)
     atomic_yaml_write(config_path, data, **kwargs)
+    log_config_write("write", str(config_path))
 
 
 def load_config() -> Dict[str, Any]:
@@ -7254,7 +7255,7 @@ def save_config(
                     f"(managed by your administrator): {', '.join(sorted(_stripped))}",
                     file=sys.stderr,
                 )
-        from utils import atomic_yaml_write
+        from utils import atomic_yaml_write, log_config_write
 
         ensure_hermes_home()
         config_path = get_config_path()
@@ -7325,6 +7326,7 @@ def save_config(
             extra_content="".join(parts) if parts else None,
         )
         _secure_file(config_path)
+        log_config_write("write", str(config_path))
         _RAW_CONFIG_CACHE.pop(str(config_path), None)
         _LAST_EXPANDED_CONFIG_BY_PATH[str(config_path)] = copy.deepcopy(current_normalized)
 
@@ -8300,7 +8302,7 @@ def set_config_value(key: str, value: str):
         print("  (note: 'api_base' is an alias — saved as model.base_url)")
     # Write only user config back (not the full merged defaults)
     ensure_hermes_home()
-    from utils import atomic_yaml_write
+    from utils import atomic_yaml_write, log_config_write
     atomic_yaml_write(config_path, user_config, sort_keys=False)
     
     # Keep .env in sync for keys that terminal_tool reads directly from env vars.
@@ -8319,6 +8321,7 @@ def set_config_value(key: str, value: str):
         _display_value = mask_secret(value)
     else:
         _display_value = value
+    log_config_write("set", key, _display_value)
     print(f"✓ Set {key} = {_display_value} in {config_path}")
 
 

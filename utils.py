@@ -293,49 +293,18 @@ def atomic_yaml_write(
         raise
 
 
-def atomic_roundtrip_yaml_update(
-    path: Union[str, Path],
-    key_path: str,
-    value: Any,
-) -> None:
-    """Update one dotted YAML key while preserving comments and readable text.
-
-    This is intentionally narrower than :func:`atomic_yaml_write`: it is for
-    user-edited config files where comments, ordering, quoting, and Unicode
-    should survive a single setting mutation.  Writes still use the same temp
-    file + fsync + atomic replace pattern.
-    """
+def _roundtrip_yaml_loader():
     from ruamel.yaml import YAML
-    from ruamel.yaml.comments import CommentedMap
-
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
 
     yaml_rt = YAML(typ="rt")
     yaml_rt.preserve_quotes = True
     yaml_rt.allow_unicode = True
     yaml_rt.default_flow_style = False
     yaml_rt.indent(mapping=2, sequence=4, offset=2)
+    return yaml_rt
 
-    if path.exists():
-        with path.open("r", encoding="utf-8") as f:
-            config = yaml_rt.load(f) or CommentedMap()
-    else:
-        config = CommentedMap()
 
-    if not isinstance(config, CommentedMap):
-        config = CommentedMap(config)
-
-    current = config
-    keys = key_path.split(".")
-    for key in keys[:-1]:
-        next_value = current.get(key)
-        if not isinstance(next_value, CommentedMap):
-            next_value = CommentedMap()
-            current[key] = next_value
-        current = next_value
-    current[keys[-1]] = value
-
+def _atomic_roundtrip_yaml_dump(path: Path, yaml_rt, config) -> None:
     original_mode = _preserve_file_mode(path)
     original_owner = _preserve_file_owner(path)
     fd, tmp_path = tempfile.mkstemp(
@@ -358,6 +327,113 @@ def atomic_roundtrip_yaml_update(
         except OSError:
             pass
         raise
+
+
+def atomic_roundtrip_yaml_update(
+    path: Union[str, Path],
+    key_path: str,
+    value: Any,
+) -> None:
+    """Update one dotted YAML key while preserving comments and readable text.
+
+    This is intentionally narrower than :func:`atomic_yaml_write`: it is for
+    user-edited config files where comments, ordering, quoting, and Unicode
+    should survive a single setting mutation.  Writes still use the same temp
+    file + fsync + atomic replace pattern.
+    """
+    from ruamel.yaml.comments import CommentedMap
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    yaml_rt = _roundtrip_yaml_loader()
+
+    if path.exists():
+        with path.open("r", encoding="utf-8") as f:
+            config = yaml_rt.load(f) or CommentedMap()
+    else:
+        config = CommentedMap()
+
+    if not isinstance(config, CommentedMap):
+        config = CommentedMap(config)
+
+    current = config
+    keys = key_path.split(".")
+    for key in keys[:-1]:
+        next_value = current.get(key)
+        if not isinstance(next_value, CommentedMap):
+            next_value = CommentedMap()
+            current[key] = next_value
+        current = next_value
+    current[keys[-1]] = value
+
+    _atomic_roundtrip_yaml_dump(path, yaml_rt, config)
+
+
+def atomic_roundtrip_yaml_delete(
+    path: Union[str, Path],
+    key_path: str,
+) -> bool:
+    """Delete one dotted YAML key, preserving comments/ordering like
+    :func:`atomic_roundtrip_yaml_update`.
+
+    Returns True when the key existed and was removed.  A missing key (or a
+    missing file) is a no-op that leaves the file untouched.
+    """
+    from ruamel.yaml.comments import CommentedMap
+
+    path = Path(path)
+    if not path.exists():
+        return False
+
+    yaml_rt = _roundtrip_yaml_loader()
+    with path.open("r", encoding="utf-8") as f:
+        config = yaml_rt.load(f)
+    if not isinstance(config, CommentedMap):
+        return False
+
+    current = config
+    keys = key_path.split(".")
+    for key in keys[:-1]:
+        current = current.get(key)
+        if not isinstance(current, CommentedMap):
+            return False
+    if keys[-1] not in current:
+        return False
+    del current[keys[-1]]
+
+    _atomic_roundtrip_yaml_dump(path, yaml_rt, config)
+    return True
+
+
+def log_config_write(verb: str, key_path: str, value: Any = None) -> None:
+    """Trace every config.yaml mutation so unexplained drift has an author.
+
+    Call directly from the write function (save_config_value, save_config,
+    atomic_config_write, ...): the caller attribution walks two frames up.
+    Low-frequency path (user-driven config writes only), so the frame walk is
+    fine.  Secret redaction for the value is handled downstream by
+    hermes_logging's RedactingFormatter.
+    """
+    try:
+        import inspect
+
+        frame = inspect.currentframe()
+        caller = frame.f_back.f_back if frame and frame.f_back else None
+        origin = (
+            f"{Path(caller.f_code.co_filename).name}:{caller.f_lineno}"
+            if caller is not None
+            else "unknown"
+        )
+        if verb == "set":
+            text = str(value)
+            if len(text) > 120:
+                text = text[:117] + "..."
+            logger.info("config %s %s = %s (from %s)", verb, key_path, text, origin)
+        else:
+            logger.info("config %s %s (from %s)", verb, key_path, origin)
+    except Exception:
+        pass
 
 
 # ─── JSON Helpers ─────────────────────────────────────────────────────────────

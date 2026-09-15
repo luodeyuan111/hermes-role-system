@@ -60,12 +60,25 @@ def _expected_hosts_for_provider(provider_id: str) -> set:
 
     Z.AI is special: four named endpoints (metered/Coding Plan × global/CN)
     are ALL legitimate homes for a ``zai`` model entry, so a base URL on any
-    of them is coherent with ``provider: zai``.
+    of them is coherent with ``provider: zai``.  Kimi is dual-endpoint the
+    same way: ``api.kimi.com/coding`` (Coding Plan, Anthropic Messages API)
+    and ``api.moonshot.ai/v1`` are both legitimate for ``kimi-coding``.
     """
     hosts = set()
     try:
-        from hermes_cli.auth import PROVIDER_REGISTRY
+        from hermes_cli.auth import PROVIDER_REGISTRY, resolve_provider
 
+        # config.yaml often carries aliases the registry doesn't key on
+        # ("kimi" -> "kimi-coding", "glm" -> "zai", ...) — normalize before
+        # lookup.  Never run the full resolver on "auto": that path probes
+        # env/auth state, which a static audit must not do.
+        if provider_id not in PROVIDER_REGISTRY and provider_id not in (
+            "auto", "custom", "moa",
+        ):
+            try:
+                provider_id = resolve_provider(provider_id)
+            except Exception:
+                pass
         pconfig = PROVIDER_REGISTRY.get(provider_id)
         if pconfig is not None:
             host = _host(getattr(pconfig, "inference_base_url", ""))
@@ -73,6 +86,15 @@ def _expected_hosts_for_provider(provider_id: str) -> set:
                 hosts.add(host)
     except Exception:
         pass
+    if provider_id == "kimi-coding":
+        try:
+            from hermes_cli.auth import KIMI_CODE_BASE_URL
+
+            host = _host(KIMI_CODE_BASE_URL)
+            if host:
+                hosts.add(host)
+        except Exception:
+            pass
     if provider_id == "zai":
         try:
             from hermes_cli.auth import ZAI_ENDPOINT_BY_ID
@@ -231,9 +253,20 @@ def _audit_overlay_env(
     if not provider or not base_url:
         return
     try:
-        from hermes_cli.auth import PROVIDER_REGISTRY
+        from hermes_cli.auth import PROVIDER_REGISTRY, resolve_provider
 
-        pconfig = PROVIDER_REGISTRY.get(provider)
+        # Same alias normalization as _expected_hosts_for_provider — config
+        # files carry aliases ("kimi", "glm") the registry doesn't key on;
+        # without it the overlay check silently no-ops for those profiles.
+        lookup = provider.strip().lower()
+        if lookup not in PROVIDER_REGISTRY and lookup not in (
+            "auto", "custom", "moa",
+        ):
+            try:
+                lookup = resolve_provider(lookup)
+            except Exception:
+                pass
+        pconfig = PROVIDER_REGISTRY.get(lookup)
         overlay_var = getattr(pconfig, "base_url_env_var", None) if pconfig else None
     except Exception:
         overlay_var = None
@@ -288,6 +321,18 @@ def audit_provider_config(
             f"silent; channel-side notices announce it (R5.4).",
         ))
         _audit_model_routing("fallback_model", fallback, findings)
+        main_provider = str(model_cfg.get("provider") or "").strip().lower()
+        main_model = str(model_cfg.get("default") or "").strip().lower()
+        fb_provider = str(fallback.get("provider") or "").strip().lower()
+        fb_model = str(fallback.get("model") or "").strip().lower()
+        if fb_model and fb_model == main_model and fb_provider == main_provider:
+            findings.append(Finding(
+                "warn",
+                f"fallback_model is identical to the primary model "
+                f"({fb_provider}/{fb_model}) — a primary failure degrades to "
+                f"the same model, so there is effectively no fallback.",
+                fix="Point fallback_model at a different provider/model, or remove it.",
+            ))
     else:
         findings.append(Finding(
             "ok",
