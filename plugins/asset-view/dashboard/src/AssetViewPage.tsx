@@ -4,7 +4,7 @@
  * 一页看全当前 profile 的资产：
  *   ① toolsets 启停清单
  *   ② MCP servers
- *   ③ skills 概况（whitelist offer 面 + 本地/共享池归属）
+ *   ③ skills 概况（能力画像 capability.yaml + whitelist offer 面 + 本地/共享池归属）
  *   ④ cron 列表（跟随选中 profile）
  *   ⑤ workflow 区块：cron + scripts/tools 自建脚本结合展示
  *     （fetch_arxiv.py 范式：script + cron + 输出目录；cron 与脚本同为
@@ -27,6 +27,7 @@ import {
   fetchSkills,
   fetchToolsets,
   type AssetRequestInfo,
+  type CapabilityProfile,
   type CronJobInfo,
   type McpServerInfo,
   type ProfileInfo,
@@ -76,6 +77,26 @@ function Badge(props: { on: boolean; onText: string; offText: string }) {
 
 function EmptyHint(props: { text: string }) {
   return <p className="text-xs text-text-tertiary">{props.text}</p>;
+}
+
+/** 能力画像（capability.yaml，O1）轻量展示：字段全部可选，只渲染存在的。 */
+function CapabilityBlock(props: { capability: CapabilityProfile }) {
+  const cap = props.capability;
+  return (
+    <div className="rounded border border-midground/15 px-3 py-2">
+      <p className="mb-1 text-xs font-medium text-text-secondary">能力画像（capability.yaml）</p>
+      {cap.mission && <p className="mb-1 text-sm text-text-primary">{cap.mission}</p>}
+      {cap.good_at && cap.good_at.length > 0 && (
+        <p className="text-xs text-text-secondary">擅长：{cap.good_at.join("；")}</p>
+      )}
+      {cap.not_for && cap.not_for.length > 0 && (
+        <p className="text-xs text-text-secondary">别派：{cap.not_for.join("；")}</p>
+      )}
+      {cap.io && <p className="text-xs text-text-secondary">输入→输出：{cap.io}</p>}
+      {cap.tools_note && <p className="text-xs text-text-secondary">工具面：{cap.tools_note}</p>}
+      {cap.cost_hint && <p className="text-xs text-text-tertiary">成本：{cap.cost_hint}</p>}
+    </div>
+  );
 }
 
 /** cron job 是否引用了某个脚本（workflow 关联：script 字段命中脚本文件名）。 */
@@ -265,12 +286,15 @@ export default function AssetViewPage() {
             )}
           </Section>
 
-          {/* ③ Skills 概况：whitelist 名单（归属标注）+ 本地池 + 共享池引用数 */}
+          {/* ③ Skills 概况：能力画像 + whitelist 名单（归属标注）+ 本地池 + 共享池引用数 */}
           <Section title="Skills" count={effectiveSkillCount}>
             {!data.skillOverview ? (
               <EmptyHint text="skill 概况加载失败（其余区块不受影响）" />
             ) : (
               <div className="space-y-2">
+                {data.skillOverview.capability && (
+                  <CapabilityBlock capability={data.skillOverview.capability} />
+                )}
                 {data.skillOverview.whitelist_exists ? (
                   <div>
                     <p className="mb-1 text-xs text-text-secondary">

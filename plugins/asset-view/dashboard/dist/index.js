@@ -127,6 +127,33 @@
   function EmptyHint(props) {
     return /* @__PURE__ */ jsx("p", { className: "text-xs text-text-tertiary", children: props.text });
   }
+  function CapabilityBlock(props) {
+    const cap = props.capability;
+    return /* @__PURE__ */ jsxs("div", { className: "rounded border border-midground/15 px-3 py-2", children: [
+      /* @__PURE__ */ jsx("p", { className: "mb-1 text-xs font-medium text-text-secondary", children: "\u80FD\u529B\u753B\u50CF\uFF08capability.yaml\uFF09" }),
+      cap.mission && /* @__PURE__ */ jsx("p", { className: "mb-1 text-sm text-text-primary", children: cap.mission }),
+      cap.good_at && cap.good_at.length > 0 && /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-secondary", children: [
+        "\u64C5\u957F\uFF1A",
+        cap.good_at.join("\uFF1B")
+      ] }),
+      cap.not_for && cap.not_for.length > 0 && /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-secondary", children: [
+        "\u522B\u6D3E\uFF1A",
+        cap.not_for.join("\uFF1B")
+      ] }),
+      cap.io && /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-secondary", children: [
+        "\u8F93\u5165\u2192\u8F93\u51FA\uFF1A",
+        cap.io
+      ] }),
+      cap.tools_note && /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-secondary", children: [
+        "\u5DE5\u5177\u9762\uFF1A",
+        cap.tools_note
+      ] }),
+      cap.cost_hint && /* @__PURE__ */ jsxs("p", { className: "text-xs text-text-tertiary", children: [
+        "\u6210\u672C\uFF1A",
+        cap.cost_hint
+      ] })
+    ] });
+  }
   function jobUsesScript(job, script) {
     const ref = `${job.script ?? ""} ${job.prompt ?? ""}`;
     return ref.includes(script.filename) || ref.includes(script.path);
@@ -253,6 +280,7 @@
           /* @__PURE__ */ jsx("span", { className: "truncate text-xs text-text-tertiary", children: s.url || s.command || "" })
         ] }, s.name)) }) }),
         /* @__PURE__ */ jsx(Section, { title: "Skills", count: effectiveSkillCount, children: !data.skillOverview ? /* @__PURE__ */ jsx(EmptyHint, { text: "skill \u6982\u51B5\u52A0\u8F7D\u5931\u8D25\uFF08\u5176\u4F59\u533A\u5757\u4E0D\u53D7\u5F71\u54CD\uFF09" }) : /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          data.skillOverview.capability && /* @__PURE__ */ jsx(CapabilityBlock, { capability: data.skillOverview.capability }),
           data.skillOverview.whitelist_exists ? /* @__PURE__ */ jsxs("div", { children: [
             /* @__PURE__ */ jsxs("p", { className: "mb-1 text-xs text-text-secondary", children: [
               "skills.whitelist\uFF08",

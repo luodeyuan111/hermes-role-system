@@ -61,6 +61,16 @@ export interface SkillWhitelistEntry {
   origin: "local" | "shared" | "unmatched";
 }
 
+/** 角色能力画像（capability.yaml，hermes-orchestration O1）。字段全部可选，缺省即不适用。 */
+export interface CapabilityProfile {
+  mission?: string;
+  good_at?: string[];
+  not_for?: string[];
+  io?: string;
+  tools_note?: string;
+  cost_hint?: string;
+}
+
 /** 本插件 /skills 端点的 profile skill 概况。 */
 export interface SkillOverview {
   profile: string;
@@ -70,6 +80,8 @@ export interface SkillOverview {
   local_pool: { name: string; description: string }[];
   shared_refs: number;
   shared_pool_size: number;
+  /** 能力画像；文件不存在/解析失败为 null。 */
+  capability: CapabilityProfile | null;
 }
 
 export interface ProfileInfo {

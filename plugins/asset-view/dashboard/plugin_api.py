@@ -8,7 +8,8 @@ MCP / cron data comes from the host's own ``/api/tools/toolsets``,
 ``/api/mcp/servers`` and ``/api/cron/jobs`` endpoints; this module only adds
 the pieces the host does not already expose — the ``scripts/tools/``
 self-built script inventory (R2.2/R2.4, 展示不管理), the per-profile skill
-概况 (``GET /skills``: whitelist 名单归属 + 本地/共享池计数) and the
+概况 (``GET /skills``: whitelist 名单归属 + 本地/共享池计数 + 能力画像
+capability.yaml) and the
 角色资产申请单列表 (R1.3, ``GET /requests``, 审批仍走 CLI `hermes request`).
 """
 
@@ -131,6 +132,24 @@ def list_asset_requests(status: Optional[str] = None) -> Dict[str, Any]:
     return {"requests": entries}
 
 
+def _read_capability(home: Path) -> Optional[Dict[str, Any]]:
+    """角色能力画像（``capability.yaml``，hermes-orchestration O1）。
+
+    字段全部可选（mission/good_at/not_for/io/tools_note/cost_hint）。
+    文件不存在、解析失败或顶层不是 mapping 一律返回 None，绝不拖垮端点。
+    """
+    path = home / "capability.yaml"
+    if not path.is_file():
+        return None
+    try:
+        import yaml
+
+        data = yaml.safe_load(path.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
 def _parse_whitelist_names(text: str) -> List[str]:
     """skills.whitelist 的名单行：忽略空行/# 注释与畸形行（含空白或路径
     分隔符的行 core 的 get_skill_whitelist 也会跳过），去重并保持文件顺序。"""
@@ -160,6 +179,7 @@ def skill_overview(profile: Optional[str] = None) -> Dict[str, Any]:
     - ``local_pool``：profile 家 skills/ 下的本地 skill（名称 + 一行描述）。
     - ``shared_refs`` / ``shared_pool_size``：whitelist 里命中共享池的条数
       与共享池总量（default profile 自己就是共享池，两者恒为 0）。
+    - ``capability``：能力画像（capability.yaml，O1）；不存在/解析失败为 None。
     """
     from hermes_cli import profiles as profiles_mod
     from hermes_cli.skills_pool import _match_names, _scan_skills
@@ -214,4 +234,5 @@ def skill_overview(profile: Optional[str] = None) -> Dict[str, Any]:
         ],
         "shared_refs": sum(1 for w in whitelist if w["origin"] == "shared"),
         "shared_pool_size": len(shared_records),
+        "capability": _read_capability(home),
     }
