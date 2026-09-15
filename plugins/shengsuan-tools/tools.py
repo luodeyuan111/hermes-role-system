@@ -166,9 +166,8 @@ VISION_ANALYZE_SS_SCHEMA = {
 IMAGE_GENERATE_SS_SCHEMA = {
     "name": "image_generate_ss",
     "description": (
-        "Generate an image via ShengsuanYun (scripts/tools/generate.py): "
-        "model 'doubao' = bytedance/doubao-seedream-4.0, 'image2' = "
-        "openai/gpt-image-2. Returns the generated image URL/path."
+        "Generate an image via ShengsuanYun (scripts/tools/generate.py) "
+        "using openai/gpt-image-2. Returns the generated image URL/path."
     ),
     "parameters": {
         "type": "object",
@@ -177,14 +176,9 @@ IMAGE_GENERATE_SS_SCHEMA = {
                 "type": "string",
                 "description": "Text prompt describing the image to generate.",
             },
-            "model": {
-                "type": "string",
-                "enum": ["doubao", "image2"],
-                "description": "Backend model route (default: doubao).",
-            },
             "size": {
                 "type": "string",
-                "description": "Image size, e.g. '1024x1024' (default per model).",
+                "description": "Image size, e.g. '1024x1024' (default: auto).",
             },
         },
         "required": ["prompt"],
@@ -207,8 +201,10 @@ def _handle_image_generate_ss(args: dict, **kw: Any) -> str:
     prompt = str(args.get("prompt") or "").strip()
     if not prompt:
         return tool_error("prompt is required")
-    model = str(args.get("model") or "doubao").strip()
-    argv = ["--model", model, prompt]
+    model = str(args.get("model") or "image2").strip()
+    if model != "image2":
+        return tool_error(f"不支持的 model: {model}。豆包通路已于 2026-09-11 下线，仅剩 image2。")
+    argv = [prompt]
     size = str(args.get("size") or "").strip()
     if size:
         argv.append(size)
