@@ -493,9 +493,10 @@ def get_cross_profile_warning(path: str) -> Optional[str]:
         f"``cross_profile=True``. (Defense-in-depth — not a security "
         f"boundary; the terminal tool can still bypass.) "
         f"如需修改底座资产（default profile 的 skills/plugins/cron/memories/scripts）："
-        f"在会话内向用户说明需求并请求审批（cross_profile=True 需用户明确授权），"
-        f"或通过 `hermes request create --kind <skill|tool|mcp|other> --title \"...\"` "
-        f"提交资产申请单走审批流程（`hermes request list` 查看进度）。"
+        f"洛在当前对话中明确同意后带 cross_profile=True 重试即可就地生效"
+        f"（skill 类改动优先走 skill_manage(user_approved=true)，"
+        f"写后自动跑跨角色完整性检查）；tool/mcp 安装等非本会话事项仍走 "
+        f"`hermes request create --kind <skill|tool|mcp|other> --title \"...\"` 申请单。"
     )
 
 

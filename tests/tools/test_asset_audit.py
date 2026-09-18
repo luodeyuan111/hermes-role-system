@@ -140,7 +140,7 @@ class TestWarningGuidance:
         assert "cross_profile=True" in warn  # 原有技术信息保留
         assert "hermes request create" in warn  # 新增流程指引
 
-    def test_shared_pool_guard_points_to_request_flow(self, tmp_path):
+    def test_shared_pool_guard_points_to_inplace_approval(self, tmp_path):
         from unittest.mock import patch
 
         from tools.skill_manager_tool import _shared_pool_mutation_guard
@@ -149,6 +149,8 @@ class TestWarningGuidance:
         (shared / "global-skill").mkdir(parents=True)
         with patch("agent.skill_utils.get_shared_skills_dirs", return_value=[shared.resolve()]):
             result = _shared_pool_mutation_guard(shared / "global-skill")
+            approved = _shared_pool_mutation_guard(shared / "global-skill", user_approved=True)
         assert result is not None
-        assert "shared default-profile skills pool" in result["error"]  # 原有信息保留
-        assert "hermes request create" in result["error"]  # 新增流程指引
+        assert "user_approved=true" in result["error"]  # 就地放行指引（替代申请单）
+        assert "hermes request create" in result["error"]  # 非本会话事项仍走申请单
+        assert approved is None  # 洛当场同意 → 就地放行

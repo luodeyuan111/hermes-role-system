@@ -169,17 +169,18 @@ def _skills_dir() -> Path:
 
 
 def _create_staging_enabled() -> bool:
-    """Return whether new skills should be quarantined under ``staging/``.
+    """Return whether autonomously-created skills are quarantined under ``staging/``.
 
     Reads ``skills.create_staging`` from the active profile's config.yaml
-    (default False — creates land directly in the skills pool). When on,
-    ``skill_manage(action='create')`` writes to ``<skills>/staging/<name>/``
-    instead of a category directory; ``staging/`` is an excluded discovery
-    root (``agent.skill_utils.EXCLUDED_SKILL_DIRS``), so the skill is
+    (default False). The quarantine only applies to **non-proactive** creates
+    — the background self-improvement review fork (洛 2026-09-18：非主动的
+    才走隔离机制）。Foreground creates are user-directed (the schema requires
+    confirming with the user first) and land directly in the pool; the
+    post-write integrity check + asset audit trail provide the after-the-fact
+    governance instead. ``staging/`` is an excluded discovery root
+    (``agent.skill_utils.EXCLUDED_SKILL_DIRS``), so a staged skill is
     invisible to the offer index, ``skills_list`` and ``skill_view`` until a
-    curator promotes it. Per-profile switch: the governance mode enables it
-    on the default profile (QQ channel) while skill-authoring profiles
-    (skillsmith) keep it off.
+    curator promotes it.
     """
     try:
         from hermes_cli.config import load_config, cfg_get
@@ -835,15 +836,26 @@ def _atomic_write_text(file_path: Path, content: str, encoding: str = "utf-8") -
 # Core actions
 # =============================================================================
 
-def _shared_pool_mutation_guard(skill_dir: Path) -> Optional[Dict[str, Any]]:
-    """Refuse skill_manage mutations that land in the shared default-home pool.
+def _shared_pool_mutation_guard(
+    skill_dir: Path,
+    user_approved: bool = False,
+) -> Optional[Dict[str, Any]]:
+    """Gate skill_manage mutations that land in the shared default-home pool.
 
-    Named profiles scan the default home's ``skills/`` as a read-only,
-    by-reference fallback pool (``agent.skill_utils.get_shared_skills_dirs``).
-    Editing or deleting one of those skills from a profile session would
-    silently mutate every other profile's pool — the same bug class the
-    cross-profile write guard covers.  Returns an error dict to refuse,
-    ``None`` when the target is not in the shared pool.
+    Named profiles scan the default home's ``skills/`` as a by-reference
+    fallback pool (``agent.skill_utils.get_shared_skills_dirs``), so a write
+    from a profile session silently mutates every other profile's pool.
+    Policy (洛 2026-09-18，「事前少审批、事后必校验」):
+
+    - **后台复盘 fork（无人在场）**：一律只读。不引导提申请单——自主 fork
+      照报错文案批量提单曾是申请单噪音来源；改进落本角色同名覆盖，或写进
+      复盘摘要交给洛。
+    - **前台且洛在当前对话中明确同意**（``user_approved=True``）：就地放行，
+      写后由 skill_manage 成功分支自动跑跨角色完整性检查——不切换角色、
+      不新开会话、不走申请单。
+    - 其余情况：拒绝并指引上述两条正路。
+
+    Returns an error dict to refuse, ``None`` when the write may proceed.
     """
     try:
         from agent.skill_utils import is_shared_skills_path
@@ -852,16 +864,37 @@ def _shared_pool_mutation_guard(skill_dir: Path) -> Optional[Dict[str, Any]]:
             return None
     except Exception:
         return None
+
+    try:
+        from tools.skill_provenance import is_background_review
+
+        if is_background_review():
+            return {
+                "success": False,
+                "error": (
+                    f"'{skill_dir}' 在共享池（default 底座 skills/）里，后台复盘"
+                    "对共享池只读——无人在场确认，自主维护不得改动所有角色共享的"
+                    "资产（user_approved 对复盘无效）。改进落点：本角色自建同名"
+                    "覆盖 skill 承载你的版本；或把建议写进本次复盘摘要交给洛。"
+                    "不要为此创建 hermes request 申请单。"
+                ),
+            }
+    except Exception:
+        pass
+
+    if user_approved:
+        return None
+
     return {
         "success": False,
         "error": (
-            f"'{skill_dir}' lives in the shared default-profile skills pool, "
-            "which is read-only from a named profile. Switch to the default "
-            "profile to modify it, or create a same-named local override in "
-            "this profile instead. "
-            "如需修改底座资产：在会话内向用户说明需求并请求审批，"
-            "或通过 `hermes request create --kind skill --title \"...\"` "
-            "提交资产申请单走审批流程（`hermes request list` 查看进度）。"
+            f"'{skill_dir}' 在共享池（default 底座 skills/）里，命名角色默认只读。\n"
+            "洛在当前对话中明确要求或已同意本次修改 → 带 user_approved=true 重试，"
+            "就地生效；写后系统自动跑跨角色完整性检查（各角色白名单/cron 引用"
+            "是否仍可解析）并随结果返回。不需要切换角色、不需要新开会话、"
+            "不需要申请单。\n"
+            "无法当场取得同意 → 建本角色同名本地覆盖 skill 承载你的版本。\n"
+            "tool/mcp 安装等非本会话事项 → `hermes request create` 申请单。"
         ),
     }
 
@@ -899,10 +932,19 @@ def _create_skill(name: str, content: str, category: str = None) -> Dict[str, An
                 "error": f"A skill named '{name}' already exists at {existing['path']}."
             }
 
-    # Governance quarantine: with skills.create_staging on, new skills land
-    # flat under staging/ (an excluded discovery root) and stay invisible to
-    # the agent until a curator promotes them into a category directory.
-    staged = _create_staging_enabled()
+    # Governance quarantine: with skills.create_staging on, skills created by
+    # the autonomous background-review fork land flat under staging/ (an
+    # excluded discovery root) and stay invisible until a curator promotes
+    # them. Foreground (user-directed) creates bypass the quarantine — the
+    # user is present to consent, and the post-write integrity check +
+    # asset audit trail cover the after-the-fact governance.
+    try:
+        from tools.skill_provenance import is_background_review as _is_bg_review
+
+        _autonomous = _is_bg_review()
+    except Exception:
+        _autonomous = False
+    staged = _create_staging_enabled() and _autonomous
     if staged:
         staged_md = _skills_dir() / "staging" / name / "SKILL.md"
         if staged_md.exists():
@@ -965,7 +1007,7 @@ def _create_skill(name: str, content: str, category: str = None) -> Dict[str, An
     return result
 
 
-def _edit_skill(name: str, content: str) -> Dict[str, Any]:
+def _edit_skill(name: str, content: str, user_approved: bool = False) -> Dict[str, Any]:
     """Replace the SKILL.md of any existing skill (full rewrite)."""
     err = _validate_frontmatter(content)
     if err:
@@ -978,7 +1020,7 @@ def _edit_skill(name: str, content: str) -> Dict[str, Any]:
     existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
-    shared_guard = _shared_pool_mutation_guard(existing["path"])
+    shared_guard = _shared_pool_mutation_guard(existing["path"], user_approved)
     if shared_guard:
         return shared_guard
     guard = _background_review_write_guard(name, existing["path"], "edit")
@@ -1027,6 +1069,7 @@ def _patch_skill(
     new_string: str,
     file_path: str = None,
     replace_all: bool = False,
+    user_approved: bool = False,
 ) -> Dict[str, Any]:
     """Targeted find-and-replace within a skill file.
 
@@ -1043,7 +1086,7 @@ def _patch_skill(
         return {"success": False, "error": _skill_not_found_error(name)}
 
     skill_dir = existing["path"]
-    shared_guard = _shared_pool_mutation_guard(skill_dir)
+    shared_guard = _shared_pool_mutation_guard(skill_dir, user_approved)
     if shared_guard:
         return shared_guard
     guard = _background_review_write_guard(name, skill_dir, "patch")
@@ -1137,7 +1180,11 @@ def _patch_skill(
     return result
 
 
-def _delete_skill(name: str, absorbed_into: Optional[str] = None) -> Dict[str, Any]:
+def _delete_skill(
+    name: str,
+    absorbed_into: Optional[str] = None,
+    user_approved: bool = False,
+) -> Dict[str, Any]:
     """Delete a skill.
 
     ``absorbed_into`` declares intent:
@@ -1152,7 +1199,7 @@ def _delete_skill(name: str, absorbed_into: Optional[str] = None) -> Dict[str, A
     existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name)}
-    shared_guard = _shared_pool_mutation_guard(existing["path"])
+    shared_guard = _shared_pool_mutation_guard(existing["path"], user_approved)
     if shared_guard:
         return shared_guard
     guard = _background_review_write_guard(name, existing["path"], "delete")
@@ -1245,7 +1292,12 @@ def _delete_skill(name: str, absorbed_into: Optional[str] = None) -> Dict[str, A
     }
 
 
-def _write_file(name: str, file_path: str, file_content: str) -> Dict[str, Any]:
+def _write_file(
+    name: str,
+    file_path: str,
+    file_content: str,
+    user_approved: bool = False,
+) -> Dict[str, Any]:
     """Add or overwrite a supporting file within any skill directory."""
     err = _validate_file_path(file_path)
     if err:
@@ -1272,7 +1324,7 @@ def _write_file(name: str, file_path: str, file_content: str) -> Dict[str, Any]:
     existing = _find_skill_or_staged(name)
     if not existing:
         return {"success": False, "error": _skill_not_found_error(name, " Create it first with action='create'.")}
-    shared_guard = _shared_pool_mutation_guard(existing["path"])
+    shared_guard = _shared_pool_mutation_guard(existing["path"], user_approved)
     if shared_guard:
         return shared_guard
     guard = _background_review_write_guard(name, existing["path"], "write_file")
@@ -1310,7 +1362,11 @@ def _write_file(name: str, file_path: str, file_content: str) -> Dict[str, Any]:
     }
 
 
-def _remove_file(name: str, file_path: str) -> Dict[str, Any]:
+def _remove_file(
+    name: str,
+    file_path: str,
+    user_approved: bool = False,
+) -> Dict[str, Any]:
     """Remove a supporting file from any skill directory."""
     err = _validate_file_path(file_path)
     if err:
@@ -1321,7 +1377,7 @@ def _remove_file(name: str, file_path: str) -> Dict[str, Any]:
         return {"success": False, "error": _skill_not_found_error(name)}
 
     skill_dir = existing["path"]
-    shared_guard = _shared_pool_mutation_guard(skill_dir)
+    shared_guard = _shared_pool_mutation_guard(skill_dir, user_approved)
     if shared_guard:
         return shared_guard
     guard = _background_review_write_guard(name, skill_dir, "remove_file")
@@ -1400,7 +1456,10 @@ def _apply_skill_write_gate(action, name, **payload_kwargs):
         return tool_error(decision.message, success=False)
 
     # stage — record the full skill_manage kwargs so approval can replay it.
-    payload = {"action": action, "name": name}
+    # ``_origin`` lets the replay restore the original write origin, keeping
+    # the staging quarantine decision (background-review creates) identical
+    # to what the un-gated call would have done.
+    payload = {"action": action, "name": name, "_origin": wa.current_origin()}
     payload.update({k: v for k, v in payload_kwargs.items() if v is not None})
     gist = wa.skill_gist(
         action, name,
@@ -1420,8 +1479,18 @@ def _apply_skill_write_gate(action, name, **payload_kwargs):
 def apply_skill_pending(payload: Dict[str, Any]) -> str:
     """Replay a staged skill write, bypassing the gate. Returns the tool result
     JSON string. Called by the /skills approve handler.
+
+    The original write origin is restored for the replay so origin-scoped
+    policy (e.g. the staging quarantine for background-review creates) sees
+    the same origin as the un-gated call would have.
     """
+    from tools.skill_provenance import (
+        reset_current_write_origin,
+        set_current_write_origin,
+    )
+
     token = _skill_gate_bypass.set(True)
+    origin_token = set_current_write_origin(payload.get("_origin") or "foreground")
     try:
         return skill_manage(
             action=payload.get("action", ""),
@@ -1434,8 +1503,10 @@ def apply_skill_pending(payload: Dict[str, Any]) -> str:
             new_string=payload.get("new_string"),
             replace_all=payload.get("replace_all", False),
             absorbed_into=payload.get("absorbed_into"),
+            user_approved=payload.get("user_approved", False),
         )
     finally:
+        reset_current_write_origin(origin_token)
         _skill_gate_bypass.reset(token)
 
 
@@ -1450,6 +1521,7 @@ def skill_manage(
     new_string: str = None,
     replace_all: bool = False,
     absorbed_into: str = None,
+    user_approved: bool = False,
 ) -> str:
     """
     Manage user-created skills. Dispatches to the appropriate action handler.
@@ -1469,6 +1541,7 @@ def skill_manage(
         file_path=file_path, file_content=file_content,
         old_string=old_string, new_string=new_string,
         replace_all=replace_all, absorbed_into=absorbed_into,
+        user_approved=user_approved,
     )
     if gate_result is not None:
         return gate_result
@@ -1481,29 +1554,29 @@ def skill_manage(
     elif action == "edit":
         if not content:
             return tool_error("content is required for 'edit'. Provide the full updated SKILL.md text.", success=False)
-        result = _edit_skill(name, content)
+        result = _edit_skill(name, content, user_approved)
 
     elif action == "patch":
         if not old_string:
             return tool_error("old_string is required for 'patch'. Provide the text to find.", success=False)
         if new_string is None:
             return tool_error("new_string is required for 'patch'. Use empty string to delete matched text.", success=False)
-        result = _patch_skill(name, old_string, new_string, file_path, replace_all)
+        result = _patch_skill(name, old_string, new_string, file_path, replace_all, user_approved)
 
     elif action == "delete":
-        result = _delete_skill(name, absorbed_into=absorbed_into)
+        result = _delete_skill(name, absorbed_into=absorbed_into, user_approved=user_approved)
 
     elif action == "write_file":
         if not file_path:
             return tool_error("file_path is required for 'write_file'. Example: 'references/api-guide.md'", success=False)
         if file_content is None:
             return tool_error("file_content is required for 'write_file'.", success=False)
-        result = _write_file(name, file_path, file_content)
+        result = _write_file(name, file_path, file_content, user_approved)
 
     elif action == "remove_file":
         if not file_path:
             return tool_error("file_path is required for 'remove_file'.", success=False)
-        result = _remove_file(name, file_path)
+        result = _remove_file(name, file_path, user_approved)
 
     else:
         result = {"success": False, "error": f"Unknown action '{action}'. Use: create, edit, patch, delete, write_file, remove_file"}
@@ -1553,8 +1626,20 @@ def skill_manage(
                 skill=name,
                 origin=get_current_write_origin(),
                 staged=_skill_gate_bypass.get(),
+                user_approved=bool(user_approved),
                 summary=str(result.get("message") or "")[:200],
             )
+        except Exception:
+            pass
+        # 事后完整性自检（洛 2026-09-18 拍板：事前少审批、事后必校验）——
+        # 每次成功写入后检查各角色白名单/cron 对该 skill 的引用是否仍可
+        # 解析，结果随工具返回（"integrity" 键），让模型当场看到影响面并
+        # 就地修复。best-effort，自检失败绝不阻断。
+        try:
+            from tools.skill_integrity import audit_skill_change
+            integrity = audit_skill_change(name, action)
+            if integrity:
+                result["integrity"] = integrity
         except Exception:
             pass
 
@@ -1595,7 +1680,11 @@ SKILL_MANAGE_SCHEMA = {
         "Pinned skills are protected from deletion only — skill_manage(action='delete') "
         "will refuse with a message pointing the user to `hermes curator unpin <name>`. "
         "Patches and edits go through on pinned skills so you can still improve them as "
-        "pitfalls come up; pin only guards against irrecoverable loss."
+        "pitfalls come up; pin only guards against irrecoverable loss.\n\n"
+        "Named profiles: skills in the shared default pool are read-only UNLESS the "
+        "user explicitly approved this change in the current conversation — then "
+        "retry with user_approved=true. The write lands in place and an automatic "
+        "cross-profile integrity check (whitelist/cron references) runs after it."
     ),
     "parameters": {
         "type": "object",
@@ -1674,6 +1763,19 @@ SKILL_MANAGE_SCHEMA = {
                     "rewriting) will have to guess at intent."
                 )
             },
+            "user_approved": {
+                "type": "boolean",
+                "description": (
+                    "Set true ONLY when the user explicitly approved THIS "
+                    "shared-pool modification in the current conversation "
+                    "(named-profile writes to the shared default pool are "
+                    "refused without it). After the write, an automatic "
+                    "cross-profile integrity check runs and its result is "
+                    "returned — fix any dangling references it flags as part "
+                    "of the same approved change. Never set this from an "
+                    "autonomous background review: no user is present there."
+                )
+            },
         },
         "required": ["action", "name"],
     },
@@ -1697,6 +1799,7 @@ registry.register(
         old_string=args.get("old_string"),
         new_string=args.get("new_string"),
         replace_all=args.get("replace_all", False),
-        absorbed_into=args.get("absorbed_into")),
+        absorbed_into=args.get("absorbed_into"),
+        user_approved=args.get("user_approved", False)),
     emoji="📝",
 )

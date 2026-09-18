@@ -86,7 +86,8 @@ def test_same_name_local_create_overrides_shared(profile_env):
 
 def test_shared_pool_visible_but_read_only(profile_env):
     """R1.1 + R3 boundary: shared skills resolve from a named profile
-    (read intact), but mutating them is refused."""
+    (read intact), but mutating them is refused without in-conversation
+    user approval (user_approved=true is the explicit-approval path)."""
     _root, shared, _profile_home = profile_env
     _write_shared_skill(shared, "global-skill")
     smt = _fresh_smt()
@@ -97,4 +98,5 @@ def test_shared_pool_visible_but_read_only(profile_env):
         "patch", "global-skill", old_string="# global-skill", new_string="# hijacked",
     ))
     assert r["success"] is False
-    assert "read-only" in r["error"]
+    assert "只读" in r["error"]
+    assert "user_approved=true" in r["error"]

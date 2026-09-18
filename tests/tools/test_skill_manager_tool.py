@@ -1388,7 +1388,8 @@ class TestSharedPoolMutationGuard:
             _write_skill(shared, "global-skill")
             result = _delete_skill("global-skill")
             assert result["success"] is False
-            assert "shared default-profile skills pool" in result["error"]
+            assert "共享池" in result["error"]
+            assert "user_approved=true" in result["error"]
             assert (shared / "global-skill" / "SKILL.md").exists()
 
     def test_edit_refused_on_shared_pool(self, tmp_path):
@@ -1396,28 +1397,32 @@ class TestSharedPoolMutationGuard:
             _write_skill(shared, "global-skill")
             result = _edit_skill("global-skill", VALID_SKILL_CONTENT)
             assert result["success"] is False
-            assert "shared default-profile skills pool" in result["error"]
+            assert "共享池" in result["error"]
+            assert "user_approved=true" in result["error"]
 
     def test_patch_refused_on_shared_pool(self, tmp_path):
         with _local_and_shared(tmp_path) as (_local, shared):
             _write_skill(shared, "global-skill")
             result = _patch_skill("global-skill", "body", "changed")
             assert result["success"] is False
-            assert "shared default-profile skills pool" in result["error"]
+            assert "共享池" in result["error"]
+            assert "user_approved=true" in result["error"]
 
     def test_write_file_refused_on_shared_pool(self, tmp_path):
         with _local_and_shared(tmp_path) as (_local, shared):
             _write_skill(shared, "global-skill")
             result = _write_file("global-skill", "references/x.md", "data")
             assert result["success"] is False
-            assert "shared default-profile skills pool" in result["error"]
+            assert "共享池" in result["error"]
+            assert "user_approved=true" in result["error"]
 
     def test_remove_file_refused_on_shared_pool(self, tmp_path):
         with _local_and_shared(tmp_path) as (_local, shared):
             _write_skill(shared, "global-skill")
             result = _remove_file("global-skill", "references/x.md")
             assert result["success"] is False
-            assert "shared default-profile skills pool" in result["error"]
+            assert "共享池" in result["error"]
+            assert "user_approved=true" in result["error"]
 
     def test_local_skill_mutation_unaffected(self, tmp_path):
         with _local_and_shared(tmp_path) as (local, _shared):
