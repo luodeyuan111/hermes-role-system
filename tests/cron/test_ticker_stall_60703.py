@@ -45,6 +45,22 @@ except ImportError:  # pragma: no cover - non-POSIX
 pytestmark = pytest.mark.skipif(fcntl is None, reason="flock semantics are POSIX-only")
 
 
+@pytest.fixture(autouse=True)
+def _isolated_cron_store(tmp_path):
+    """Pin the cron store to a tmp home for every test in this module.
+
+    ``cron.jobs`` binds ``CRON_DIR``/``JOBS_FILE`` at import time — before any
+    function-scoped fixture can redirect ``HERMES_HOME`` — and this module
+    exercises the real ``create_job``/``save_jobs``/claim paths. Without an
+    explicit store scope, each suite run writes recurring ``claim job``
+    (``0 7 * * *``) and ``paused job`` entries into the real
+    ``~/.hermes/cron/jobs.json``, where the gateway ticker then fires them
+    daily (user cleaned up such residue on 2026-09-16 and 2026-09-20).
+    """
+    with jobs_mod.use_cron_store(tmp_path):
+        yield
+
+
 def _hold_jobs_flock(path: Path, release: threading.Event, held: threading.Event):
     """Hold an exclusive flock on *path* from a separate fd until released.
 
