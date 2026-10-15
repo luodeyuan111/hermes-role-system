@@ -28,6 +28,8 @@
 
 ## 快速上手
 
+**新机器从零安装（含前端插件与 dashboard）：[docs/install-new-machine.md](docs/install-new-machine.md)** —— clone → `setup-hermes.sh` → 配模型 → `hermes dashboard`，插件随仓库自带、零配置启用。
+
 ```bash
 # 建角色（dashboard 角色列表里点"新建角色"也行）
 hermes profile create coder --no-skills
