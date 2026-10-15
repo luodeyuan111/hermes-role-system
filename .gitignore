@@ -1,7 +1,7 @@
 node_modules/
 __pycache__/
 *.pyc
-hermes_cli/web_dist/
+# web_dist 随仓库发布（开箱即用，clone 即可跑 dashboard）；仅构建方式变更时需同步此注释
 .DS_Store
 cli-config.yaml
 .pytest-cache/
