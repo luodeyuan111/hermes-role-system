@@ -37,6 +37,7 @@ import {
   nowSeconds,
   type ChatMessage,
   type PendingPrompt,
+  type SubagentActivityItem,
   type TodoItem,
 } from "./chat/types";
 
@@ -275,6 +276,19 @@ function systemMessage(text: string): ChatMessage {
   return { id: messageId(), role: "system", text, timestamp: nowSeconds() };
 }
 
+/** Cap on a subagent block's rolling activity feed (SubagentBlock). */
+const SUBAGENT_ACTIVITY_CAP = 60;
+
+function appendSubagentActivity(
+  list: SubagentActivityItem[] | undefined,
+  item: SubagentActivityItem,
+): SubagentActivityItem[] {
+  const next = [...(list ?? []), item];
+  return next.length > SUBAGENT_ACTIVITY_CAP
+    ? next.slice(next.length - SUBAGENT_ACTIVITY_CAP)
+    : next;
+}
+
 /** approval.respond choice → 中文标签（also used for the answered record). */
 const APPROVAL_CHOICE_LABELS: Record<string, string> = {
   once: "允许一次",
@@ -352,6 +366,12 @@ class BubbleChatStore {
   private streamingMsgId: string | null = null;
   /** tool_call_id → rendered tool-card message id. */
   private readonly toolCards = new Map<string, string>();
+  /** subagent_id → rendered subagent-block message id (subagent.* 事件). */
+  private readonly subagentBlocks = new Map<string, string>();
+  /** subagent.thinking 的合帧定时器（逐 delta 高频事件，节流逻辑同
+   *  streamFlushTimer，见 patchSubagentThinking）。 */
+  private subagentFlushTimer: ReturnType<typeof setTimeout> | null = null;
+  private subagentDirty = false;
   /** Streaming delta 合帧：delta 以 20-50/s 到达，逐条 emit 会让订阅方
    *  （页面根组件）同频重渲染，长对话下足以触发 Firefox 的「此网页拖慢了
    *  您的 Firefox」警告。message.delta / reasoning.delta 的文本累积同步
@@ -578,6 +598,38 @@ class BubbleChatStore {
     this.streamDirty = false;
   }
 
+  /** subagent_id → block message id（无 subagent_id 或块不存在 → null）。 */
+  private subagentBlockId(payload: Record<string, unknown>): string | null {
+    const subId =
+      typeof payload.subagent_id === "string" ? payload.subagent_id : "";
+    return subId ? (this.subagentBlocks.get(subId) ?? null) : null;
+  }
+
+  /** subagent.thinking 是逐 delta 的高频事件：只把滚动尾部写进 state，
+   *  订阅通知按 STREAM_FLUSH_MS 合帧（与 streaming 气泡同一个理由）。 */
+  private patchSubagentThinking(id: string, text: string): void {
+    this.state = {
+      ...this.state,
+      messages: this.state.messages.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              subagentThinking: ((m.subagentThinking ?? "") + text).slice(-240),
+            }
+          : m,
+      ),
+    };
+    this.subagentDirty = true;
+    if (!this.subagentFlushTimer) {
+      this.subagentFlushTimer = setTimeout(() => {
+        this.subagentFlushTimer = null;
+        if (!this.subagentDirty) return;
+        this.subagentDirty = false;
+        this.emit({});
+      }, BubbleChatStore.STREAM_FLUSH_MS);
+    }
+  }
+
   /* ---------------------------------------------------------------- */
   /*  Gateway lifecycle (connect once, reconnect on demand)            */
   /* ---------------------------------------------------------------- */
@@ -637,6 +689,7 @@ class BubbleChatStore {
     this.liveSid = null;
     this.streamingMsgId = null;
     this.toolCards.clear();
+    this.subagentBlocks.clear();
     this.emit({
       sessionReady: false,
       loadingHistory: false,
@@ -673,6 +726,7 @@ class BubbleChatStore {
     this.liveSid = null;
     this.streamingMsgId = null;
     this.toolCards.clear();
+    this.subagentBlocks.clear();
     this.emit({
       sessionReady: false,
       generating: false,
@@ -971,6 +1025,139 @@ class BubbleChatStore {
       case "tool.generating": {
         const name = typeof payload.name === "string" ? payload.name : "tool";
         this.emit({ statusText: `正在调用 ${name}…` });
+        break;
+      }
+
+      /* -------- subagent.*：delegate_task 子代理的独立活动块 -------- */
+
+      case "subagent.start": {
+        const subId =
+          typeof payload.subagent_id === "string" ? payload.subagent_id : "";
+        if (!subId) break;
+        const goal =
+          typeof payload.goal === "string" && payload.goal
+            ? payload.goal
+            : typeof payload.text === "string"
+              ? payload.text
+              : "";
+        const id = messageId();
+        this.subagentBlocks.set(subId, id);
+        this.patchMessages((prev) => [
+          ...prev,
+          {
+            id,
+            role: "subagent" as const,
+            text: "",
+            timestamp: nowSeconds(),
+            subagentId: subId,
+            subagentGoal: goal,
+            subagentRunning: true,
+            subagentModel:
+              typeof payload.model === "string" && payload.model
+                ? payload.model
+                : undefined,
+            subagentActivity: [],
+          },
+        ]);
+        break;
+      }
+
+      case "subagent.tool": {
+        const mid = this.subagentBlockId(payload);
+        if (!mid) break;
+        const name =
+          typeof payload.tool_name === "string" && payload.tool_name
+            ? payload.tool_name
+            : "tool";
+        const preview =
+          typeof payload.tool_preview === "string" && payload.tool_preview
+            ? payload.tool_preview
+            : typeof payload.text === "string"
+              ? payload.text
+              : "";
+        const toolCount =
+          typeof payload.tool_count === "number" ? payload.tool_count : undefined;
+        this.patchMessages((prev) =>
+          prev.map((m) =>
+            m.id === mid
+              ? {
+                  ...m,
+                  subagentToolCount: toolCount ?? m.subagentToolCount,
+                  subagentActivity: appendSubagentActivity(m.subagentActivity, {
+                    kind: "tool",
+                    text: preview ? `${name}  ${preview}` : name,
+                    timestamp: nowSeconds(),
+                  }),
+                }
+              : m,
+          ),
+        );
+        break;
+      }
+
+      case "subagent.progress": {
+        const mid = this.subagentBlockId(payload);
+        const text = typeof payload.text === "string" ? payload.text : "";
+        if (!mid || !text) break;
+        this.patchMessages((prev) =>
+          prev.map((m) =>
+            m.id === mid
+              ? {
+                  ...m,
+                  subagentActivity: appendSubagentActivity(m.subagentActivity, {
+                    kind: "progress",
+                    text,
+                    timestamp: nowSeconds(),
+                  }),
+                }
+              : m,
+          ),
+        );
+        break;
+      }
+
+      case "subagent.thinking": {
+        const mid = this.subagentBlockId(payload);
+        const text = typeof payload.text === "string" ? payload.text : "";
+        if (!mid || !text) break;
+        this.patchSubagentThinking(mid, text);
+        break;
+      }
+
+      case "subagent.complete": {
+        const subId =
+          typeof payload.subagent_id === "string" ? payload.subagent_id : "";
+        const mid = this.subagentBlockId(payload);
+        if (!mid) break;
+        if (subId) this.subagentBlocks.delete(subId);
+        const summary =
+          typeof payload.summary === "string" && payload.summary
+            ? payload.summary
+            : typeof payload.text === "string"
+              ? payload.text
+              : "";
+        const status =
+          typeof payload.status === "string" ? payload.status : undefined;
+        const duration =
+          typeof payload.duration_seconds === "number"
+            ? payload.duration_seconds
+            : undefined;
+        const toolCount =
+          typeof payload.tool_count === "number" ? payload.tool_count : undefined;
+        this.patchMessages((prev) =>
+          prev.map((m) =>
+            m.id === mid
+              ? {
+                  ...m,
+                  subagentRunning: false,
+                  subagentStatus: status,
+                  subagentSummary: summary || undefined,
+                  subagentDuration: duration,
+                  subagentToolCount: toolCount ?? m.subagentToolCount,
+                }
+              : m,
+          ),
+        );
         break;
       }
 

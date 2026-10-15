@@ -1,6 +1,26 @@
 import { memo, useMemo, useRef, type ReactNode } from "react";
 
+import katex from "../vendor/katex/katex.mjs";
+
 import { isLocalFileRef } from "./chat/content";
+
+/**
+ * Render TeX to HTML via KaTeX. Never throws — invalid/unclosed input (common
+ * mid-stream) degrades to KaTeX's inline error text or, worst case, the raw
+ * source so the message stays readable.
+ */
+export function renderMath(tex: string, displayMode: boolean): string {
+  try {
+    return katex.renderToString(tex, {
+      displayMode,
+      throwOnError: false,
+      strict: false,
+      output: "html",
+    });
+  } catch {
+    return "";
+  }
+}
 
 /**
  * Lightweight markdown renderer for LLM output.
@@ -69,6 +89,7 @@ type BlockNode =
   | { type: "heading"; level: number; content: string }
   | { type: "hr" }
   | { type: "list"; ordered: boolean; items: string[] }
+  | { type: "math"; content: string }
   | { type: "paragraph"; content: string };
 
 /* ------------------------------------------------------------------ */
@@ -81,7 +102,7 @@ interface BlockSpan {
   start: number;
 }
 
-function parseBlockSpans(text: string): BlockSpan[] {
+export function parseBlockSpans(text: string): BlockSpan[] {
   const lines = text.split("\n");
   // 每行的起始字符偏移（按 +1 计入换行符）。
   const lineStarts = new Array<number>(lines.length);
@@ -111,6 +132,40 @@ function parseBlockSpans(text: string): BlockSpan[] {
       spans.push({
         start,
         node: { type: "code", lang, content: codeLines.join("\n") },
+      });
+      continue;
+    }
+
+    // Display math: $$...$$ or \[...\], single-line or fenced multiline.
+    // Unclosed fence (streaming mid-arrival) collects to EOF and renders
+    // what KaTeX can — the tail block is re-parsed every frame anyway.
+    const mathFence = line.match(/^(\$\$|\\\[)(.*)$/);
+    if (mathFence) {
+      const start = lineStarts[i];
+      const closing = mathFence[1] === "$$" ? "$$" : "\\]";
+      const body: string[] = [];
+      const rest = mathFence[2];
+      i++;
+      const inlineClose = rest.indexOf(closing);
+      if (inlineClose >= 0) {
+        // Single-line form: $$...$$ / \[...\] entirely on the opening line.
+        body.push(rest.slice(0, inlineClose));
+      } else {
+        if (rest.trim() !== "") body.push(rest);
+        while (i < lines.length) {
+          const c = lines[i].indexOf(closing);
+          if (c >= 0) {
+            if (lines[i].slice(0, c).trim() !== "") body.push(lines[i].slice(0, c));
+            i++;
+            break;
+          }
+          body.push(lines[i]);
+          i++;
+        }
+      }
+      spans.push({
+        start,
+        node: { type: "math", content: body.join("\n").trim() },
       });
       continue;
     }
@@ -177,6 +232,7 @@ function parseBlockSpans(text: string): BlockSpan[] {
       !lines[i].match(/^#{1,4}\s/) &&
       !lines[i].match(/^[-*+]\s/) &&
       !lines[i].match(/^\d+[.)]\s/) &&
+      !lines[i].match(/^(\$\$|\\\[)/) &&
       !lines[i].match(/^[-*_]{3,}\s*$/)
     ) {
       paraLines.push(lines[i]);
@@ -310,6 +366,25 @@ const Block = memo(function Block({
         </>
       );
 
+    case "math": {
+      const html = renderMath(block.content, true);
+      return (
+        <>
+          {html ? (
+            <div
+              className="overflow-x-auto py-1"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          ) : (
+            <pre className="bg-secondary/60 border border-border px-3 py-2.5 text-xs font-mono leading-relaxed overflow-x-auto">
+              <code>{block.content}</code>
+            </pre>
+          )}
+          {caret}
+        </>
+      );
+    }
+
     case "list": {
       const Tag = block.ordered ? "ol" : "ul";
       const last = block.items.length - 1;
@@ -355,13 +430,17 @@ type InlineNode =
   | { type: "bold"; content: string }
   | { type: "italic"; content: string }
   | { type: "link"; text: string; href: string }
+  | { type: "math"; content: string; display: boolean }
   | { type: "br" };
 
-function parseInline(text: string): InlineNode[] {
+export function parseInline(text: string): InlineNode[] {
   const nodes: InlineNode[] = [];
-  // Pattern priority: code > link > bold > italic > bare URL > line break
+  // Pattern priority: code > math > link > bold > italic > bare URL > line break.
+  // Math forms: $$..$$ / \[..\] (display), \(..\) / $..$ (inline). The $..$
+  // rule requires non-space around the content and no digit right after the
+  // closing $, so currency ("$5 和 $10") stays plain text.
   const pattern =
-    /(`[^`]+`)|(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(\bhttps?:\/\/[^\s<>)\]]+)|(\n)/g;
+    /(`[^`]+`)|(\$\$[^$]+?\$\$|\\\[[^\n]+?\\\]|\\\([^\n]+?\\\)|\$[^\s$](?:[^$\n]*[^\s$])?\$(?!\d))|(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(\bhttps?:\/\/[^\s<>)\]]+)|(\n)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
@@ -374,18 +453,28 @@ function parseInline(text: string): InlineNode[] {
       // Inline code
       nodes.push({ type: "code", content: match[1].slice(1, -1) });
     } else if (match[2]) {
+      // Math (delimiters stripped by form)
+      const raw = match[2];
+      if (raw.startsWith("$$") || raw.startsWith("\\[")) {
+        nodes.push({ type: "math", content: raw.slice(2, -2), display: true });
+      } else if (raw.startsWith("\\(")) {
+        nodes.push({ type: "math", content: raw.slice(2, -2), display: false });
+      } else {
+        nodes.push({ type: "math", content: raw.slice(1, -1), display: false });
+      }
+    } else if (match[3]) {
       // [text](url) link
-      nodes.push({ type: "link", text: match[3], href: match[4] });
-    } else if (match[5]) {
+      nodes.push({ type: "link", text: match[4], href: match[5] });
+    } else if (match[6]) {
       // **bold**
-      nodes.push({ type: "bold", content: match[6] });
-    } else if (match[7]) {
+      nodes.push({ type: "bold", content: match[7] });
+    } else if (match[8]) {
       // *italic*
-      nodes.push({ type: "italic", content: match[8] });
-    } else if (match[9]) {
-      // Bare URL
-      nodes.push({ type: "link", text: match[9], href: match[9] });
+      nodes.push({ type: "italic", content: match[9] });
     } else if (match[10]) {
+      // Bare URL
+      nodes.push({ type: "link", text: match[10], href: match[10] });
+    } else if (match[11]) {
       // Line break within paragraph
       nodes.push({ type: "br" });
     }
@@ -484,6 +573,28 @@ function InlineContent({
               >
                 {node.text}
               </a>
+            );
+          }
+          case "math": {
+            const html = renderMath(node.content, node.display);
+            if (!html) {
+              return (
+                <code
+                  key={i}
+                  className="bg-secondary/60 px-1.5 py-0.5 text-xs font-mono text-primary/90"
+                >
+                  {node.content}
+                </code>
+              );
+            }
+            return node.display ? (
+              <span
+                key={i}
+                className="block overflow-x-auto py-1"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            ) : (
+              <span key={i} dangerouslySetInnerHTML={{ __html: html }} />
             );
           }
           case "br":

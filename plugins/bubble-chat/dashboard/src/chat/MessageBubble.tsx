@@ -19,6 +19,7 @@ import {
 import { FileChip, useFileOpener } from "./FileChip";
 import { MediaInline } from "./MediaInline";
 import { ReasoningBlock } from "./ReasoningBlock";
+import { SubagentBlock } from "./SubagentBlock";
 import { ToolCard } from "./ToolCard";
 import { formatBubbleTime, type ChatMessage } from "./types";
 import { cn } from "../sdk";
@@ -141,6 +142,11 @@ export const MessageBubble = memo(function MessageBubble({
   // Tool calls render as collapsible cards with args/result/progress.
   if (msg.role === "tool") {
     return <ToolCard msg={msg} />;
+  }
+
+  // Subagent runs render as self-contained blocks with a live activity feed.
+  if (msg.role === "subagent") {
+    return <SubagentBlock msg={msg} />;
   }
 
   const isUser = msg.role === "user";

@@ -10,6 +10,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ArrowDown } from "lucide-react";
 
 import { MessageBubble } from "./MessageBubble";
+import { ToolRunGroup } from "./ToolRunGroup";
 import type { ChatMessage } from "./types";
 import { cn } from "../sdk";
 
@@ -19,6 +20,36 @@ const AT_BOTTOM_THRESHOLD = 80;
 // 渲染窗口：只挂载最近 N 条消息，更早的折叠到顶部「加载更早消息」按钮
 // 后面——长对话全量挂载的 DOM 规模本身就会拖慢每一帧的布局/绘制。
 const RENDER_WINDOW = 50;
+
+/**
+ * Render model: single messages pass through as-is; runs of 2+ consecutive
+ * tool messages collapse into one ToolRunGroup so tool-heavy turns don't
+ * squeeze the reply text out of the viewport.
+ */
+type ListEntry =
+  | { kind: "msg"; msg: ChatMessage }
+  | { kind: "tools"; key: string; msgs: ChatMessage[] };
+
+function groupToolRuns(messages: ChatMessage[]): ListEntry[] {
+  const out: ListEntry[] = [];
+  let run: ChatMessage[] = [];
+  const flush = () => {
+    if (run.length === 0) return;
+    if (run.length === 1) out.push({ kind: "msg", msg: run[0] });
+    else out.push({ kind: "tools", key: run[0].id, msgs: run });
+    run = [];
+  };
+  for (const m of messages) {
+    if (m.role === "tool") {
+      run.push(m);
+    } else {
+      flush();
+      out.push({ kind: "msg", msg: m });
+    }
+  }
+  flush();
+  return out;
+}
 
 export function MessageList({
   messages,
@@ -88,6 +119,7 @@ export function MessageList({
   const hiddenCount = Math.max(0, messages.length - windowSize);
   const visibleMessages =
     hiddenCount > 0 ? messages.slice(hiddenCount) : messages;
+  const entries = useMemo(() => groupToolRuns(visibleMessages), [visibleMessages]);
 
   // 向上扩展窗口前记录滚动锚点，渲染后把视口钉回原先读到的位置，
   // 避免 prepend 的更早消息把当前阅读位置顶跑。
@@ -132,19 +164,26 @@ export function MessageList({
                 </button>
               </div>
             )}
-            {visibleMessages.map((m) => (
-              <MessageBubble
-                key={m.id}
-                msg={m}
-                agentAvatarUrl={agentAvatarUrl}
-                onRetry={
-                  onRetry && (m.role === "user" || m.id === lastAssistantId)
-                    ? onRetry
-                    : undefined
-                }
-                onEdit={onEdit && m.role === "user" ? onEdit : undefined}
-              />
-            ))}
+            {entries.map((entry) =>
+              entry.kind === "tools" ? (
+                <ToolRunGroup key={entry.key} msgs={entry.msgs} />
+              ) : (
+                <MessageBubble
+                  key={entry.msg.id}
+                  msg={entry.msg}
+                  agentAvatarUrl={agentAvatarUrl}
+                  onRetry={
+                    onRetry &&
+                    (entry.msg.role === "user" || entry.msg.id === lastAssistantId)
+                      ? onRetry
+                      : undefined
+                  }
+                  onEdit={
+                    onEdit && entry.msg.role === "user" ? onEdit : undefined
+                  }
+                />
+              ),
+            )}
           </>
         )}
       </div>

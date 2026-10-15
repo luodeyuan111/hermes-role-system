@@ -28,6 +28,7 @@ import {
   MessageSquarePlus,
   PanelLeftClose,
   Pencil,
+  PhoneCall,
   RefreshCw,
   Star,
   Timer,
@@ -108,6 +109,7 @@ const SOURCE_BADGES: Record<string, string> = {
   tui: "⌨️",
   qqbot: "🐧",
   cron: "⏰",
+  call_role: "📞",
 };
 
 function sourceBadge(source: string | null): string | null {
@@ -144,8 +146,8 @@ export function ChatSessionListImpl({
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
-  // Manageable 模式：cron 会话从普通对话里筛出，点「定时」才单独显示。
-  const [showCron, setShowCron] = useState(false);
+  // Manageable 模式：cron / 跨角色调用会话从普通对话里筛出，点对应分区才单独显示。
+  const [tab, setTab] = useState<"chat" | "cron" | "callRole">("chat");
 
   // `profile` is read inside the fetch; it's part of the scope key so a
   // profile switch refetches. The empty-string fallback keeps the dep
@@ -205,9 +207,11 @@ export function ChatSessionListImpl({
         scopeKey,
         "recent",
         manageable
-          ? showCron
+          ? tab === "cron"
             ? { source: "cron" }
-            : { excludeSources: "cron" }
+            : tab === "callRole"
+              ? { source: "call_role" }
+              : { excludeSources: "cron,call_role" }
           : undefined,
       )
       .then((res) => {
@@ -221,7 +225,7 @@ export function ChatSessionListImpl({
       .finally(() => {
         if (reqRef.current === myReq) setLoading(false);
       });
-  }, [scopeKey, manageable, showCron]);
+  }, [scopeKey, manageable, tab]);
 
   useEffect(() => {
     // Dashboard data surfaces fetch from an effect on mount + scope change;
@@ -414,14 +418,18 @@ export function ChatSessionListImpl({
     );
   }, [sessions, favorites]);
 
-  // 搜索走全局 FTS 不带 source 过滤，这里按当前模式过滤：
-  // 平时排除 cron 会话，「定时」模式下只看 cron 会话。
+  // 搜索走全局 FTS 不带 source 过滤，这里按当前分区过滤：
+  // 「对话」排除 cron / 跨角色调用会话，「定时」「调用」分区只看各自来源。
   const visibleSearchResults = useMemo(() => {
     if (!manageable || !searchResults) return searchResults;
     return searchResults.filter((r) =>
-      showCron ? r.source === "cron" : r.source !== "cron",
+      tab === "cron"
+        ? r.source === "cron"
+        : tab === "callRole"
+          ? r.source === "call_role"
+          : r.source !== "cron" && r.source !== "call_role",
     );
-  }, [manageable, searchResults, showCron]);
+  }, [manageable, searchResults, tab]);
 
   const content = useMemo(() => {
     // Search mode (manageable only): results replace the recent list while
@@ -729,24 +737,25 @@ export function ChatSessionListImpl({
         >
           {(
             [
-              { key: false, label: "对话", icon: MessageSquare },
-              { key: true, label: "定时", icon: Timer },
+              { key: "chat", label: "对话", icon: MessageSquare },
+              { key: "cron", label: "定时", icon: Timer },
+              { key: "callRole", label: "调用", icon: PhoneCall },
             ] as const
           ).map(({ key, label, icon: Icon }) => (
             <button
               key={label}
               type="button"
               role="tab"
-              aria-selected={showCron === key}
+              aria-selected={tab === key}
               onClick={() => {
-                if (showCron === key) return;
+                if (tab === key) return;
                 exitSelectMode();
-                setShowCron(key);
+                setTab(key);
               }}
               className={cn(
                 "flex flex-1 cursor-pointer items-center justify-center gap-1 py-1.5",
                 "first:rounded-l-[0.45rem] last:rounded-r-[0.45rem]",
-                showCron === key
+                tab === key
                   ? "bg-primary/10 text-foreground"
                   : "text-text-secondary hover:bg-midground/5 hover:text-foreground",
               )}

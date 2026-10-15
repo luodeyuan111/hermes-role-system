@@ -121,6 +121,26 @@ async function buildCss() {
   console.log(`dist/style.css  ${(css.length / 1024).toFixed(1)} KiB (${candidates.length} candidates)`);
 }
 
+/**
+ * Append the vendored KaTeX stylesheet (raw — its class names are
+ * self-namespaced and the @font-face rules must not be scoped) to
+ * dist/style.css, and copy its fonts next to it so the stylesheet's
+ * relative `fonts/…` URLs resolve under /dashboard-plugins/bubble-chat/dist/.
+ */
+async function buildKatex() {
+  const vendorDir = path.join(dashboardDir, "vendor", "katex");
+  const katexCss = await readFile(path.join(vendorDir, "katex.min.css"), "utf8");
+  const stylePath = path.join(DIST, "style.css");
+  const existing = await readFile(stylePath, "utf8");
+  await writeFile(stylePath, `${existing}\n${katexCss}`, "utf8");
+  const { cp } = await import("node:fs/promises");
+  await cp(path.join(vendorDir, "fonts"), path.join(DIST, "fonts"), {
+    recursive: true,
+  });
+  console.log("dist/style.css  + KaTeX css; dist/fonts/ copied");
+}
+
 await mkdir(DIST, { recursive: true });
 await buildJs();
 await buildCss();
+await buildKatex();

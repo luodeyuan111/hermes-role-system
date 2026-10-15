@@ -5,9 +5,17 @@
  * /api/sessions/{id}/messages) and live gateway events are both normalised
  * into it before they hit the list.
  */
+/** One line in a subagent block's rolling activity feed (SubagentBlock). */
+export interface SubagentActivityItem {
+  kind: "tool" | "progress";
+  text: string;
+  /** Epoch seconds. */
+  timestamp: number;
+}
+
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant" | "system" | "tool";
+  role: "user" | "assistant" | "system" | "tool" | "subagent";
   /** Plain text body — `\x00json:` multimodal content is already decoded. */
   text: string;
   /** Accumulated reasoning/thinking deltas for assistant messages. */
@@ -31,6 +39,23 @@ export interface ChatMessage {
   toolError?: boolean;
   /** Tool card: seconds, from tool.complete `duration_s`. */
   toolDuration?: number;
+  /** Subagent block: delegate_task child identity (subagent.start payload). */
+  subagentId?: string;
+  subagentGoal?: string;
+  subagentModel?: string;
+  /** Subagent block: true until subagent.complete lands. */
+  subagentRunning?: boolean;
+  /** Subagent block: terminal status string from subagent.complete. */
+  subagentStatus?: string;
+  subagentSummary?: string;
+  subagentDuration?: number;
+  subagentToolCount?: number;
+  /** Subagent block: rolling activity feed, capped (tool calls + batched
+   *  progress). Live-only — subagent turns aren't in the parent history. */
+  subagentActivity?: SubagentActivityItem[];
+  /** Subagent block: rolling tail of the child's thinking (subagent.thinking
+   *  is per-delta — kept as one capped string, throttled by the store). */
+  subagentThinking?: string;
   /** History multimodal image refs — `data:` URLs or absolute file paths. */
   images?: string[];
 }

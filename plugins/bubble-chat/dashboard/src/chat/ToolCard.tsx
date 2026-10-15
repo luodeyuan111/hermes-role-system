@@ -35,7 +35,7 @@ function prettyArgs(args: unknown): string {
   }
 }
 
-function formatDuration(seconds: number): string {
+export function formatDuration(seconds: number): string {
   if (seconds < 10) return `${seconds.toFixed(1)}s`;
   if (seconds < 60) return `${Math.round(seconds)}s`;
   const mins = Math.floor(seconds / 60);
@@ -72,7 +72,7 @@ function Truncated({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function ToolCard({ msg }: { msg: ChatMessage }) {
+export function ToolCard({ msg, nested = false }: { msg: ChatMessage; nested?: boolean }) {
   const [open, setOpen] = useState(false);
 
   const argsText = useMemo(() => prettyArgs(msg.toolArgs), [msg.toolArgs]);
@@ -105,8 +105,9 @@ export function ToolCard({ msg }: { msg: ChatMessage }) {
 
   return (
     // ml-10 aligns the card with the assistant bubble text (avatar 2rem +
-    // gap 0.5rem); dropped on narrow screens where space is scarce.
-    <div className="flex justify-start px-2 sm:ml-10">
+    // gap 0.5rem); dropped on narrow screens where space is scarce, and in
+    // nested mode (inside ToolRunGroup) where the group owns the alignment.
+    <div className={cn("flex justify-start", !nested && "px-2 sm:ml-10")}>
       <div
         className={cn(
           "w-full max-w-[75%] overflow-hidden rounded-md sm:max-w-[560px]",
