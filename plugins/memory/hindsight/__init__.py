@@ -513,6 +513,10 @@ def _build_embedded_profile_env(config: dict[str, Any], *, llm_api_key: str | No
             or config.get("llm_api_key")
             or os.environ.get("HINDSIGHT_LLM_API_KEY", "")
         )
+    if not current_key:
+        key_env = str(config.get("llm_api_key_env") or "").strip()
+        if key_env:
+            current_key = os.environ.get(key_env, "")
 
     current_provider = config.get("llm_provider", "")
     current_model = config.get("llm_model", "")
@@ -659,6 +663,7 @@ class HindsightMemoryProvider(MemoryProvider):
         self._timeout = _DEFAULT_TIMEOUT
         self._idle_timeout = _DEFAULT_IDLE_TIMEOUT
         self._prefetch_result = ""
+        self._prefetch_query = ""
         self._prefetch_lock = threading.Lock()
         self._prefetch_thread = None
         # Single-writer model for retain. sync_turn() enqueues; the writer
@@ -980,6 +985,7 @@ class HindsightMemoryProvider(MemoryProvider):
             {"key": "llm_provider", "description": "LLM provider", "default": "openai", "choices": ["openai", "anthropic", "gemini", "groq", "openrouter", "minimax", "ollama", "lmstudio", "openai_compatible"], "when": {"mode": "local_embedded"}},
             {"key": "llm_base_url", "description": "Endpoint URL (e.g. http://192.168.1.10:8080/v1)", "default": "", "when": {"mode": "local_embedded", "llm_provider": "openai_compatible"}},
             {"key": "llm_api_key", "description": "LLM API key (optional for openai_compatible)", "secret": True, "env_var": "HINDSIGHT_LLM_API_KEY", "when": {"mode": "local_embedded"}},
+            {"key": "llm_api_key_env", "description": "Existing environment variable to read the LLM key from (e.g. DEEPSEEK_API_KEY); explicit llm_api_key takes precedence", "default": "", "when": {"mode": "local_embedded"}},
             {"key": "llm_model", "description": "LLM model", "default": "gpt-4o-mini", "default_from": {"field": "llm_provider", "map": _PROVIDER_DEFAULT_MODELS}, "when": {"mode": "local_embedded"}},
             {"key": "bank_id", "description": "Memory bank name (static fallback when bank_id_template is unset)", "default": "hermes"},
             {"key": "bank_id_template", "description": "Optional template to derive bank_id dynamically. Placeholders: {profile}, {workspace}, {platform}, {user}, {session}. Example: hermes-{profile}", "default": ""},
@@ -1464,12 +1470,32 @@ class HindsightMemoryProvider(MemoryProvider):
         )
 
     def prefetch(self, query: str, *, session_id: str = "") -> str:
-        if self._prefetch_thread and self._prefetch_thread.is_alive():
+        if self._memory_mode == "tools" or not self._auto_recall or self._shutting_down.is_set():
+            return ""
+        thread = self._prefetch_thread
+        if thread and thread.is_alive():
             logger.debug("Prefetch: waiting for background thread to complete")
-            self._prefetch_thread.join(timeout=3.0)
+            thread.join(timeout=3.0)
+            if thread.is_alive():
+                return ""
         with self._prefetch_lock:
-            result = self._prefetch_result
-            self._prefetch_result = ""
+            cached_query = self._prefetch_query
+            result = self._prefetch_result if cached_query == query else ""
+            if cached_query == query:
+                self._prefetch_result = ""
+        if cached_query != query:
+            # A new session has no queued result yet, and the next user turn
+            # may differ from the query used for background prefetch. Recall
+            # the actual query rather than injecting stale or no context.
+            self.queue_prefetch(query)
+            thread = self._prefetch_thread
+            if thread and thread.is_alive():
+                thread.join(timeout=3.0)
+                if thread.is_alive():
+                    return ""
+            with self._prefetch_lock:
+                result = self._prefetch_result
+                self._prefetch_result = ""
         if not result:
             logger.debug("Prefetch: no results available")
             return ""
@@ -1494,6 +1520,9 @@ class HindsightMemoryProvider(MemoryProvider):
         # Truncate query to max chars
         if self._recall_max_input_chars and len(query) > self._recall_max_input_chars:
             query = query[:self._recall_max_input_chars]
+        with self._prefetch_lock:
+            self._prefetch_query = query
+            self._prefetch_result = ""
 
         def _run():
             try:
@@ -1886,6 +1915,7 @@ class HindsightMemoryProvider(MemoryProvider):
             self._prefetch_thread.join(timeout=3.0)
         with self._prefetch_lock:
             self._prefetch_result = ""
+            self._prefetch_query = ""
 
         # 3. Now rotate to the new session.
         if parent_session_id:

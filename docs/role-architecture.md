@@ -10,7 +10,8 @@
 |---|---|---|
 | 人格底座 | `<HERMES_HOME>/SOUL.md`（+ AGENTS.md / USER.md） | 所有角色共享（命名 profile 也读根目录这份，不用创建时的副本） |
 | 角色提示词 | `profiles/<角色>/ROLE.md` | 单角色，注入 system prompt stable 层 |
-| 记忆 | `profiles/<角色>/memories/MEMORY.md` | 单角色，互不共享 |
+| 核心记忆 | `profiles/<角色>/memories/MEMORY.md` | 单角色，少量偏好/事实全注入 |
+| 检索记忆 | `profiles/<角色>/hindsight/config.json` + 独立 Hindsight bank | 单角色命名空间，按轮召回 + 主动查询 |
 | 技能 | 见下"技能四层 + 白名单" | 共享池按引用 + 角色白名单裁剪 |
 
 角色 = Hermes 原生 profile（`~/.hermes/profiles/<name>/`，独立 HERMES_HOME），机制零新增，新增的是分层注入与 UI。
@@ -39,6 +40,15 @@
 - **角色私有 skill 落 `profiles/<角色>/skills/`**——`skill_manage create` 在命名 profile 下天然落本地目录，不会漏进共享池根目录；与共享池同名即覆盖（本地赢），这是角色定制全局 skill 的正规途径
 - **memory 只放角色偏好/事实**，不存「skill 资产台账」这类静态清单——清单会腐化且挤占 memory 上限
 - **查资产走实时接口**：`skills_list` / dashboard 资产视图，不查 memory 台账
+
+## 检索记忆（Hindsight，2026-10-16 起 scholar 试点）
+
+记忆分三层：ROLE/SOUL/少量 MEMORY.md 核心全注入；Hindsight 归档记忆按当前查询召回；原始会话继续由 `session_search` 兜底。外部 provider 与内置 MEMORY.md 是**叠加**关系，验收前不删核心记忆。
+
+- 每个角色使用独立 bank（`bank_id_template: hermes-{profile}`）和独立配置 `$HERMES_HOME/hindsight/config.json`，不得默认共享 `hermes` bank。
+- scholar 当前使用独立本地 Hindsight 服务（`local_external`，bank `hermes-scholar`），抽取模型为 DeepSeek V4.1 Flash；重型服务依赖不进 Hermes 主 venv。
+- 动态召回注入当前 user 消息，不改写稳定 system prompt；`llm_api_key_env` 允许只记录已有密钥的环境变量名。
+- cron 默认 `skip_memory=True`，后续 Dreaming 维护任务必须显式调用 Hindsight 接口，不能依赖普通会话自动注入。
 
 ## Tools / Workflow 分角色
 

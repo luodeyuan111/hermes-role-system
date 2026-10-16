@@ -117,8 +117,9 @@ Config file: `~/.hermes/hindsight/config.json`
 | `llm_provider` | `openai` | `openai`, `anthropic`, `gemini`, `groq`, `openrouter`, `minimax`, `ollama`, `lmstudio`, `openai_compatible` |
 | `llm_model` | per-provider | Model name (e.g. `gpt-4o-mini`, `qwen/qwen3.5-9b`) |
 | `llm_base_url` | — | Endpoint URL for `openai_compatible` (e.g. `http://192.168.1.10:8080/v1`) |
+| `llm_api_key_env` | — | Existing environment variable to read the LLM key from (e.g. `DEEPSEEK_API_KEY`). Explicit `llm_api_key` / `HINDSIGHT_LLM_API_KEY` takes precedence. |
 
-The LLM API key is stored in `~/.hermes/.env` as `HINDSIGHT_LLM_API_KEY`.
+The LLM API key is stored in `~/.hermes/.env` as `HINDSIGHT_LLM_API_KEY`. To reuse an existing provider credential without copying it into Hindsight config, set `llm_api_key_env` to its environment variable name instead.
 
 ## Tools
 

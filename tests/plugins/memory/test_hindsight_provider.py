@@ -398,6 +398,39 @@ class TestConfig:
         assert cfg["banks"]["hermes"]["bankId"] == "env-bank"
         assert cfg["banks"]["hermes"]["budget"] == "high"
 
+    def test_embedded_profile_env_reads_named_llm_key_env(self, monkeypatch):
+        monkeypatch.delenv("HINDSIGHT_LLM_API_KEY", raising=False)
+        monkeypatch.setenv("DEEPSEEK_API_KEY", "test-deepseek-key")
+
+        env = _build_embedded_profile_env({
+            "llm_provider": "openai_compatible",
+            "llm_model": "deepseek-flash",
+            "llm_api_key_env": "DEEPSEEK_API_KEY",
+        })
+
+        assert env["HINDSIGHT_API_LLM_API_KEY"] == "test-deepseek-key"
+        assert env["HINDSIGHT_API_LLM_MODEL"] == "deepseek-flash"
+
+    def test_embedded_profile_env_explicit_llm_key_wins_over_named_env(self, monkeypatch):
+        monkeypatch.setenv("DEEPSEEK_API_KEY", "test-deepseek-key")
+        monkeypatch.setenv("HINDSIGHT_LLM_API_KEY", "test-hindsight-key")
+
+        env = _build_embedded_profile_env({
+            "llm_provider": "openai_compatible",
+            "llm_model": "deepseek-flash",
+            "llm_api_key": "test-explicit-key",
+            "llm_api_key_env": "DEEPSEEK_API_KEY",
+        })
+
+        assert env["HINDSIGHT_API_LLM_API_KEY"] == "test-explicit-key"
+
+        env = _build_embedded_profile_env({
+            "llm_provider": "openai_compatible",
+            "llm_model": "deepseek-flash",
+            "llm_api_key_env": "DEEPSEEK_API_KEY",
+        })
+        assert env["HINDSIGHT_API_LLM_API_KEY"] == "test-hindsight-key"
+
     def test_embedded_profile_env_includes_idle_timeout_from_config(self):
         env = _build_embedded_profile_env({
             "llm_provider": "openai",
@@ -790,10 +823,16 @@ class TestToolHandlers:
 
 
 class TestPrefetch:
-    def test_prefetch_returns_empty_when_no_result(self, provider):
-        assert provider.prefetch("test") == ""
+    def test_prefetch_first_turn_recalls_current_query(self, provider):
+        result = provider.prefetch("current query")
+
+        assert "Memory 1" in result
+        assert "Memory 2" in result
+        provider._client.arecall.assert_awaited_once()
+        assert provider._client.arecall.call_args.kwargs["query"] == "current query"
 
     def test_prefetch_default_preamble(self, provider):
+        provider._prefetch_query = "test"
         provider._prefetch_result = "- some memory"
         result = provider.prefetch("test")
         assert "Hindsight Memory" in result
@@ -801,10 +840,21 @@ class TestPrefetch:
 
     def test_prefetch_custom_preamble(self, provider_with_config):
         p = provider_with_config(recall_prompt_preamble="Custom header:")
+        p._prefetch_query = "test"
         p._prefetch_result = "- memory line"
         result = p.prefetch("test")
         assert result.startswith("Custom header:")
         assert "- memory line" in result
+
+    def test_prefetch_does_not_reuse_previous_query_result(self, provider):
+        provider._prefetch_query = "old query"
+        provider._prefetch_result = "- stale memory"
+
+        result = provider.prefetch("new query")
+
+        assert "stale memory" not in result
+        assert "Memory 1" in result
+        assert provider._client.arecall.call_args.kwargs["query"] == "new query"
 
     def test_queue_prefetch_skipped_in_tools_mode(self, provider_with_config):
         p = provider_with_config(memory_mode="tools")
@@ -1247,8 +1297,11 @@ class TestSessionSwitchBufferFlush:
         provider._prefetch_result = "old-session recall: User likes Rust"
         provider.on_session_switch("new-sid")
         assert provider._prefetch_result == ""
-        # And subsequent prefetch() should now report empty, not the leftover.
-        assert provider.prefetch("anything") == ""
+        # The next prefetch recalls the new session's actual query instead of
+        # reporting the old leftover or staying empty by design.
+        result = provider.prefetch("anything")
+        assert "old-session recall" not in result
+        assert "Memory 1" in result
 
     def test_in_flight_prefetch_thread_drained_on_switch(self, provider, monkeypatch):
         """on_session_switch must wait for an in-flight prefetch from the
