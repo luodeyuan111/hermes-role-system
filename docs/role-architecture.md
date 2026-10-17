@@ -50,6 +50,14 @@
 - 动态召回注入当前 user 消息，不改写稳定 system prompt；`llm_api_key_env` 允许只记录已有密钥的环境变量名。
 - cron 默认 `skip_memory=True`，后续 Dreaming 维护任务必须显式调用 Hindsight 接口，不能依赖普通会话自动注入。
 
+## 主题知识库（knowledge-banks 插件，2026-10-17 起 researcher 试点）
+
+个人记忆与主题资料分库：`plugins/knowledge-banks/` 读取 `$HERMES_HOME/knowledge-banks.json` 的库注册表，向当前 profile 暴露 `knowledge_query` / `knowledge_record` / `knowledge_list`。模型只能使用注册过的 `library` 别名，query/list 需要 `read`、record 需要 `write`；未配置的角色不开放工具 schema。
+
+- researcher 当前仅注册 `papers → researcher-papers`，用于论文笔记与证据检索；未启用 `memory.provider`，不会把每轮对话自动写进论文库，也未创建 `hermes-researcher` 个人库。
+- 论文记录保留 `paper_id`、标题、作者、年份、原文 URL/路径和页码/章节等 metadata；同一论文使用稳定 `document_id`。追加默认 `append` 并合并已有 metadata，防止书目证据被后续空元数据覆盖。
+- 工具层与个人记忆层相互独立，后续个人信息、项目等主题库沿用同一注册表和权限模型；memory-banks 检视页也应复用该注册表。
+
 ## Tools / Workflow 分角色
 
 **Tools 裁剪：`profiles/<角色>/tools.disabled`**（纯文本增量黑名单，每行一个 toolset 名，`#` 注释、空行跳过、畸形行静默丢弃）：

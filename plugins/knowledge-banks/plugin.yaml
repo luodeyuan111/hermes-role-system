@@ -1,0 +1,9 @@
+name: knowledge-banks
+version: 1.0.0
+description: "命名知识库查询、记录与查看工具；按 profile 配置库别名和读写权限，支持论文等独立 Hindsight banks。"
+author: velya
+kind: backend
+provides_tools:
+  - knowledge_query
+  - knowledge_record
+  - knowledge_list
