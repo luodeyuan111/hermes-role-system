@@ -717,6 +717,7 @@ class HindsightMemoryProvider(MemoryProvider):
         self._bank_mission = ""
         self._bank_retain_mission: str | None = None
         self._bank_id_template = ""
+        self._bank_missions_applied = False
 
     @property
     def name(self) -> str:
@@ -1154,10 +1155,34 @@ class HindsightMemoryProvider(MemoryProvider):
         except Exception as exc:
             logger.debug("Hindsight atexit shutdown failed: %s", exc)
 
+    def _apply_bank_missions(self, client) -> None:
+        """Create/update the bank with configured missions once per provider."""
+        if self._bank_missions_applied:
+            return
+        reflect_mission = self._bank_mission or None
+        retain_mission = self._bank_retain_mission or None
+        if reflect_mission is None and retain_mission is None:
+            return
+        create_bank = getattr(client, "_acreate_bank", None)
+        if create_bank is None:
+            logger.debug("Hindsight client does not support bank missions")
+            self._bank_missions_applied = True
+            return
+        try:
+            self._run_sync(create_bank(
+                self._bank_id,
+                reflect_mission=reflect_mission,
+                retain_mission=retain_mission,
+            ))
+            self._bank_missions_applied = True
+        except Exception as exc:
+            logger.warning("Hindsight bank mission apply failed (non-fatal): %s", exc)
+
     def _run_hindsight_operation(self, operation):
         """Run an async Hindsight client operation, retrying once after idle shutdown."""
         client = self._get_client()
         try:
+            self._apply_bank_missions(client)
             return self._run_sync(operation(client))
         except Exception as exc:
             if not self._is_retriable_embedded_connection_error(exc):
@@ -1169,6 +1194,7 @@ class HindsightMemoryProvider(MemoryProvider):
             self._client = None
             client = self._get_client()
             self._client = client
+            self._apply_bank_missions(client)
             return self._run_sync(operation(client))
 
     def _probe_url(self) -> str:

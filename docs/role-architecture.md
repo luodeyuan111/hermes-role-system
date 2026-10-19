@@ -48,6 +48,7 @@
 - 每个角色使用独立 bank（`bank_id_template: hermes-{profile}`）和独立配置 `$HERMES_HOME/hindsight/config.json`，不得默认共享 `hermes` bank。
 - scholar 当前使用独立本地 Hindsight 服务（`local_external`，bank `hermes-scholar`），抽取模型为 DeepSeek V4.1 Flash；重型服务依赖不进 Hermes 主 venv。
 - 动态召回注入当前 user 消息，不改写稳定 system prompt；`llm_api_key_env` 允许只记录已有密钥的环境变量名。
+- 每个 bank 必须配置 `bank_retain_mission`，声明「稳定知识 vs 对话过程」边界；插件在首个 bank 操作时应用到服务端，防止执行流水挤占召回预算。
 - cron 默认 `skip_memory=True`，后续 Dreaming 维护任务必须显式调用 Hindsight 接口，不能依赖普通会话自动注入。
 
 ## 主题知识库（knowledge-banks 插件，2026-10-17 起 researcher 试点）

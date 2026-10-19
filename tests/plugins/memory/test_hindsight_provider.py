@@ -1683,6 +1683,42 @@ class TestBankIdTemplate:
 
 
 # ---------------------------------------------------------------------------
+# Bank mission tests
+# ---------------------------------------------------------------------------
+
+
+class TestBankMissions:
+    def test_missions_applied_once_before_first_operation(self, provider_with_config):
+        p = provider_with_config(
+            bank_mission="Reflect as the user's study companion.",
+            bank_retain_mission="Keep durable knowledge, not process logs.",
+        )
+        p._client._acreate_bank = AsyncMock()
+
+        result = json.loads(p.handle_tool_call("hindsight_recall", {"query": "目标"}))
+
+        assert "Memory 1" in result["result"]
+        p._client._acreate_bank.assert_awaited_once_with(
+            "test-bank",
+            reflect_mission="Reflect as the user's study companion.",
+            retain_mission="Keep durable knowledge, not process logs.",
+        )
+        p.handle_tool_call("hindsight_recall", {"query": "again"})
+        assert p._client._acreate_bank.await_count == 1
+
+    def test_mission_apply_failure_is_nonfatal_and_retried(self, provider_with_config):
+        p = provider_with_config(bank_retain_mission="Keep durable knowledge.")
+        p._client._acreate_bank = AsyncMock(side_effect=RuntimeError("server unavailable"))
+
+        first = json.loads(p.handle_tool_call("hindsight_recall", {"query": "目标"}))
+        second = json.loads(p.handle_tool_call("hindsight_recall", {"query": "目标"}))
+
+        assert "Memory 1" in first["result"]
+        assert "Memory 1" in second["result"]
+        assert p._client._acreate_bank.await_count == 2
+
+
+# ---------------------------------------------------------------------------
 # Availability tests
 # ---------------------------------------------------------------------------
 
