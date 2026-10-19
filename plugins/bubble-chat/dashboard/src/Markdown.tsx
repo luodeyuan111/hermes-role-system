@@ -142,20 +142,27 @@ export function parseBlockSpans(text: string): BlockSpan[] {
     const mathFence = line.match(/^(\$\$|\\\[)(.*)$/);
     if (mathFence) {
       const start = lineStarts[i];
-      const closing = mathFence[1] === "$$" ? "$$" : "\\]";
+      const marker = mathFence[1];
+      const closing = marker === "$$" ? "$$" : "\\]";
       const body: string[] = [];
       const rest = mathFence[2];
+      let tail = "";
+      let tailStart = -1;
       i++;
       const inlineClose = rest.indexOf(closing);
       if (inlineClose >= 0) {
         // Single-line form: $$...$$ / \[...\] entirely on the opening line.
         body.push(rest.slice(0, inlineClose));
+        tail = rest.slice(inlineClose + closing.length);
+        tailStart = start + marker.length + inlineClose + closing.length;
       } else {
         if (rest.trim() !== "") body.push(rest);
         while (i < lines.length) {
           const c = lines[i].indexOf(closing);
           if (c >= 0) {
             if (lines[i].slice(0, c).trim() !== "") body.push(lines[i].slice(0, c));
+            tail = lines[i].slice(c + closing.length);
+            tailStart = lineStarts[i] + c + closing.length;
             i++;
             break;
           }
@@ -167,6 +174,13 @@ export function parseBlockSpans(text: string): BlockSpan[] {
         start,
         node: { type: "math", content: body.join("\n").trim() },
       });
+      if (tail.trim()) {
+        const leading = tail.length - tail.trimStart().length;
+        spans.push({
+          start: tailStart + leading,
+          node: { type: "paragraph", content: tail.trim() },
+        });
+      }
       continue;
     }
 

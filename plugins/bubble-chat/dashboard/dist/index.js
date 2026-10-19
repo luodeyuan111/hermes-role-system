@@ -1578,6 +1578,15 @@
     }
   };
 
+  // src/chat/messageMerge.ts
+  function mergeCompletedText(accumulated, finalText) {
+    if (!finalText) return accumulated;
+    const compact = (value) => value.replace(/\s+/g, " ").trim();
+    if (!compact(finalText)) return accumulated;
+    if (compact(accumulated).endsWith(compact(finalText))) return accumulated;
+    return finalText;
+  }
+
   // src/chat/types.ts
   var nextMessageId = 0;
   function messageId() {
@@ -1659,7 +1668,16 @@
   var IGNORED_EVENT_TYPES = /* @__PURE__ */ new Set([
     "gateway.ready",
     "tool.progress",
-    "skin.changed"
+    "skin.changed",
+    // Deltas already carry the visible text; these lifecycle/notification
+    // events must not become grey system hints that consume the render window.
+    "message.interim",
+    "session.title",
+    "reaction",
+    "moa.reference",
+    "moa.aggregating",
+    "notification.show",
+    "notification.clear"
   ]);
   function parseToolArgs(raw) {
     if (!raw) return void 0;
@@ -2292,9 +2310,9 @@
           this.cancelStreamFlush();
           this.patchStreamingBubble((m) => ({
             ...m,
-            // The complete payload is authoritative; keep accumulated
-            // deltas when the final text is empty (e.g. interrupted turn).
-            text: finalText ? finalText : m.text,
+            // final_response 只含本轮最后一段正式回答；若它已作为流式文本
+            // 的后缀出现，保留此前累积的 interim 旁白，避免完成瞬间缩水。
+            text: mergeCompletedText(m.text, finalText),
             streaming: false
           }));
           this.streamingMsgId = null;
@@ -18164,19 +18182,26 @@ ${body}` : body);
       const mathFence = line.match(/^(\$\$|\\\[)(.*)$/);
       if (mathFence) {
         const start2 = lineStarts[i2];
-        const closing = mathFence[1] === "$$" ? "$$" : "\\]";
+        const marker = mathFence[1];
+        const closing = marker === "$$" ? "$$" : "\\]";
         const body = [];
         const rest = mathFence[2];
+        let tail = "";
+        let tailStart = -1;
         i2++;
         const inlineClose = rest.indexOf(closing);
         if (inlineClose >= 0) {
           body.push(rest.slice(0, inlineClose));
+          tail = rest.slice(inlineClose + closing.length);
+          tailStart = start2 + marker.length + inlineClose + closing.length;
         } else {
           if (rest.trim() !== "") body.push(rest);
           while (i2 < lines.length) {
             const c = lines[i2].indexOf(closing);
             if (c >= 0) {
               if (lines[i2].slice(0, c).trim() !== "") body.push(lines[i2].slice(0, c));
+              tail = lines[i2].slice(c + closing.length);
+              tailStart = lineStarts[i2] + c + closing.length;
               i2++;
               break;
             }
@@ -18188,6 +18213,13 @@ ${body}` : body);
           start: start2,
           node: { type: "math", content: body.join("\n").trim() }
         });
+        if (tail.trim()) {
+          const leading = tail.length - tail.trimStart().length;
+          spans.push({
+            start: tailStart + leading,
+            node: { type: "paragraph", content: tail.trim() }
+          });
+        }
         continue;
       }
       const headingMatch = line.match(/^(#{1,4})\s+(.+)/);

@@ -73,6 +73,12 @@ check("\\[..\\] fence", spans[0].node.type === "math" && spans[0].node.content.i
 spans = parseBlockSpans("$$\nE = mc");
 check("unclosed $$ collects to EOF", spans[0].node.type === "math" && spans[0].node.content === "E = mc");
 
+// 4b. Text after the closing fence is not swallowed
+spans = parseBlockSpans("$$x$$ 后面的文字");
+check("single-line math keeps tail", spans.length === 2 && spans[0].node.type === "math" && spans[1].node.type === "paragraph" && spans[1].node.content === "后面的文字");
+spans = parseBlockSpans("$$\nx+y\n$$ 尾部");
+check("multiline math keeps closing-line tail", spans.length === 2 && spans[0].node.type === "math" && spans[1].node.type === "paragraph" && spans[1].node.content === "尾部");
+
 // 5. Inline $..$
 let nodes = parseInline("由 $p(x)$ 可知");
 check("inline $..$", nodes.some((n) => n.type === "math" && n.content === "p(x)" && !n.display));

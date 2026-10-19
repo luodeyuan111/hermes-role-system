@@ -31,6 +31,7 @@ import {
   type ConnectionState,
   type GatewayEvent,
 } from "./gatewayClient";
+import { mergeCompletedText } from "./chat/messageMerge";
 import {
   decodeMessageContentParts,
   messageId,
@@ -119,6 +120,15 @@ const IGNORED_EVENT_TYPES = new Set([
   "gateway.ready",
   "tool.progress",
   "skin.changed",
+  // Deltas already carry the visible text; these lifecycle/notification
+  // events must not become grey system hints that consume the render window.
+  "message.interim",
+  "session.title",
+  "reaction",
+  "moa.reference",
+  "moa.aggregating",
+  "notification.show",
+  "notification.clear",
 ]);
 
 /** Parse a history tool_calls `arguments` JSON string for the card body. */
@@ -946,9 +956,9 @@ class BubbleChatStore {
         this.cancelStreamFlush();
         this.patchStreamingBubble((m) => ({
           ...m,
-          // The complete payload is authoritative; keep accumulated
-          // deltas when the final text is empty (e.g. interrupted turn).
-          text: finalText ? finalText : m.text,
+          // final_response 只含本轮最后一段正式回答；若它已作为流式文本
+          // 的后缀出现，保留此前累积的 interim 旁白，避免完成瞬间缩水。
+          text: mergeCompletedText(m.text, finalText),
           streaming: false,
         }));
         this.streamingMsgId = null;
