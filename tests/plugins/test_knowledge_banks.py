@@ -145,6 +145,45 @@ def test_record_defaults_to_append_and_merges_document_metadata(tmp_path, monkey
     assert item["tags"] == ["paper", "world-model"]
 
 
+def test_record_passes_entities_as_literal_aliases(tmp_path, monkeypatch):
+    mod = _load_tools(tmp_path, monkeypatch, _config())
+    calls = []
+
+    def fake_api(method, bank_id, endpoint, **kwargs):
+        calls.append(kwargs["payload"])
+        return {"success": True, "items_count": 1, "operation_id": "op-2", "async": True}
+
+    monkeypatch.setattr(mod, "_api_request", fake_api)
+    result = json.loads(mod._handle_knowledge_record({
+        "library": "papers",
+        "content": "张伟负责世界模型课程设计。",
+        "entities": [
+            {"text": "张伟", "type": "PERSON"},
+            {"text": "Zhang Wei", "type": "PERSON"},
+            {"text": "zhangwei", "type": "PERSON"},
+        ],
+    }))
+
+    assert result["success"] is True
+    item = calls[0]["items"][0]
+    assert item["entities"] == [
+        {"text": "张伟", "type": "PERSON"},
+        {"text": "Zhang Wei", "type": "PERSON"},
+        {"text": "zhangwei", "type": "PERSON"},
+    ]
+    assert item["resolve_entities"] is False
+
+
+def test_record_rejects_entity_without_text(tmp_path, monkeypatch):
+    mod = _load_tools(tmp_path, monkeypatch, _config())
+    monkeypatch.setattr(mod, "_api_request", lambda *args, **kwargs: pytest.fail("unexpected HTTP"))
+    result = json.loads(mod._handle_knowledge_record({
+        "library": "papers", "content": "x", "entities": [{"type": "PERSON"}],
+    }))
+    assert "error" in result
+    assert "non-empty text" in result["error"]
+
+
 def test_record_requires_write_permission(tmp_path, monkeypatch):
     mod = _load_tools(tmp_path, monkeypatch, _config(write=False))
     monkeypatch.setattr(mod, "_api_request", lambda *args, **kwargs: pytest.fail("unexpected HTTP"))

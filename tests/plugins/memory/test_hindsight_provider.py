@@ -362,6 +362,7 @@ class TestConfig:
             recall_types=["world", "experience"],
             recall_prompt_preamble="Custom preamble:",
             recall_max_input_chars=500,
+            prefetch_timeout_seconds=12,
             bank_mission="Test agent mission",
         )
         assert p._tags == ["tag1", "tag2"]
@@ -380,6 +381,7 @@ class TestConfig:
         assert p._recall_types == ["world", "experience"]
         assert p._recall_prompt_preamble == "Custom preamble:"
         assert p._recall_max_input_chars == 500
+        assert p._prefetch_timeout == 12
         assert p._bank_mission == "Test agent mission"
 
     def test_config_from_env_fallback(self, tmp_path, monkeypatch):

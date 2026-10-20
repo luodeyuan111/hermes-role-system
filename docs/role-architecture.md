@@ -46,7 +46,7 @@
 记忆分三层：ROLE/SOUL/少量 MEMORY.md 核心全注入；Hindsight 归档记忆按当前查询召回；原始会话继续由 `session_search` 兜底。外部 provider 与内置 MEMORY.md 是**叠加**关系，验收前不删核心记忆。
 
 - 每个角色使用独立 bank（`bank_id_template: hermes-{profile}`）和独立配置 `$HERMES_HOME/hindsight/config.json`，不得默认共享 `hermes` bank。
-- scholar 当前使用独立本地 Hindsight 服务（`local_external`，bank `hermes-scholar`），抽取模型为 DeepSeek V4.1 Flash；重型服务依赖不进 Hermes 主 venv。
+- scholar 当前使用独立本地 Hindsight 服务（`local_external`，`127.0.0.1:9101`，bank `hermes-scholar`），抽取模型为 DeepSeek V4.1 Flash；embedding/rerank 为 bge-m3 / bge-reranker-v2-m3，重型服务依赖不进 Hermes 主 venv。
 - 动态召回注入当前 user 消息，不改写稳定 system prompt；`llm_api_key_env` 允许只记录已有密钥的环境变量名。
 - 每个 bank 必须配置 `bank_retain_mission`，声明「稳定知识 vs 对话过程」边界；插件在首个 bank 操作时应用到服务端，防止执行流水挤占召回预算。
 - cron 默认 `skip_memory=True`，后续 Dreaming 维护任务必须显式调用 Hindsight 接口，不能依赖普通会话自动注入。
@@ -57,6 +57,7 @@
 
 - researcher 当前仅注册 `papers → researcher-papers`，用于论文笔记与证据检索；未启用 `memory.provider`，不会把每轮对话自动写进论文库，也未创建 `hermes-researcher` 个人库。
 - 论文记录保留 `paper_id`、标题、作者、年份、原文 URL/路径和页码/章节等 metadata；同一论文使用稳定 `document_id`。追加默认 `append` 并合并已有 metadata，防止书目证据被后续空元数据覆盖。
+- 中文人名/课程名/项目名通过 `entities` 显式写入中文原名、拼音和英文别名（按字面保留）；正文不翻译成英文。
 - 工具层与个人记忆层相互独立，后续个人信息、项目等主题库沿用同一注册表和权限模型；memory-banks 检视页也应复用该注册表。
 
 ## Tools / Workflow 分角色

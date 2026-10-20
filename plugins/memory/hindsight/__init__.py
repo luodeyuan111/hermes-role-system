@@ -56,6 +56,7 @@ _DEFAULT_LOCAL_URL = "http://localhost:8888"
 _MIN_CLIENT_VERSION = "0.6.1"
 _DEFAULT_TIMEOUT = 120  # seconds — cloud API can take 30-40s per request
 _DEFAULT_IDLE_TIMEOUT = 300  # seconds — Hindsight embedded daemon default
+_DEFAULT_PREFETCH_TIMEOUT = 8.0  # seconds — local bge-m3 recall can exceed 3s cold
 # Mirrors hindsight-integrations/openclaw — Hindsight 0.5.0 added
 # `update_mode='append'` semantics on retain (vectorize-io/hindsight#932).
 # Without it, reusing a stable session-scoped document_id silently
@@ -662,6 +663,7 @@ class HindsightMemoryProvider(MemoryProvider):
         self._client = None
         self._timeout = _DEFAULT_TIMEOUT
         self._idle_timeout = _DEFAULT_IDLE_TIMEOUT
+        self._prefetch_timeout = _DEFAULT_PREFETCH_TIMEOUT
         self._prefetch_result = ""
         self._prefetch_query = ""
         self._prefetch_lock = threading.Lock()
@@ -1010,6 +1012,7 @@ class HindsightMemoryProvider(MemoryProvider):
             {"key": "retain_context", "description": "Context label for retained memories", "default": "conversation between Hermes Agent and the User"},
             {"key": "recall_max_tokens", "description": "Maximum tokens for recall results", "default": 4096},
             {"key": "recall_max_input_chars", "description": "Maximum input query length for auto-recall", "default": 800},
+            {"key": "prefetch_timeout_seconds", "description": "Seconds to wait for auto-recall before answering without memory context", "default": _DEFAULT_PREFETCH_TIMEOUT},
             {"key": "recall_prompt_preamble", "description": "Custom preamble for recalled memories in context"},
             {"key": "timeout", "description": "API request timeout in seconds", "default": _DEFAULT_TIMEOUT},
             {"key": "idle_timeout", "description": "Embedded daemon idle timeout in seconds (0 disables auto-shutdown)", "default": _DEFAULT_IDLE_TIMEOUT, "when": {"mode": "local_embedded"}},
@@ -1335,6 +1338,9 @@ class HindsightMemoryProvider(MemoryProvider):
 
         prefetch_method = self._config.get("recall_prefetch_method") or self._config.get("prefetch_method", "recall")
         self._prefetch_method = prefetch_method if prefetch_method in {"recall", "reflect"} else "recall"
+        self._prefetch_timeout = _parse_int_setting(
+            self._config.get("prefetch_timeout_seconds"), _DEFAULT_PREFETCH_TIMEOUT
+        )
 
         # Bank options
         self._bank_mission = self._config.get("bank_mission", "")
@@ -1501,7 +1507,7 @@ class HindsightMemoryProvider(MemoryProvider):
         thread = self._prefetch_thread
         if thread and thread.is_alive():
             logger.debug("Prefetch: waiting for background thread to complete")
-            thread.join(timeout=3.0)
+            thread.join(timeout=self._prefetch_timeout)
             if thread.is_alive():
                 return ""
         with self._prefetch_lock:
@@ -1516,7 +1522,7 @@ class HindsightMemoryProvider(MemoryProvider):
             self.queue_prefetch(query)
             thread = self._prefetch_thread
             if thread and thread.is_alive():
-                thread.join(timeout=3.0)
+                thread.join(timeout=self._prefetch_timeout)
                 if thread.is_alive():
                     return ""
             with self._prefetch_lock:

@@ -30,7 +30,7 @@
 ## 工具
 
 - `knowledge_query(library, query, limit?, include_source_facts?)`：语义/关键词混合检索，返回文本、document_id、metadata、tags 等证据信息。
-- `knowledge_record(library, content, metadata?, document_id?, update_mode?, ...)`：异步写入整理后的笔记。默认 `append`，追加前会合并该文档已有 metadata，避免标题、作者、原文链接被最新一条空元数据覆盖。只有明确重建文档时才用 `replace`。
+- `knowledge_record(library, content, metadata?, document_id?, update_mode?, entities?, ...)`：异步写入整理后的笔记。默认 `append`，追加前会合并该文档已有 metadata，避免标题、作者、原文链接被最新一条空元数据覆盖。只有明确重建文档时才用 `replace`。`entities` 可显式写入实体/别名（例如 `[{"text":"张伟"},{"text":"Zhang Wei"},{"text":"zhangwei"}]`），会按字面保留以补足中文专名的检索入口。
 - `knowledge_list(library, query?, fact_type?, limit?, offset?)`：直接查看库内容和总数。
 
-论文笔记建议在 metadata 中填写 `paper_id`、`title`、`authors`、`year`、`source`（DOI/arXiv/本地路径）、`locator`（页码/章节）。同一论文使用稳定的 `document_id`，例如 `paper:arxiv:2301.04104`。
+论文笔记建议在 metadata 中填写 `paper_id`、`title`、`authors`、`year`、`source`（DOI/arXiv/本地路径）、`locator`（页码/章节）。同一论文使用稳定的 `document_id`，例如 `paper:arxiv:2301.04104`。中文人名/课程名/项目名建议同时给 `entities` 写入中文原名、拼音和英文别名；正文不要翻译成英文。

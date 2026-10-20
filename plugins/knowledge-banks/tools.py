@@ -134,6 +134,22 @@ def _tags(raw: Any) -> list[str]:
     return [str(tag).strip() for tag in raw if str(tag).strip()]
 
 
+def _entities(raw: Any) -> list[dict[str, str]]:
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        raise ValueError("entities must be an array of objects")
+    result = []
+    for item in raw:
+        if not isinstance(item, dict) or not str(item.get("text") or "").strip():
+            raise ValueError("each entity needs a non-empty text")
+        entity = {"text": str(item["text"]).strip()}
+        if item.get("type"):
+            entity["type"] = str(item["type"]).strip()
+        result.append(entity)
+    return result
+
+
 def _handle_knowledge_query(args: dict[str, Any], **kwargs) -> str:
     try:
         name, library = _library(args.get("library"))
@@ -201,6 +217,12 @@ def _handle_knowledge_record(args: dict[str, Any], **kwargs) -> str:
         tags = _tags(args.get("tags"))
         if tags:
             item["tags"] = tags
+        entities = _entities(args.get("entities"))
+        if entities:
+            # Caller-supplied aliases (中文原名/拼音/英文) must stay literal so
+            # BM25 and the embedding context gain every surface form.
+            item["entities"] = entities
+            item["resolve_entities"] = False
         if item.get("document_id") and item["update_mode"] == "append":
             item["metadata"] = _merge_document_metadata(
                 library["bank_id"], item["document_id"], item["metadata"],
@@ -271,6 +293,7 @@ KNOWLEDGE_RECORD_SCHEMA = {
             "context": {"type": "string", "description": "Short context for the note."},
             "metadata": {"type": "object", "description": "Evidence metadata such as paper_id, title, authors, year, source, locator."},
             "tags": {"type": "array", "items": {"type": "string"}, "description": "Optional tags for filtering."},
+            "entities": {"type": "array", "items": {"type": "object", "properties": {"text": {"type": "string"}, "type": {"type": "string"}}, "required": ["text"]}, "description": "Explicit entities/aliases. For Chinese names include original, pinyin and English forms; passed literally with resolve_entities=false."},
             "document_id": {"type": "string", "description": "Stable source document ID; reuse it for notes on the same document."},
             "update_mode": {"type": "string", "enum": ["append", "replace"], "description": "Append by default and merge existing document metadata; replace only when intentionally rebuilding a document."},
             "timestamp": {"type": "string", "description": "Optional ISO timestamp or 'unset' for timeless reference material."},
