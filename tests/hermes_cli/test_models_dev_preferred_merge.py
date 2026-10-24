@@ -103,7 +103,9 @@ class TestProviderModelIdsPreferred:
         with patch("agent.models_dev.list_agentic_models", return_value=[]):
             out = provider_model_ids("kimi-coding")
         assert "kimi-k2.7-code" in out
-        # k3 series (models.dev kimi-for-coding group) is curated in.
+        # k3.1/k3 series (models.dev kimi-for-coding group) is curated in.
+        assert "kimi-k3.1-pro" in out
+        assert "kimi-k3.1-pro-highspeed" in out
         assert "k3" in out
         assert "k3-256k" in out
 
@@ -117,8 +119,8 @@ class TestProviderModelIdsPreferred:
             patch("providers.base.ProviderProfile.fetch_models", return_value=["kimi-k2.6"]),
         ):
             out = provider_model_ids("kimi-coding")
-        # Curated-first order; curated newest (k3 series) stays ahead of live.
-        assert out[:2] == ["k3", "k3-256k"]
+        # Curated-first order; curated newest (k3.1 series) stays ahead of live.
+        assert out[:2] == ["kimi-k3.1-pro", "kimi-k3.1-pro-highspeed"]
 
     def test_kimi_setup_flow_uses_same_coding_plan_catalog(self):
         """The setup wizard must not carry a stale duplicate Kimi model list."""
@@ -139,7 +141,7 @@ class TestProviderModelIdsPreferred:
             _model_flow_kimi({}, current_model="")
 
         assert captured["models"] == _PROVIDER_MODELS["kimi-coding"]
-        assert captured["models"][0] == "k3"
+        assert captured["models"][0] == "kimi-k3.1-pro"
 
 
 class TestOpenRouterAndNousUnchanged:

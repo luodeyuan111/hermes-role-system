@@ -318,6 +318,7 @@ DEFAULT_CONTEXT_LENGTHS = {
     "grok-2": 131072,           # grok-2, grok-2-1212, grok-2-latest
     "grok": 131072,             # catch-all (grok-beta, unknown grok-*)
     # Kimi
+    "kimi-k3.1": 1048576,   # K3.1 Pro / Pro Highspeed — 1M context per Kimi docs
     "kimi": 262144,
     # Upstage Solar — api.upstage.ai/v1/models does not return context_length,
     # so these fallbacks keep token budgeting / compression from probing down
