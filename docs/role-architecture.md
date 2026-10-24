@@ -55,8 +55,9 @@
 
 个人记忆与主题资料分库：`plugins/knowledge-banks/` 读取 `$HERMES_HOME/knowledge-banks.json` 的库注册表，向当前 profile 暴露 `knowledge_query` / `knowledge_record` / `knowledge_list`。模型只能使用注册过的 `library` 别名，query/list 需要 `read`、record 需要 `write`；未配置的角色不开放工具 schema。
 
-- researcher 当前仅注册 `papers → researcher-papers`，用于论文笔记与证据检索；未启用 `memory.provider`，不会把每轮对话自动写进论文库，也未创建 `hermes-researcher` 个人库。
-- 论文记录保留 `paper_id`、标题、作者、年份、原文 URL/路径和页码/章节等 metadata；同一论文使用稳定 `document_id`。追加默认 `append` 并合并已有 metadata，防止书目证据被后续空元数据覆盖。
+- 2026-10-24 起每个角色都有 tool-only 的 `personal → hermes-<profile>`；bank 不预创建，首次 `knowledge_record` 时才生成并应用角色化 `retain_mission`。researcher 额外有 `papers → researcher-papers`。
+- researcher 未启用 `memory.provider`；论文正文/证据写 `papers`，未来研究方向、升学路径、人物关系与论文筛选偏好写 `personal`，不会把每轮对话自动写进任何库。
+- 论文记录保留 `paper_id`、标题、作者、年份、原文 URL/路径和页码/章节等 metadata；同一论文使用稳定 `document_id`。带 `document_id` 的追加默认 `append` 并合并已有 metadata，防止书目证据被后续空元数据覆盖。
 - 中文人名/课程名/项目名通过 `entities` 显式写入中文原名、拼音和英文别名（按字面保留）；正文不翻译成英文。
 - 工具层与个人记忆层相互独立，后续个人信息、项目等主题库沿用同一注册表和权限模型；memory-banks 检视页也应复用该注册表。
 

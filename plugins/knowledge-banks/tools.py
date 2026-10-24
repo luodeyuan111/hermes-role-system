@@ -13,6 +13,7 @@ from hermes_constants import get_hermes_home
 from tools.registry import tool_error
 
 _CONFIG_NAME = "knowledge-banks.json"
+_MISSION_APPLIED: set[tuple[str, str]] = set()
 _RESULT_FIELDS = (
     "id", "text", "type", "fact_type", "document_id", "metadata", "tags",
     "occurred_start", "occurred_end", "mentioned_at", "source_fact_ids", "scores",
@@ -64,6 +65,25 @@ def _library(alias: Any, *, write: bool = False) -> tuple[str, dict[str, Any]]:
     return name, library
 
 
+def _apply_library_mission(library: dict[str, Any]) -> None:
+    payload = {}
+    if str(library.get("reflect_mission") or "").strip():
+        payload["reflect_mission"] = str(library["reflect_mission"]).strip()
+    if str(library.get("retain_mission") or "").strip():
+        payload["retain_mission"] = str(library["retain_mission"]).strip()
+    if not payload:
+        return
+    key = (str(_load_config().get("api_url") or ""), str(library["bank_id"]))
+    if key in _MISSION_APPLIED:
+        return
+    try:
+        _api_request("PUT", library["bank_id"], "", payload=payload)
+        _MISSION_APPLIED.add(key)
+    except Exception:
+        # Mission application is best-effort; the next record retries it.
+        return
+
+
 def _api_request(
     method: str,
     bank_id: str,
@@ -77,7 +97,9 @@ def _api_request(
     base_url = str(config.get("api_url") or "").rstrip("/")
     if not base_url:
         raise ValueError("knowledge-banks.json has no api_url")
-    url = f"{base_url}/v1/default/banks/{quote(bank_id, safe='')}/{endpoint}"
+    url = f"{base_url}/v1/default/banks/{quote(bank_id, safe='')}"
+    if endpoint:
+        url += f"/{endpoint}"
     headers = {}
     key_env = str(config.get("api_key_env") or "").strip()
     if key_env and os.environ.get(key_env):
@@ -209,11 +231,17 @@ def _handle_knowledge_record(args: dict[str, Any], **kwargs) -> str:
         item: dict[str, Any] = {
             "content": content,
             "metadata": _metadata(args.get("metadata"), name),
-            "update_mode": args.get("update_mode") or "append",
         }
+        update_mode = args.get("update_mode")
+        if update_mode:
+            if update_mode == "append" and not args.get("document_id"):
+                raise ValueError("update_mode='append' requires document_id")
+            item["update_mode"] = update_mode
         for key in ("context", "document_id", "timestamp"):
             if args.get(key) is not None:
                 item[key] = str(args[key])
+        if item.get("document_id") and "update_mode" not in item:
+            item["update_mode"] = "append"
         tags = _tags(args.get("tags"))
         if tags:
             item["tags"] = tags
@@ -227,6 +255,7 @@ def _handle_knowledge_record(args: dict[str, Any], **kwargs) -> str:
             item["metadata"] = _merge_document_metadata(
                 library["bank_id"], item["document_id"], item["metadata"],
             )
+        _apply_library_mission(library)
         data = _api_request(
             "POST", library["bank_id"], "memories",
             payload={"items": [item], "async": True},

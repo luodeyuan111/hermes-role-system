@@ -174,6 +174,31 @@ def test_record_passes_entities_as_literal_aliases(tmp_path, monkeypatch):
     assert item["resolve_entities"] is False
 
 
+def test_record_without_document_omits_update_mode(tmp_path, monkeypatch):
+    mod = _load_tools(tmp_path, monkeypatch, _config())
+    calls = []
+
+    def fake_api(method, bank_id, endpoint, **kwargs):
+        calls.append(kwargs["payload"])
+        return {"success": True, "items_count": 1, "operation_id": "op-3", "async": True}
+
+    monkeypatch.setattr(mod, "_api_request", fake_api)
+    result = json.loads(mod._handle_knowledge_record({"library": "papers", "content": "single note"}))
+
+    assert result["success"] is True
+    assert "update_mode" not in calls[0]["items"][0]
+
+
+def test_record_rejects_append_without_document_id(tmp_path, monkeypatch):
+    mod = _load_tools(tmp_path, monkeypatch, _config())
+    monkeypatch.setattr(mod, "_api_request", lambda *args, **kwargs: pytest.fail("unexpected HTTP"))
+    result = json.loads(mod._handle_knowledge_record({
+        "library": "papers", "content": "x", "update_mode": "append",
+    }))
+    assert "error" in result
+    assert "requires document_id" in result["error"]
+
+
 def test_record_rejects_entity_without_text(tmp_path, monkeypatch):
     mod = _load_tools(tmp_path, monkeypatch, _config())
     monkeypatch.setattr(mod, "_api_request", lambda *args, **kwargs: pytest.fail("unexpected HTTP"))
@@ -210,3 +235,45 @@ def test_list_passes_filters_and_pagination(tmp_path, monkeypatch):
     method, bank_id, endpoint, kwargs = calls[0]
     assert (method, bank_id, endpoint) == ("GET", "researcher-papers", "memories/list")
     assert kwargs["params"] == {"limit": 5, "offset": 10, "q": "dreamer", "type": "world"}
+
+
+def test_record_applies_library_mission_once(tmp_path, monkeypatch):
+    config = _config()
+    config["libraries"]["papers"]["retain_mission"] = "Keep paper facts, not test chatter."
+    mod = _load_tools(tmp_path, monkeypatch, config)
+    calls = []
+
+    def fake_api(method, bank_id, endpoint, **kwargs):
+        calls.append((method, bank_id, endpoint, kwargs))
+        return {"success": True, "items_count": 1, "operation_id": "op", "async": True}
+
+    monkeypatch.setattr(mod, "_api_request", fake_api)
+    args = {"library": "papers", "content": "A paper note."}
+    mod._handle_knowledge_record(args)
+    mod._handle_knowledge_record(args)
+
+    puts = [call for call in calls if call[0] == "PUT"]
+    assert len(puts) == 1
+    assert puts[0][1] == "researcher-papers"
+    assert puts[0][2] == ""
+    assert puts[0][3]["payload"]["retain_mission"] == "Keep paper facts, not test chatter."
+
+
+def test_record_retries_mission_after_failure(tmp_path, monkeypatch):
+    config = _config()
+    config["libraries"]["papers"]["retain_mission"] = "Keep durable facts."
+    mod = _load_tools(tmp_path, monkeypatch, config)
+    calls = []
+
+    def fake_api(method, bank_id, endpoint, **kwargs):
+        calls.append(method)
+        if method == "PUT":
+            raise RuntimeError("temporary unavailable")
+        return {"success": True, "items_count": 1, "operation_id": "op", "async": True}
+
+    monkeypatch.setattr(mod, "_api_request", fake_api)
+    args = {"library": "papers", "content": "A paper note."}
+    assert json.loads(mod._handle_knowledge_record(args))["success"] is True
+    assert json.loads(mod._handle_knowledge_record(args))["success"] is True
+    assert calls.count("PUT") == 2
+    assert calls.count("POST") == 2
