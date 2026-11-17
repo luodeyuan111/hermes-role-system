@@ -2383,6 +2383,24 @@ def _runtime_model_config(agent, existing: dict | None = None) -> dict:
     reasoning_config = getattr(agent, "reasoning_config", None)
     service_tier = getattr(agent, "service_tier", None)
 
+    # Provider fallback is turn-scoped — restore_primary_runtime retries the
+    # primary at the next turn — so the durable session record must keep the
+    # PRIMARY identity while a fallback is covering. Persisting the fallback
+    # model here pins the chat to it: _stored_session_runtime_overrides turns
+    # the stored model into a hard model_override on resume, which also opts
+    # the session out of _sync_agent_model_with_config, so one transient 429
+    # would strand the conversation on the fallback provider for good.
+    if getattr(agent, "_fallback_activated", False):
+        _rt = getattr(agent, "_primary_runtime", None)
+        if isinstance(_rt, dict) and str(_rt.get("model") or "").strip():
+            model = str(_rt.get("model") or "").strip()
+            provider = str(_rt.get("provider") or "").strip()
+            base_url = str(_rt.get("base_url") or "").strip()
+            api_mode = str(_rt.get("api_mode") or "").strip()
+            _rt_reasoning = _rt.get("reasoning_config")
+            if isinstance(_rt_reasoning, dict):
+                reasoning_config = _rt_reasoning
+
     if model:
         config["model"] = model
     if provider:

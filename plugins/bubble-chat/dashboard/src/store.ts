@@ -489,6 +489,13 @@ class BubbleChatStore {
     this.modelOptionsPromises.clear();
   }
 
+  /** Public wrapper for UI flows that change a role's config model outside
+   *  a live session (e.g. setting the role default from the role view) —
+   *  the scoped "当前配置" cache must be refetched. */
+  dropModelOptionsCache(): void {
+    this.invalidateModelOptions();
+  }
+
   getModelOptions = (profile = ""): Promise<ModelOptionsPayload | null> => {
     const sid = this.liveSid;
     const key = sid ? `sid:${sid}` : `profile:${profile}`;

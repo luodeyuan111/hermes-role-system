@@ -3985,13 +3985,31 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         if not session_id or agent is None or self._session_db is None:
             return
         model = getattr(agent, "model", None)
+        provider = getattr(agent, "provider", None)
+        base_url = getattr(agent, "base_url", None)
+        api_mode = getattr(agent, "api_mode", None)
+        fallback_active = bool(getattr(agent, "_fallback_activated", False))
+        # Provider fallback is turn-scoped (restore_primary_runtime retries
+        # the primary next turn), so the durable row must keep the PRIMARY
+        # identity while a fallback is covering. Persisting the fallback
+        # model here pins the chat to it on resume via
+        # _stored_session_runtime_overrides → hard model_override — one
+        # transient 429 would strand the conversation on the fallback
+        # provider for good.
+        if fallback_active:
+            primary = getattr(agent, "_primary_runtime", None)
+            if isinstance(primary, dict) and str(primary.get("model") or "").strip():
+                model = primary.get("model")
+                provider = primary.get("provider")
+                base_url = primary.get("base_url")
+                api_mode = primary.get("api_mode")
         if not model:
             return
         runtime = {
-            "provider": getattr(agent, "provider", None),
-            "base_url": getattr(agent, "base_url", None),
-            "api_mode": getattr(agent, "api_mode", None),
-            "fallback_active": bool(getattr(agent, "_fallback_activated", False)),
+            "provider": provider,
+            "base_url": base_url,
+            "api_mode": api_mode,
+            "fallback_active": fallback_active,
         }
         runtime = {k: v for k, v in runtime.items() if v not in (None, "")}
 

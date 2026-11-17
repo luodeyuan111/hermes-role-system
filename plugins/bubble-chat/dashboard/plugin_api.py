@@ -18,6 +18,11 @@ Backs the sidebar's CherryStudio-style two-level role UI:
                                  profile's state.db).
 - ``GET/PUT /roles/{name}/prompt``   read/write the role's ROLE.md (提示词) —
                                  the only file the role editor touches.
+- ``PUT /roles/{name}/model``      set the role's default model
+                                 (model.default + model.provider in its
+                                 config.yaml); the role view's model dropdown
+                                 otherwise only stages a model for the next
+                                 new chat.
 - ``GET /roles/default/base-files``  list the 全局底座 base files
                                  (SOUL.md / AGENTS.md / USER.md, whitelisted).
 - ``GET/PUT /roles/default/base-file``   read/write one base file by name.
@@ -376,6 +381,44 @@ async def role_prompt_write(name: str, payload: RolePromptSave) -> Dict[str, Any
     except OSError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     return {"path": "ROLE.md", "ok": True}
+
+
+class RoleModelSave(BaseModel):
+    provider: str
+    model: str
+
+
+@router.put("/roles/{name}/model")
+async def role_model_write(name: str, payload: RoleModelSave) -> Dict[str, Any]:
+    """Set the role's default model (``model.default`` + ``model.provider``
+    in its config.yaml). Mirrors the dashboard's profile model editor —
+    without this the role view's model dropdown could only stage a model for
+    the next new chat, never change the role default.
+    """
+    home = await run_in_threadpool(_profile_home_or_404, name)
+    provider = (payload.provider or "").strip()
+    model = (payload.model or "").strip()
+    if not provider or not model:
+        raise HTTPException(status_code=400, detail="provider 和 model 必填")
+
+    def _write() -> Dict[str, Any]:
+        # Lazy import: plugin_api is imported BY web_server (router mount),
+        # so a module-level import would be circular. By request time the
+        # module is fully loaded.
+        from hermes_cli.web_server import _write_profile_model
+
+        _write_profile_model(home, provider, model)
+        # Read back the normalized pair actually persisted so the client can
+        # show what the role now resolves to.
+        return {"ok": True, **_role_model_defaults(home)}
+
+    try:
+        return await run_in_threadpool(_write)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("bubble-chat roles: set model failed for %s", name)
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 # ---------------------------------------------------------------------------

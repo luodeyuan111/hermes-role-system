@@ -118,6 +118,26 @@ export async function writeRolePrompt(
   invalidateRoles();
 }
 
+/** Persist the role's default model (config.yaml model.default/provider).
+ *  Returns the normalized pair actually saved. Invalidates the roles cache
+ *  so the dropdown's 默认（…）label picks up the new default. */
+export async function writeRoleModel(
+  name: string,
+  provider: string,
+  model: string,
+): Promise<{ ok: boolean; model?: string; provider?: string }> {
+  const res = await fetchJSON<{ ok: boolean; model?: string; provider?: string }>(
+    `${BASE}/roles/${encodeURIComponent(name)}/model`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider, model }),
+    },
+  );
+  invalidateRoles();
+  return res;
+}
+
 export function fetchRoleMemory(
   name: string,
 ): Promise<{ path: string; content: string }> {

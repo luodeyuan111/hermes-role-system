@@ -1213,6 +1213,18 @@
     });
     invalidateRoles();
   }
+  async function writeRoleModel(name, provider, model) {
+    const res = await fetchJSON(
+      `${BASE}/roles/${encodeURIComponent(name)}/model`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, model })
+      }
+    );
+    invalidateRoles();
+    return res;
+  }
   function fetchRoleMemory(name) {
     return fetchJSON(`${BASE}/roles/${encodeURIComponent(name)}/memory`);
   }
@@ -1936,6 +1948,12 @@
      *  all change what "当前配置" resolves to, so stale entries must go. */
     invalidateModelOptions() {
       this.modelOptionsPromises.clear();
+    }
+    /** Public wrapper for UI flows that change a role's config model outside
+     *  a live session (e.g. setting the role default from the role view) —
+     *  the scoped "当前配置" cache must be refetched. */
+    dropModelOptionsCache() {
+      this.invalidateModelOptions();
     }
     getModelOptions = (profile = "") => {
       const sid = this.liveSid;
@@ -20937,6 +20955,8 @@ ${t.sessions.confirmDeleteMessage}`
       setMemoryError(null);
       setMemoryOpen(false);
       memoryLoadedRef.current = false;
+      setModel("");
+      setDefaultModelHint(null);
     }, [role]);
     const togglePrompt = useCallback(() => {
       const open2 = !promptOpen;
@@ -21012,6 +21032,8 @@ ${t.sessions.confirmDeleteMessage}`
     }, [skillsText, role]);
     const [modelOptions, setModelOptions] = useState(null);
     const [model, setModel] = useState("");
+    const [defaultModelBusy, setDefaultModelBusy] = useState(false);
+    const [defaultModelHint, setDefaultModelHint] = useState(null);
     useEffect(() => {
       let live = true;
       bubbleChatStore.getModelOptions(profileId).then((payload) => {
@@ -21035,6 +21057,27 @@ ${t.sessions.confirmDeleteMessage}`
       setResumeParam(null);
       bubbleChatStore.startNewChatInRole(profileId, model, provider);
     }, [onPicked, model, modelOptions, profileId]);
+    const saveDefaultModel = useCallback(async () => {
+      if (!model || defaultModelBusy) return;
+      const provider = providerForModel(modelOptions, model);
+      if (!provider) {
+        setDefaultModelHint("\u65E0\u6CD5\u786E\u5B9A\u8BE5\u6A21\u578B\u7684 provider");
+        return;
+      }
+      setDefaultModelBusy(true);
+      setDefaultModelHint(null);
+      try {
+        const res = await writeRoleModel(role, provider, model);
+        setModel("");
+        bubbleChatStore.dropModelOptionsCache();
+        onRolesChanged?.();
+        setDefaultModelHint(`\u5DF2\u8BBE\u4E3A\u9ED8\u8BA4\uFF1A${res.model || model}`);
+      } catch (e) {
+        setDefaultModelHint(e instanceof Error ? e.message : "\u4FDD\u5B58\u5931\u8D25");
+      } finally {
+        setDefaultModelBusy(false);
+      }
+    }, [model, modelOptions, defaultModelBusy, role, onRolesChanged]);
     const textareaCls = cn(
       "w-full resize-y rounded-lg border border-current/15 bg-background-base",
       "px-2 py-1.5 font-mono text-xs focus:border-current/30 focus:outline-none"
@@ -21217,32 +21260,48 @@ ${t.sessions.confirmDeleteMessage}`
           ]
         }
       ),
-      /* @__PURE__ */ jsx("div", { className: "mx-2 mb-2", children: /* @__PURE__ */ jsxs(
-        "select",
-        {
-          value: model,
-          onChange: (e) => setModel(e.target.value),
-          onFocus: () => {
-            if (!modelOptions) {
-              bubbleChatStore.getModelOptions(profileId).then((p) => p && setModelOptions(p));
+      /* @__PURE__ */ jsxs("div", { className: "mx-2 mb-2", children: [
+        /* @__PURE__ */ jsxs(
+          "select",
+          {
+            value: model,
+            onChange: (e) => setModel(e.target.value),
+            onFocus: () => {
+              if (!modelOptions) {
+                bubbleChatStore.getModelOptions(profileId).then((p) => p && setModelOptions(p));
+              }
+            },
+            "aria-label": "\u65B0\u5BF9\u8BDD\u6A21\u578B",
+            title: "\u65B0\u5BF9\u8BDD\u4F7F\u7528\u7684\u6A21\u578B\uFF08\u9ED8\u8BA4 = \u5F53\u524D\u914D\u7F6E\uFF09",
+            className: cn(
+              "w-full rounded-lg border border-current/15 bg-background-base",
+              "px-2.5 py-1.5 text-xs text-text-secondary focus:border-current/30 focus:outline-none"
+            ),
+            children: [
+              /* @__PURE__ */ jsxs("option", { value: "", children: [
+                "\u6A21\u578B\uFF1A\u9ED8\u8BA4\uFF08",
+                info?.model || modelOptions?.model || "\u5F53\u524D\u914D\u7F6E",
+                "\uFF09"
+              ] }),
+              modelGroups.map((g) => /* @__PURE__ */ jsx("optgroup", { label: g.label, children: g.models.map((m) => /* @__PURE__ */ jsx("option", { value: m, children: m }, `${g.label}/${m}`)) }, g.label))
+            ]
+          }
+        ),
+        model && /* @__PURE__ */ jsxs("div", { className: "mt-1 flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              size: "sm",
+              disabled: defaultModelBusy,
+              onClick: () => void saveDefaultModel(),
+              title: "\u5199\u5165\u8BE5\u89D2\u8272\u7684 config.yaml\uFF0C\u4E4B\u540E\u6240\u6709\u65B0\u5BF9\u8BDD\u9ED8\u8BA4\u7528\u5B83",
+              children: defaultModelBusy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u8BBE\u4E3A\u89D2\u8272\u9ED8\u8BA4"
             }
-          },
-          "aria-label": "\u65B0\u5BF9\u8BDD\u6A21\u578B",
-          title: "\u65B0\u5BF9\u8BDD\u4F7F\u7528\u7684\u6A21\u578B\uFF08\u9ED8\u8BA4 = \u5F53\u524D\u914D\u7F6E\uFF09",
-          className: cn(
-            "w-full rounded-lg border border-current/15 bg-background-base",
-            "px-2.5 py-1.5 text-xs text-text-secondary focus:border-current/30 focus:outline-none"
           ),
-          children: [
-            /* @__PURE__ */ jsxs("option", { value: "", children: [
-              "\u6A21\u578B\uFF1A\u9ED8\u8BA4\uFF08",
-              info?.model || modelOptions?.model || "\u5F53\u524D\u914D\u7F6E",
-              "\uFF09"
-            ] }),
-            modelGroups.map((g) => /* @__PURE__ */ jsx("optgroup", { label: g.label, children: g.models.map((m) => /* @__PURE__ */ jsx("option", { value: m, children: m }, `${g.label}/${m}`)) }, g.label))
-          ]
-        }
-      ) }),
+          /* @__PURE__ */ jsx("span", { className: "text-[0.625rem] text-text-tertiary", children: "\u4E0D\u8BBE\u9ED8\u8BA4\u5219\u4EC5\u4F5C\u7528\u4E8E\u4E0B\u4E00\u6B21\u65B0\u5EFA\u5C0F\u5BF9\u8BDD" })
+        ] }),
+        defaultModelHint && /* @__PURE__ */ jsx("div", { className: "mt-1 px-1 text-[0.6875rem] text-text-secondary wrap-break-word", children: defaultModelHint })
+      ] }),
       /* @__PURE__ */ jsx(
         ChatSessionList,
         {

@@ -49,6 +49,7 @@ import {
   readBaseFile,
   writeBaseFile,
   writeRoleMemory,
+  writeRoleModel,
   writeRolePrompt,
   writeRoleSkills,
   type RoleBaseFile,
@@ -593,6 +594,8 @@ function RoleView({
     setMemoryError(null);
     setMemoryOpen(false);
     memoryLoadedRef.current = false;
+    setModel("");
+    setDefaultModelHint(null);
   }, [role]);
 
   const togglePrompt = useCallback(() => {
@@ -688,6 +691,8 @@ function RoleView({
   /* ---------------- 新建小对话（角色继承 + 模型下拉） ---------------- */
   const [modelOptions, setModelOptions] = useState<ModelOptionsPayload | null>(null);
   const [model, setModel] = useState("");
+  const [defaultModelBusy, setDefaultModelBusy] = useState(false);
+  const [defaultModelHint, setDefaultModelHint] = useState<string | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -715,6 +720,29 @@ function RoleView({
     setResumeParam(null);
     store.startNewChatInRole(profileId, model, provider);
   }, [onPicked, model, modelOptions, profileId]);
+
+  /** 把下拉里选中的模型固化为该角色的默认模型（写 config.yaml）。 */
+  const saveDefaultModel = useCallback(async () => {
+    if (!model || defaultModelBusy) return;
+    const provider = providerForModel(modelOptions, model);
+    if (!provider) {
+      setDefaultModelHint("无法确定该模型的 provider");
+      return;
+    }
+    setDefaultModelBusy(true);
+    setDefaultModelHint(null);
+    try {
+      const res = await writeRoleModel(role, provider, model);
+      setModel("");
+      store.dropModelOptionsCache();
+      onRolesChanged?.();
+      setDefaultModelHint(`已设为默认：${res.model || model}`);
+    } catch (e) {
+      setDefaultModelHint(e instanceof Error ? e.message : "保存失败");
+    } finally {
+      setDefaultModelBusy(false);
+    }
+  }, [model, modelOptions, defaultModelBusy, role, onRolesChanged]);
 
   /* ---------------- 渲染 ---------------- */
 
@@ -932,7 +960,8 @@ function RoleView({
         )}
       </CollapsibleSection>
 
-      {/* 模型下拉（可选，默认 = 当前配置；仅作用于下一次新建小对话） */}
+      {/* 模型下拉（可选，默认 = 当前配置；选中后可仅用于下一次新建小对话，
+          或点「设为角色默认」固化到 config.yaml） */}
       <div className="mx-2 mb-2">
         <select
           value={model}
@@ -962,6 +991,26 @@ function RoleView({
             </optgroup>
           ))}
         </select>
+        {model && (
+          <div className="mt-1 flex items-center gap-2">
+            <Button
+              size="sm"
+              disabled={defaultModelBusy}
+              onClick={() => void saveDefaultModel()}
+              title="写入该角色的 config.yaml，之后所有新对话默认用它"
+            >
+              {defaultModelBusy ? "保存中…" : "设为角色默认"}
+            </Button>
+            <span className="text-[0.625rem] text-text-tertiary">
+              不设默认则仅作用于下一次新建小对话
+            </span>
+          </div>
+        )}
+        {defaultModelHint && (
+          <div className="mt-1 px-1 text-[0.6875rem] text-text-secondary wrap-break-word">
+            {defaultModelHint}
+          </div>
+        )}
       </div>
 
       {/* 该角色的小对话列表（新建小对话按钮在列表头部，走 createInRole） */}
